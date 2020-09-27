@@ -9,6 +9,7 @@ namespace yosupo {
 struct FastSet {
     static constexpr int B = 64;
 
+    // bool配列a_0, a_1, ..., a_nを作る
     FastSet(int n) : _n(n) {
         do {
             seg.push_back(std::vector<unsigned long long>((n + B - 1) / B));
@@ -16,13 +17,19 @@ struct FastSet {
         } while (n > 1);
         _log = int(seg.size());
     }
+
+    // a[i]を返す。a[i] = falseは出来ないことに注意(要検討)
     bool operator[](int i) const { return (seg[0][i / B] >> (i % B) & 1) != 0; }
+
+    // a[i] = true
     void set(int i) {
         for (int h = 0; h < _log; h++) {
             seg[h][i / B] |= 1ULL << (i % B);
             i /= B;
         }
     }
+
+    // a[i] = false
     void reset(int i) {
         for (int h = 0; h < _log; h++) {
             seg[h][i / B] &= ~(1ULL << (i % B));
