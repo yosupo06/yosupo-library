@@ -28,5 +28,4 @@ int bsr(unsigned long long n) { return 63 - __builtin_clzll(n); }
 
 }  // namespace internal
 
-
 }  // namespace yosupo

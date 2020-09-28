@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <vector>
-#include <yosupo/internal_bit>
+#include "yosupo/internal_bit.hpp"
 
 namespace yosupo {
 

@@ -1,7 +1,7 @@
-#include <yosupo/internal_bit>
 #include <numeric>
+#include "yosupo/internal_bit"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 using namespace yosupo;
 using ll = long long;
@@ -36,5 +36,6 @@ TEST(BitTest, BSRLL) {
     ASSERT_EQ(62, internal::bsr(1ULL << 62));
     ASSERT_EQ(62, internal::bsr((1ULL << 63) - 1));
     ASSERT_EQ(63, internal::bsr(1ULL << 63));
-    ASSERT_EQ(63, internal::bsr(std::numeric_limits<unsigned long long>::max()));
+    ASSERT_EQ(63,
+              internal::bsr(std::numeric_limits<unsigned long long>::max()));
 }

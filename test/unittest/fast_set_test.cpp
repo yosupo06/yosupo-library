@@ -1,7 +1,7 @@
-#include <yosupo/fastset>
 #include <numeric>
+#include "yosupo/fastset.hpp"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 #include "../utils/random.hpp"
 
@@ -18,9 +18,7 @@ TEST(FastSetTest, Usage) {
     ASSERT_FALSE(f[0]);
 }
 
-TEST(FastSetTest, Zero) {
-    FastSet f(0);
-}
+TEST(FastSetTest, Zero) { FastSet f(0); }
 
 TEST(FastSetTest, Stress) {
     for (int n = 1; n <= 200; n++) {
