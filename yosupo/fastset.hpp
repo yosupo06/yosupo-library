@@ -10,9 +10,9 @@ struct FastSet {
     static constexpr int B = 64;
 
     // bool配列a_0, a_1, ..., a_nを作る
-    FastSet(int n) : _n(n) {
+    explicit FastSet(int n) : _n(n) {
         do {
-            seg.push_back(std::vector<unsigned long long>((n + B - 1) / B));
+            seg.push_back(std::vector<uint64_t>((n + B - 1) / B));
             n = (n + B - 1) / B;
         } while (n > 1);
         _log = int(seg.size());
@@ -44,7 +44,7 @@ struct FastSet {
         i = std::max(i, 0);
         for (int h = 0; h < _log; h++) {
             if (i / B == int(seg[h].size())) break;
-            unsigned long long d = seg[h][i / B] >> (i % B);
+            uint64_t d = seg[h][i / B] >> (i % B);
             if (!d) {
                 i = i / B + 1;
                 continue;
@@ -73,7 +73,7 @@ struct FastSet {
         i = std::min(i, _n - 1);
         for (int h = 0; h < _log; h++) {
             if (i == -1) break;
-            unsigned long long d = seg[h][i / B] << (63 - i % 64);
+            uint64_t d = seg[h][i / B] << (63 - i % 64);
             if (!d) {
                 i = i / B - 1;
                 continue;
@@ -97,7 +97,7 @@ struct FastSet {
 
   private:
     int _n, _log;
-    std::vector<std::vector<unsigned long long>> seg;
+    std::vector<std::vector<uint64_t>> seg;
 };
 
 }  // namespace yosupo

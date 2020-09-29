@@ -1,5 +1,5 @@
 #include <numeric>
-#include "yosupo/internal_bit"
+#include "yosupo/internal_bit.hpp"
 
 #include "gtest/gtest.h"
 

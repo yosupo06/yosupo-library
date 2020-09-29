@@ -33,3 +33,7 @@ gtest_discover_tests(BitTest)
 add_executable(FastSetTest fast_set_test.cpp)
 target_link_libraries(FastSetTest gtest gtest_main)
 gtest_discover_tests(FastSetTest)
+
+add_executable(RandomTest random_test.cpp)
+target_link_libraries(RandomTest gtest gtest_main)
+gtest_discover_tests(RandomTest)
