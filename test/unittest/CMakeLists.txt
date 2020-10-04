@@ -30,10 +30,18 @@ add_executable(BitTest bit_test.cpp)
 target_link_libraries(BitTest gtest gtest_main)
 gtest_discover_tests(BitTest)
 
-add_executable(FastSetTest fast_set_test.cpp)
+add_executable(FastSetTest fastset_test.cpp)
 target_link_libraries(FastSetTest gtest gtest_main)
 gtest_discover_tests(FastSetTest)
+
+add_executable(HashTest hash_test.cpp)
+target_link_libraries(HashTest gtest gtest_main)
+gtest_discover_tests(HashTest)
 
 add_executable(RandomTest random_test.cpp)
 target_link_libraries(RandomTest gtest gtest_main)
 gtest_discover_tests(RandomTest)
+
+add_executable(FastIOTest fastio_test.cpp)
+target_link_libraries(FastIOTest gtest gtest_main)
+gtest_discover_tests(FastIOTest)
