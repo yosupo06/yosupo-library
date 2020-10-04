@@ -4,6 +4,8 @@
 #include <chrono>
 #include <type_traits>
 
+#include "internal_bit.hpp"
+
 namespace yosupo {
 
 struct Xoshiro256StarStar {
@@ -62,8 +64,8 @@ template <class G> uint64_t uniform(uint64_t upper, G& gen) {
         // b = 00..0011..11
         return gen() & upper;
     }
-    int lg = 63 - __builtin_clzll(upper);
-    uint64_t mask = (lg == 63) ? ~0ULL : (1ULL << (lg + 1)) - 1;
+    int log = internal::bsr(upper);
+    uint64_t mask = (log == 63) ? ~0ULL : (1ULL << (log + 1)) - 1;
     while (true) {
         uint64_t r = gen() & mask;
         if (r <= upper) return r;
