@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <vector>
-#include "yosupo/internal_bit.hpp"
+#include "yosupo/bit.hpp"
 
 namespace yosupo {
 
@@ -50,10 +50,10 @@ struct FastSet {
                 continue;
             }
             // find
-            i += internal::bsf(d);
+            i += bsf(d);
             for (int g = h - 1; g >= 0; g--) {
                 i *= B;
-                i += internal::bsf(seg[g][i / B]);
+                i += bsf(seg[g][i / B]);
             }
             assert((*this)[i]);
             return i;
@@ -79,10 +79,10 @@ struct FastSet {
                 continue;
             }
             // find
-            i += internal::bsr(d) - (B - 1);
+            i += bsr(d) - (B - 1);
             for (int g = h - 1; g >= 0; g--) {
                 i *= B;
-                i += internal::bsr(seg[g][i / B]);
+                i += bsr(seg[g][i / B]);
             }
             return i;
         }

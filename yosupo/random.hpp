@@ -4,7 +4,7 @@
 #include <chrono>
 #include <type_traits>
 
-#include "internal_bit.hpp"
+#include "bit.hpp"
 
 namespace yosupo {
 
@@ -64,7 +64,7 @@ template <class G> uint64_t uniform(uint64_t upper, G& gen) {
         // b = 00..0011..11
         return gen() & upper;
     }
-    int log = internal::bsr(upper);
+    int log = bsr(upper);
     uint64_t mask = (log == 63) ? ~0ULL : (1ULL << (log + 1)) - 1;
     while (true) {
         uint64_t r = gen() & mask;
