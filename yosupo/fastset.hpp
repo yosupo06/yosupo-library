@@ -1,7 +1,9 @@
 #pragma once
 
 #include <algorithm>
+#include <cstdint>
 #include <vector>
+
 #include "yosupo/bit.hpp"
 
 namespace yosupo {
