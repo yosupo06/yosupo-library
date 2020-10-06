@@ -7,9 +7,61 @@
 #include <type_traits>
 #include <vector>
 
+#include "yosupo/internal_type_traits.hpp"
+
 namespace yosupo {
 
 struct Scanner {
+  public:
+    Scanner(FILE* fp) : fd(fileno(fp)) {}
+
+    void read() {}
+    template <class H, class... T> void read(H& h, T&... t) {
+        bool f = read_single(h);
+        assert(f);
+        read(t...);
+    }
+
+    int read_unsafe() { return 0; }
+    template <class H, class... T> int read_unsafe(H& h, T&... t) {
+        bool f = read_single(h);
+        if (!f) return 0;
+        return 1 + read_unsafe(t...);
+    }
+
+  private:
+    template <class T,
+              std::enable_if_t<std::is_same<T, std::string>::value>* = nullptr>
+    bool read_single(T& ref) {
+        if (!succ()) return false;
+        while (true) {
+            size_t sz = 0;
+            while (st + sz < ed && !isspace(line[st + sz])) sz++;
+            ref.append(line + st, sz);
+            st += sz;
+            if (!sz || st != ed) break;
+            reread();
+        }
+        return true;
+    }
+    template <class T, internal::is_integral_t<T>* = nullptr>
+    bool read_single(T& ref) {
+        using U = internal::to_unsigned_t<T>;
+        if (!succ()) return false;
+        bool neg = false;
+        if (line[st] == '-') {
+            neg = true;
+            st++;
+        }
+        U res = U(0);
+        while (isdigit(line[st])) {
+            res = 10 * res + (line[st++] & 0xf);
+        }
+        if (neg) res = -res;
+        ref = res;
+        return true;
+    }
+
     int fd = -1;
     char line[(1 << 15) + 1];
     size_t st = 0, ed = 0;
@@ -41,54 +93,6 @@ struct Scanner {
         }
         return true;
     }
-    template <class T,
-              std::enable_if_t<std::is_same<T, std::string>::value>* = nullptr>
-    bool read_single(T& ref) {
-        if (!succ()) return false;
-        while (true) {
-            size_t sz = 0;
-            while (st + sz < ed && !isspace(line[st + sz])) sz++;
-            ref.append(line + st, sz);
-            st += sz;
-            if (!sz || st != ed) break;
-            reread();
-        }
-        return true;
-    }
-    template <class T, std::enable_if_t<std::is_integral<T>::value>* = nullptr>
-    bool read_single(T& ref) {
-        if (!succ()) return false;
-        bool neg = false;
-        if (line[st] == '-') {
-            neg = true;
-            st++;
-        }
-        ref = T(0);
-        while (isdigit(line[st])) {
-            ref = 10 * ref + (line[st++] & 0xf);
-        }
-        if (neg) ref = -ref;
-        return true;
-    }
-    template <class T> bool read_single(std::vector<T>& ref) {
-        for (auto& d : ref) {
-            if (!read_single(d)) return false;
-        }
-        return true;
-    }
-    void read() {}
-    template <class H, class... T> void read(H& h, T&... t) {
-        bool f = read_single(h);
-        assert(f);
-        read(t...);
-    }
-    int read_unsafe() { return 0; }
-    template <class H, class... T> int read_unsafe(H& h, T&... t) {
-        bool f = read_single(h);
-        if (!f) return 0;
-        return 1 + read_unsafe(t...);
-    }
-    Scanner(FILE* fp) : fd(fileno(fp)) {}
 };
 
 struct Printer {
@@ -106,56 +110,40 @@ struct Printer {
     }
 
     Printer(FILE* _fp) : fp(_fp) {}
-    ~Printer() { flush(); }
+    ~Printer() {
+        flush();
+    }
+    void flush() {
+        fwrite(line, 1, pos, fp);
+        pos = 0;
+    }
 
   private:
     static constexpr size_t SIZE = 1 << 15;
     FILE* fp;
     char line[SIZE], small[50];
     size_t pos = 0;
-    void flush() {
-        fwrite(line, 1, pos, fp);
-        pos = 0;
-    }
     void write_single(const char& val) {
         if (pos == SIZE) flush();
         line[pos++] = val;
     }
-    template <class T, std::enable_if_t<std::is_integral<T>::value>* = nullptr>
+    template <class T, internal::is_integral_t<T>* = nullptr>
     void write_single(T val) {
-        if (pos > (1 << 15) - 50) flush();
+        using U = internal::to_unsigned_t<T>;
+        if (pos > SIZE - 50) flush();
         if (val == 0) {
             write_single('0');
             return;
         }
+        U uval = val;
         if (val < 0) {
             write_single('-');
-            val = -val;  // todo min
+            uval = -uval;  // todo min
         }
         size_t len = 0;
-        while (val) {
-            small[len++] = char(0x30 | (val % 10));
-            val /= 10;
-        }
-        for (size_t i = 0; i < len; i++) {
-            line[pos + i] = small[len - 1 - i];
-        }
-        pos += len;
-    }
-    void write_single(__int128 val) {
-        if (pos > (1 << 15) - 50) flush();
-        if (val == 0) {
-            write_single('0');
-            return;
-        }
-        if (val < 0) {
-            write_single('-');
-            val = -val;  // todo min
-        }
-        size_t len = 0;
-        while (val) {
-            small[len++] = char(0x30 | (val % 10));
-            val /= 10;
+        while (uval) {
+            small[len++] = char(0x30 | (uval % 10));
+            uval /= 10;
         }
         for (size_t i = 0; i < len; i++) {
             line[pos + i] = small[len - 1 - i];
@@ -179,4 +167,4 @@ struct Printer {
     }
 };
 
-}
+}  // namespace yosupo
