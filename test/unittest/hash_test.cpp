@@ -1,7 +1,6 @@
 #include <numeric>
 #include <random>
 #include <vector>
-#include "yosupo/hash.hpp"
 
 #include "gtest/gtest.h"
 
