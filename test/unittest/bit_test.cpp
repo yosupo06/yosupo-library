@@ -1,4 +1,5 @@
 #include "yosupo/bit.hpp"
+
 #include <numeric>
 
 #include "gtest/gtest.h"

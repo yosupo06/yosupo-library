@@ -1,4 +1,5 @@
 #include "yosupo/random.hpp"
+
 #include <numeric>
 #include <random>
 #include <vector>

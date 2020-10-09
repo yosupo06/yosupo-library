@@ -1,5 +1,6 @@
-#include <numeric>
 #include "yosupo/fastset.hpp"
+
+#include <numeric>
 
 #include "gtest/gtest.h"
 
