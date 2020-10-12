@@ -17,11 +17,11 @@ constexpr int THRESHOLD_HASH = 100;
 // Strongly Universal String Hashing Is Fast.
 uint64_t get_seed(int i) {
     static std::array<uint64_t, THRESHOLD_HASH> seed = []() {
-        std::array<uint64_t, THRESHOLD_HASH> seed;
+        std::array<uint64_t, THRESHOLD_HASH> _seed;
         for (int i = 0; i < THRESHOLD_HASH; i++) {
             seed[i] = yosupo::uniform(uint64_t(0), uint64_t(-1));
         }
-        return seed;
+        return _seed;
     }();
     static std::vector<uint64_t> long_seed;
 
