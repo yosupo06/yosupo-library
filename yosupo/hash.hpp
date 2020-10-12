@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <tuple>
 #include <vector>
 
 #include "yosupo/internal_type_traits.hpp"
