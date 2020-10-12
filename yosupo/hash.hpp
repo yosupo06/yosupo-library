@@ -61,7 +61,7 @@ template <int I = 1> struct Hasher32 {
     Hasher32<I + 4> update(T x) const {
         return update(uint64_t(x)).update(uint64_t((__uint128_t)(x) >> 64));
     }
-    uint32_t digest() const { return (v >> 32); }
+    uint32_t digest() const { return uint32_t(v >> 32); }
 };
 
 template <class T, is_integral_t<T>* = nullptr> uint32_t hash32(const T& x) {
