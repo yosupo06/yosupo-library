@@ -103,3 +103,7 @@ TEST(RandomTest, UniformPair) {
         }
     }
 }
+
+TEST(RandomTest, UniformMinMax) {
+    uniform(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+}

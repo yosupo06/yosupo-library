@@ -83,7 +83,7 @@ Xoshiro256StarStar& global_gen() {
 }
 
 template <class T, class G> T uniform(T lower, T upper, G& gen) {
-    return T(lower + internal::uniform(uint64_t(upper - lower), gen));
+    return T(lower + internal::uniform(uint64_t(upper) - uint64_t(lower), gen));
 }
 template <class T> T uniform(T lower, T upper) {
     return uniform(lower, upper, global_gen());
