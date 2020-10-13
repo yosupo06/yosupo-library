@@ -115,24 +115,28 @@ struct Printer {
     Printer(FILE* _fp) : fp(_fp) {}
     ~Printer() { flush(); }
     void flush() {
-        fwrite(line, 1, pos, fp);
-        pos = 0;
+        flush_buffer();
+        std::fflush(fp);
     }
 
   private:
+    void flush_buffer() {
+        fwrite(line, 1, pos, fp);
+        pos = 0;
+    }
     static std::array<std::array<char, 4>, 10000> small_table;
     static constexpr size_t SIZE = 1 << 15;
     FILE* fp;
     char line[SIZE], small[50];
     size_t pos = 0;
     void write_single(const char& val) {
-        if (pos == SIZE) flush();
+        if (pos == SIZE) flush_buffer();
         line[pos++] = val;
     }
     template <class T, internal::is_integral_t<T>* = nullptr>
     void write_single(T val) {
         using U = internal::to_unsigned_t<T>;
-        if (pos > SIZE - 50) flush();
+        if (pos > SIZE - 50) flush_buffer();
         if (val == 0) {
             write_single('0');
             return;

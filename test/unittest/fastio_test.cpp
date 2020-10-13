@@ -35,6 +35,19 @@ TEST(FastIOTest, ScannerInteractive) {
     ASSERT_EQ(1234, x);
 }
 
+TEST(FastIOTest, PrinterInteractive) {
+    int pipefd[2];
+    assert(pipe(pipefd) == 0);
+
+    FILE* fr = fdopen(pipefd[0], "r");
+    Printer pr(fdopen(pipefd[1], "w"));
+    pr.writeln("1234");
+    pr.flush();
+    int x;
+    fscanf(fr, "%d", &x);
+    ASSERT_EQ(1234, x);
+}
+
 TEST(FastIOTest, ScannerInt128) {
     auto tmpf = tmpfile();
     fputs("1234567890123456", tmpf);
