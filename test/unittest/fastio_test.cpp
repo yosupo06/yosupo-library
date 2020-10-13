@@ -1,5 +1,7 @@
 #include "yosupo/fastio.hpp"
 
+#include "yosupo/random.hpp"
+
 #include <string>
 #include <cstdint>
 
@@ -86,5 +88,42 @@ TEST(FastIOTest, PrinterIntMin) {
         char buf[100];
         fgets(buf, 100, tmpf);
         ASSERT_EQ("-9223372036854775808\n", std::string(buf));
+    }
+}
+
+TEST(FastIOTest, PrinterSmallInt) {
+    auto tmpf = tmpfile();
+    Printer pr(tmpf);
+    for (int i = 0; i <= 123456; i++) {
+        pr.writeln(i);
+    }
+    pr.flush();
+
+    rewind(tmpf);
+    char buf[100];
+    for (int i = 0; i <= 123456; i++) {
+        fgets(buf, 100, tmpf);
+        ASSERT_EQ(std::to_string(i) + "\n", std::string(buf));
+    }
+}
+
+TEST(FastIOTest, PrinterInt) {
+    auto tmpf = tmpfile();
+    std::vector<int> v(10000);
+    for (int i = 0; i < 10000; i++) {
+        v[i] = uniform(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+    }
+
+    Printer pr(tmpf);
+    for (int i = 0; i < 10000; i++) {
+        pr.writeln(v[i]);
+    }
+    pr.flush();
+
+    rewind(tmpf);
+    char buf[100];
+    for (int i = 0; i < 10000; i++) {
+        fgets(buf, 100, tmpf);
+        ASSERT_EQ(std::to_string(v[i]) + "\n", std::string(buf));
     }
 }

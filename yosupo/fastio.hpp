@@ -1,6 +1,8 @@
 #pragma once
 
 #include <unistd.h>
+#include <algorithm>
+#include <array>
 #include <cctype>
 #include <cstring>
 #include <string>
@@ -30,6 +32,7 @@ struct Scanner {
     }
 
   private:
+    static constexpr size_t SIZE = 1 << 15;
     template <class T,
               std::enable_if_t<std::is_same<T, std::string>::value>* = nullptr>
     bool read_single(T& ref) {
@@ -63,13 +66,13 @@ struct Scanner {
     }
 
     int fd = -1;
-    char line[(1 << 15) + 1];
+    char line[SIZE + 1];
     size_t st = 0, ed = 0;
     void reread() {
         std::memmove(line, line + st, ed - st);
         ed -= st;
         st = 0;
-        ed += ::read(fd, line + ed, (1 << 15) - ed);
+        ed += ::read(fd, line + ed, SIZE - ed);
         line[ed] = '\0';
     }
     bool succ() {
@@ -110,15 +113,14 @@ struct Printer {
     }
 
     Printer(FILE* _fp) : fp(_fp) {}
-    ~Printer() {
-        flush();
-    }
+    ~Printer() { flush(); }
     void flush() {
         fwrite(line, 1, pos, fp);
         pos = 0;
     }
 
   private:
+    static std::array<std::array<char, 4>, 10000> small_table;
     static constexpr size_t SIZE = 1 << 15;
     FILE* fp;
     char line[SIZE], small[50];
@@ -141,13 +143,24 @@ struct Printer {
             uval = -uval;  // todo min
         }
         size_t len = 0;
-        while (uval) {
-            small[len++] = char(0x30 | (uval % 10));
-            uval /= 10;
+        while (uval >= 1000) {
+            memcpy(small + len, small_table[uval % 10000].data(), 4);
+            len += 4;
+            uval /= 10000;
         }
-        for (size_t i = 0; i < len; i++) {
-            line[pos + i] = small[len - 1 - i];
+        size_t rem_len = 0;
+        if (uval >= 10) {
+            if (uval >= 100)
+                rem_len = 3;
+            else
+                rem_len = 2;
+        } else {
+            if (uval) rem_len = 1;
         }
+        memcpy(small + len, small_table[uval].data(), rem_len);
+        len += rem_len;
+
+        std::reverse_copy(small, small + len, line + pos);
         pos += len;
     }
 
@@ -166,5 +179,16 @@ struct Printer {
         }
     }
 };
+std::array<std::array<char, 4>, 10000> Printer::small_table = [] {
+    std::array<std::array<char, 4>, 10000> table;
+    for (int i = 0; i <= 9999; i++) {
+        int z = i;
+        for (int j = 0; j < 4; j++) {
+            table[i][j] = char('0' + (z % 10));
+            z /= 10;
+        }
+    }
+    return table;
+}();
 
 }  // namespace yosupo
