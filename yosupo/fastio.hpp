@@ -8,7 +8,6 @@
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <iostream>
 
 #include "yosupo/bit.hpp"
 #include "yosupo/internal_type_traits.hpp"
@@ -76,7 +75,6 @@ struct Scanner {
         while (line[st] >= '0') {
             ref = 10 * ref + (line[st++] & 0x0f);
         }
-        return true;
     }
 
     int fd = -1;
