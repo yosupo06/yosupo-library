@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "yosupo/bit.hpp"
 #include "yosupo/internal_type_traits.hpp"
 
 namespace yosupo {
@@ -47,7 +48,7 @@ struct Scanner {
         }
         return true;
     }
-    template <class T, internal::is_integral_t<T>* = nullptr>
+    template <class T, internal::is_signed_int_t<T>* = nullptr>
     bool read_single(T& ref) {
         using U = internal::to_unsigned_t<T>;
         if (!succ()) return false;
@@ -55,13 +56,25 @@ struct Scanner {
         if (line[st] == '-') {
             neg = true;
             st++;
+        }        
+        U x;
+        read_uint(x);
+        ref = neg ? -x : x;
+        return true;
+    }
+    template <class U, internal::is_unsigned_int_t<U>* = nullptr>
+    bool read_single(U& ref) {
+        if (!succ()) return false;
+        read_uint(ref);
+        return true;
+    }
+
+    template <class U, internal::is_unsigned_int_t<U>* = nullptr>
+    void read_uint(U& ref) {
+        ref = 0;
+        while (line[st] >= '0') {
+            ref = 10 * ref + (line[st++] & 0x0f);
         }
-        U res = U(0);
-        while (isdigit(line[st])) {
-            res = 10 * res + (line[st++] & 0xf);
-        }
-        if (neg) res = -res;
-        ref = res;
         return true;
     }
 
@@ -76,25 +89,9 @@ struct Scanner {
         line[ed] = '\0';
     }
     bool succ() {
-        while (true) {
-            if (st == ed) {
-                reread();
-                if (st == ed) return false;
-            }
-            while (st != ed && std::isspace(line[st])) st++;
-            if (st != ed) break;
-        }
-        if (ed - st <= 50) {
-            bool sep = false;
-            for (size_t i = st; i < ed; i++) {
-                if (isspace(line[i])) {
-                    sep = true;
-                    break;
-                }
-            }
-            if (!sep) reread();
-        }
-        return true;
+        if (ed - st <= 50) reread();
+        while (st < ed && line[st] <= ' ') st++;
+        return st != ed;
     }
 };
 
@@ -112,61 +109,96 @@ struct Printer {
         write_single('\n');
     }
 
-    Printer(FILE* _fp) : fp(_fp) {}
+    Printer(FILE* _fp) : fd(fileno(_fp)) {}
     ~Printer() { flush(); }
+
     void flush() {
-        flush_buffer();
-        std::fflush(fp);
+        ::write(fd, line, pos);
+        pos = 0;
     }
 
   private:
-    void flush_buffer() {
-        fwrite(line, 1, pos, fp);
-        pos = 0;
+    static std::array<std::array<char, 4>, 10000> small;
+    static std::array<unsigned long long, 20> tens;
+
+    static int calc_len(unsigned long long x) {
+        int i = (bsr(x) * 3 + 3) / 10;
+        if (x < tens[i])
+            return i;
+        else
+            return i + 1;
     }
-    static std::array<std::array<char, 4>, 10000> small_table;
+
     static constexpr size_t SIZE = 1 << 15;
-    FILE* fp;
-    char line[SIZE], small[50];
+    int fd;
+    char line[SIZE];
     size_t pos = 0;
     void write_single(const char& val) {
-        if (pos == SIZE) flush_buffer();
+        if (pos == SIZE) flush();
         line[pos++] = val;
     }
-    template <class T, internal::is_integral_t<T>* = nullptr>
-    void write_single(T val) {
+
+    template <class T, internal::is_signed_int_t<T>* = nullptr>
+    void write_single(const T& val) {
         using U = internal::to_unsigned_t<T>;
-        if (pos > SIZE - 50) flush_buffer();
         if (val == 0) {
             write_single('0');
             return;
         }
+        if (pos > SIZE - 50) flush();
         U uval = val;
         if (val < 0) {
             write_single('-');
-            uval = -uval;  // todo min
+            uval = -uval;
         }
-        size_t len = 0;
-        while (uval >= 1000) {
-            memcpy(small + len, small_table[uval % 10000].data(), 4);
-            len += 4;
-            uval /= 10000;
-        }
-        size_t rem_len = 0;
-        if (uval >= 10) {
-            if (uval >= 100)
-                rem_len = 3;
-            else
-                rem_len = 2;
-        } else {
-            if (uval) rem_len = 1;
-        }
-        memcpy(small + len, small_table[uval].data(), rem_len);
-        len += rem_len;
-
-        std::reverse_copy(small, small + len, line + pos);
-        pos += len;
+        write_unsigned(uval);
     }
+
+    template <class U, internal::is_unsigned_int_t<U>* = nullptr>
+    void write_single(U uval) {
+        if (uval == 0) {
+            write_single('0');
+            return;
+        }
+        if (pos > SIZE - 50) flush();
+
+        write_unsigned(uval);
+    }
+
+    void write_unsigned(uint32_t uval) {
+        write_unsigned(uint64_t(uval));
+    }
+    void write_unsigned(uint64_t uval) {
+        size_t len = calc_len(uval);
+        pos += len;
+        if (len >= 17) {
+            uint64_t v0 = uval % 10000;
+            uval /= 10000;
+            uint64_t v1 = uval % 10000;
+            uval /= 10000;
+            uint64_t v2 = uval % 10000;
+            uval /= 10000;
+            uint64_t v3 = uval % 10000;
+            uval /= 10000;
+
+            memcpy(line + pos - len, small[uval].data() + (20 - len), len - 16);
+            memcpy(line + pos - 4, small[v0].data(), 4);
+            memcpy(line + pos - 8, small[v1].data(), 4);
+            memcpy(line + pos - 12, small[v2].data(), 4);
+            memcpy(line + pos - 16, small[v3].data(), 4);
+        } else {
+            char* ptr = line + pos;
+            size_t rem_len = len;
+            while (uval >= 10000) {
+                ptr -= 4;
+                rem_len -= 4;
+                memcpy(ptr, small[uval % 10000].data(), 4);
+                uval /= 10000;
+            }
+            memcpy(ptr - rem_len, small[uval].data() + (4 - rem_len), rem_len);
+        }
+    }
+
 
     void write_single(const std::string& s) {
         for (char c : s) write_single(c);
@@ -183,13 +215,23 @@ struct Printer {
         }
     }
 };
-std::array<std::array<char, 4>, 10000> Printer::small_table = [] {
+std::array<std::array<char, 4>, 10000> Printer::small = [] {
     std::array<std::array<char, 4>, 10000> table;
     for (int i = 0; i <= 9999; i++) {
         int z = i;
         for (int j = 0; j < 4; j++) {
-            table[i][j] = char('0' + (z % 10));
+            table[i][3 - j] = char('0' + (z % 10));
             z /= 10;
+        }
+    }
+    return table;
+}();
+std::array<unsigned long long, 20> Printer::tens = [] {
+    std::array<unsigned long long, 20> table;
+    for (int i = 0; i < 20; i++) {
+        table[i] = 1;
+        for (int j = 0; j < i; j++) {
+            table[i] *= 10;
         }
     }
     return table;

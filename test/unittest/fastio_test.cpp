@@ -2,8 +2,8 @@
 
 #include "yosupo/random.hpp"
 
-#include <string>
 #include <cstdint>
+#include <string>
 
 #include "gtest/gtest.h"
 
@@ -33,6 +33,9 @@ TEST(FastIOTest, ScannerInteractive) {
     int x;
     sc.read(x);
     ASSERT_EQ(1234, x);
+
+    close(pipefd[0]);
+    close(pipefd[1]);
 }
 
 TEST(FastIOTest, PrinterInteractive) {
@@ -46,6 +49,9 @@ TEST(FastIOTest, PrinterInteractive) {
     int x;
     fscanf(fr, "%d", &x);
     ASSERT_EQ(1234, x);
+
+    close(pipefd[0]);
+    close(pipefd[1]);
 }
 
 TEST(FastIOTest, ScannerInt128) {
@@ -124,7 +130,8 @@ TEST(FastIOTest, PrinterInt) {
     auto tmpf = tmpfile();
     std::vector<int> v(10000);
     for (int i = 0; i < 10000; i++) {
-        v[i] = uniform(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+        v[i] = uniform(std::numeric_limits<int>::min(),
+                       std::numeric_limits<int>::max());
     }
 
     Printer pr(tmpf);
@@ -138,5 +145,89 @@ TEST(FastIOTest, PrinterInt) {
     for (int i = 0; i < 10000; i++) {
         fgets(buf, 100, tmpf);
         ASSERT_EQ(std::to_string(v[i]) + "\n", std::string(buf));
+    }
+}
+
+TEST(FastIOTest, PrinterLongLong) {
+    auto tmpf = tmpfile();
+    std::vector<long long> v(10000);
+    for (int i = 0; i < 10000; i++) {
+        v[i] = uniform(std::numeric_limits<long long>::min(),
+                       std::numeric_limits<long long>::max());
+    }
+
+    Printer pr(tmpf);
+    for (int i = 0; i < 10000; i++) {
+        pr.writeln(v[i]);
+    }
+    pr.flush();
+
+    rewind(tmpf);
+    char buf[100];
+    for (int i = 0; i < 10000; i++) {
+        fgets(buf, 100, tmpf);
+        ASSERT_EQ(std::to_string(v[i]) + "\n", std::string(buf));
+    }
+}
+
+TEST(FastIOTest, PrinterLongLong2) {
+    auto tmpf = tmpfile();
+    std::vector<long long> v;
+    for (int i = 0; i < 18; i++) {
+        long long x = 1;
+        for (int j = 0; j < i; j++) {
+            x *= 10;
+        }
+        for (int j = -10; j < 10; j++) {
+            v.push_back(x + j);
+        }
+    }
+
+    Printer pr(tmpf);
+    for (auto x : v) {
+        pr.writeln(x);
+    }
+    pr.flush();
+
+    rewind(tmpf);
+    char buf[100];
+    for (auto x : v) {
+        fgets(buf, 100, tmpf);
+        ASSERT_EQ(std::to_string(x) + "\n", std::string(buf));
+    }
+}
+
+TEST(FastIOTest, PrinterUnsignedLongLong) {
+    auto tmpf = tmpfile();
+    std::vector<unsigned long long> v;
+    for (int i = 0; i < 1000; i++) {
+        v.push_back(
+            uniform(0ULL, std::numeric_limits<unsigned long long>::max()));
+    }
+    for (int i = 0; i < 100; i++) {
+        v.push_back(i);
+        v.push_back(std::numeric_limits<unsigned long long>::max() - i);
+    }
+    for (int i = 1; i <= 19; i++) {
+        unsigned long long x = 1;
+        for (int j = 0; j < i; j++) {
+            x *= 10;
+        }
+        for (int j = -10; j < 10; j++) {
+            v.push_back(x + j);
+        }
+    }
+
+    Printer pr(tmpf);
+    for (auto x : v) {
+        pr.writeln(x);
+    }
+    pr.flush();
+
+    rewind(tmpf);
+    char buf[100];
+    for (auto x : v) {
+        fgets(buf, 100, tmpf);
+        ASSERT_EQ(std::to_string(x) + "\n", std::string(buf));
     }
 }
