@@ -34,6 +34,13 @@ TEST(FastIOTest, ScannerInteractive) {
     sc.read(x);
     ASSERT_EQ(1234, x);
 
+    fprintf(fw, "5678 90\n");
+    fflush(fw);
+    int y;
+    sc.read(x, y);
+    ASSERT_EQ(5678, x);
+    ASSERT_EQ(90, y);
+
     close(pipefd[0]);
     close(pipefd[1]);
 }

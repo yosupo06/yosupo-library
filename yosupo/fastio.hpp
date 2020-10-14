@@ -8,6 +8,7 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <iostream>
 
 #include "yosupo/bit.hpp"
 #include "yosupo/internal_type_traits.hpp"
@@ -89,8 +90,8 @@ struct Scanner {
         line[ed] = '\0';
     }
     bool succ() {
-        if (ed - st <= 50) reread();
         while (st < ed && line[st] <= ' ') st++;
+        if (st == ed || SIZE - 50 <= st) reread();
         return st != ed;
     }
 };
