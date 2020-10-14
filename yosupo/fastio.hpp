@@ -164,10 +164,17 @@ struct Printer {
         write_unsigned(uval);
     }
 
-    void write_unsigned(uint32_t uval) {
+    template <class U,
+              internal::is_unsigned_int_t<U>* = nullptr,
+              std::enable_if_t<sizeof(U) == 4>* = nullptr>
+    void write_unsigned(U uval) {
         write_unsigned(uint64_t(uval));
     }
-    void write_unsigned(uint64_t uval) {
+
+    template <class U,
+              internal::is_unsigned_int_t<U>* = nullptr,
+              std::enable_if_t<sizeof(U) == 8>* = nullptr>
+    void write_unsigned(U uval) {
         size_t len = calc_len(uval);
         pos += len;
         if (len >= 17) {
@@ -197,7 +204,6 @@ struct Printer {
             memcpy(ptr - rem_len, small[uval].data() + (4 - rem_len), rem_len);
         }
     }
-
 
     void write_single(const std::string& s) {
         for (char c : s) write_single(c);
