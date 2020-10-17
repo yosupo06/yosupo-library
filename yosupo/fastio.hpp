@@ -88,8 +88,14 @@ struct Scanner {
         line[ed] = '\0';
     }
     bool succ() {
-        while (st < ed && line[st] <= ' ') st++;
-        if (st == ed || SIZE - 50 <= st) reread();
+        while (true) {
+            while (st < ed && line[st] <= ' ') st++;
+            if (st == ed || SIZE - 50 <= st) {
+                reread();
+                continue;
+            }
+            break;
+        }
         return st != ed;
     }
 };
