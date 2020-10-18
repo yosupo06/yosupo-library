@@ -140,7 +140,7 @@ struct Printer {
     }
 
   private:
-    static std::array<std::array<char, 4>, 10000> small;
+    static std::array<std::array<char, 2>, 100> small;
     static std::array<unsigned long long, 20> tens;
 
     static int calc_len(unsigned long long x) {
@@ -200,39 +200,17 @@ struct Printer {
     void write_unsigned(U uval) {
         size_t len = calc_len(uval);
         pos += len;
-        if (len >= 17) {
-            int32_t v0 = (int32_t)(uval % 10000);
-            uval /= 10000;
-            int32_t v1 = (int32_t)(uval % 10000);
-            uval /= 10000;
-            int32_t v2 = (int32_t)(uval % 10000);
-            uval /= 10000;
-            int32_t v3 = (int32_t)(uval % 10000);
-            uval /= 10000;
 
-            memcpy(line + pos - len, small[uval].data() + (20 - len), len - 16);
-
-#ifndef __AVX2__
-            memcpy(line + pos - 4, small[v0].data(), 4);
-            memcpy(line + pos - 8, small[v1].data(), 4);
-            memcpy(line + pos - 12, small[v2].data(), 4);
-            memcpy(line + pos - 16, small[v3].data(), 4);
-#else
-            __m128i vals = _mm_set_epi32(v0, v1, v2, v3);
-            _mm_storeu_si128(
-                (__m128i_u*)(line + pos - 16),
-                _mm_i32gather_epi32((const int*)small[0].data(), vals, 4));
-#endif
+        char* ptr = line + pos;
+        while (uval >= 100) {
+            ptr -= 2;
+            memcpy(ptr, small[uval % 100].data(), 2);
+            uval /= 100;
+        }
+        if (uval >= 10) {
+            memcpy(ptr - 2, small[uval].data(), 2);
         } else {
-            char* ptr = line + pos;
-            size_t rem_len = len;
-            while (uval >= 10000) {
-                ptr -= 4;
-                rem_len -= 4;
-                memcpy(ptr, small[uval % 10000].data(), 4);
-                uval /= 10000;
-            }
-            memcpy(ptr - rem_len, small[uval].data() + (4 - rem_len), rem_len);
+            *(ptr - 1) = char('0' + uval);
         }
     }
 
@@ -251,14 +229,11 @@ struct Printer {
         }
     }
 };
-std::array<std::array<char, 4>, 10000> Printer::small = [] {
-    std::array<std::array<char, 4>, 10000> table;
-    for (int i = 0; i <= 9999; i++) {
-        int z = i;
-        for (int j = 0; j < 4; j++) {
-            table[i][3 - j] = char('0' + (z % 10));
-            z /= 10;
-        }
+std::array<std::array<char, 2>, 100> Printer::small = [] {
+    std::array<std::array<char, 2>, 100> table;
+    for (int i = 0; i <= 99; i++) {
+        table[i][1] = char('0' + (i % 10));
+        table[i][0] = char('0' + (i / 10 % 10));
     }
     return table;
 }();
