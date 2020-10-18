@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unistd.h>
+#include <x86intrin.h>
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -37,66 +38,82 @@ struct Scanner {
     template <class T,
               std::enable_if_t<std::is_same<T, std::string>::value>* = nullptr>
     bool read_single(T& ref) {
-        if (!succ()) return false;
+        if (!skip_space()) return false;
+        ref = "";
         while (true) {
-            size_t sz = 0;
-            while (st + sz < ed && !isspace(line[st + sz])) sz++;
-            ref.append(line + st, sz);
-            st += sz;
-            if (!sz || st != ed) break;
-            reread();
+            char c = top();
+            if (c < '0') break;
+            ref += c;
+            st++;
         }
         return true;
     }
+
     template <class T, internal::is_signed_int_t<T>* = nullptr>
-    bool read_single(T& ref) {
+    bool read_single(T& sref) {
         using U = internal::to_unsigned_t<T>;
-        if (!succ()) return false;
+        if (!skip_space(50)) return false;
         bool neg = false;
         if (line[st] == '-') {
             neg = true;
             st++;
-        }        
-        U x;
-        read_uint(x);
-        ref = neg ? -x : x;
+        }
+        U ref = 0;
+        do {
+            ref = 10 * ref + (line[st++] & 0x0f);
+        } while (line[st] >= '0');
+        sref = neg ? -ref : ref;
         return true;
     }
     template <class U, internal::is_unsigned_int_t<U>* = nullptr>
     bool read_single(U& ref) {
-        if (!succ()) return false;
-        read_uint(ref);
+        if (!skip_space(50)) return false;
+        ref = 0;
+        do {
+            ref = 10 * ref + (line[st++] & 0x0f);
+        } while (line[st] >= '0');
         return true;
     }
 
-    template <class U, internal::is_unsigned_int_t<U>* = nullptr>
-    void read_uint(U& ref) {
-        ref = 0;
-        while (line[st] >= '0') {
-            ref = 10 * ref + (line[st++] & 0x0f);
+    int fd = -1;
+    char line[SIZE];
+    size_t st = 0, ed = 0;
+    bool eof = false;
+    bool reread() {
+        if (ed - st >= 50) return true;
+        if (st > SIZE / 2) {
+            std::memmove(line, line + st, ed - st);
+            ed -= st;
+            st = 0;
         }
+        if (eof) return false;
+        auto u = ::read(fd, line + ed, SIZE - ed);
+        if (u == 0) {
+            eof = true;
+            line[ed] = '\0';
+            u = 1;
+        }
+        ed += u;
+        return true;
     }
 
-    int fd = -1;
-    char line[SIZE + 1];
-    size_t st = 0, ed = 0;
-    void reread() {
-        std::memmove(line, line + st, ed - st);
-        ed -= st;
-        st = 0;
-        ed += ::read(fd, line + ed, SIZE - ed);
-        line[ed] = '\0';
-    }
-    bool succ() {
-        while (true) {
-            while (st < ed && line[st] <= ' ') st++;
-            if (st == ed || SIZE - 50 <= st) {
-                reread();
-                continue;
-            }
-            break;
+    char top() {
+        if (st == ed) {
+            bool f = reread();
+            assert(f);
         }
-        return st != ed;
+        return line[st];
+    }
+
+    bool skip_space(int token_len = 0) {
+        while (true) {
+            while (st != ed && line[st] <= ' ') st++;
+            if (ed - st > token_len) return true;
+            for (int i = st; i < ed; i++) {
+                if (line[i] <= ' ') return true;
+            }
+            if (!reread()) return false;
+        }
     }
 };
 
@@ -184,20 +201,28 @@ struct Printer {
         size_t len = calc_len(uval);
         pos += len;
         if (len >= 17) {
-            uint64_t v0 = uval % 10000;
+            int32_t v0 = (int32_t)(uval % 10000);
             uval /= 10000;
-            uint64_t v1 = uval % 10000;
+            int32_t v1 = (int32_t)(uval % 10000);
             uval /= 10000;
-            uint64_t v2 = uval % 10000;
+            int32_t v2 = (int32_t)(uval % 10000);
             uval /= 10000;
-            uint64_t v3 = uval % 10000;
+            int32_t v3 = (int32_t)(uval % 10000);
             uval /= 10000;
 
             memcpy(line + pos - len, small[uval].data() + (20 - len), len - 16);
+
+#ifndef __AVX2__
             memcpy(line + pos - 4, small[v0].data(), 4);
             memcpy(line + pos - 8, small[v1].data(), 4);
             memcpy(line + pos - 12, small[v2].data(), 4);
             memcpy(line + pos - 16, small[v3].data(), 4);
+#else
+            __m128i vals = _mm_set_epi32(v0, v1, v2, v3);
+            _mm_storeu_si128(
+                (__m128i_u*)(line + pos - 16),
+                _mm_i32gather_epi32((const int*)small[0].data(), vals, 4));
+#endif
         } else {
             char* ptr = line + pos;
             size_t rem_len = len;

@@ -95,6 +95,30 @@ TEST(FastIOTest, ScannerInt) {
     }
 }
 
+TEST(FastIOTest, ScannerIntWin) {
+    auto tmpf = tmpfile();
+    std::vector<int> v;
+    for (int i = 0; i <= 123456; i++) {
+        v.push_back(i);
+    }
+    for (int i = 0; i < 10000; i++) {
+        v.push_back(uniform(std::numeric_limits<int>::min(),
+                            std::numeric_limits<int>::max()));
+    }
+
+    for (auto x : v) {
+        fputs((std::to_string(x) + "\r\n").c_str(), tmpf);
+    }
+    rewind(tmpf);
+
+    Scanner sc(tmpf);
+    int y;
+    for (auto x : v) {
+        sc.read(y);
+        ASSERT_EQ(x, y);
+    }
+}
+
 TEST(FastIOTest, ScannerIntMin) {
     {
         auto tmpf = tmpfile();
