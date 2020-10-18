@@ -9,6 +9,17 @@
 
 using namespace yosupo;
 
+TEST(FastIOTest, ScannerString) {
+    auto tmpf = tmpfile();
+    std::string s = "abcd!@#$%^&*()_+|~.";
+    fputs(s.c_str(), tmpf);
+    rewind(tmpf);
+    Scanner sc(tmpf);
+    std::string t;
+    sc.read(t);
+    ASSERT_EQ(s, t);
+}
+
 TEST(FastIOTest, ScannerSeparator) {
     auto tmpf = tmpfile();
     fputs(std::string(1 << 15, 'a').c_str(), tmpf);
@@ -282,4 +293,14 @@ TEST(FastIOTest, ScannerPreSpace) {
     int x;
     sc.read(x);
     ASSERT_EQ(1234, x);
+}
+
+TEST(FastIOTest, ScannerDouble) {
+    auto tmpf = tmpfile();
+    fputs("1234.5678", tmpf);
+    rewind(tmpf);
+    Scanner sc(tmpf);
+    double x;
+    sc.read(x);
+    ASSERT_NEAR(1234.5678, x, 1e-9);
 }

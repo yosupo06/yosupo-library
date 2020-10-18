@@ -34,17 +34,22 @@ struct Scanner {
 
   private:
     static constexpr size_t SIZE = 1 << 15;
-    template <class T,
-              std::enable_if_t<std::is_same<T, std::string>::value>* = nullptr>
-    bool read_single(T& ref) {
+
+    bool read_single(std::string& ref) {
         if (!skip_space()) return false;
         ref = "";
         while (true) {
             char c = top();
-            if (c < '0') break;
+            if (c <= ' ') break;
             ref += c;
             st++;
         }
+        return true;
+    }
+    bool read_single(double& ref) {
+        std::string s;
+        if (!read_single(s)) return false;
+        ref = std::stod(s);
         return true;
     }
 
@@ -228,6 +233,7 @@ struct Printer {
         }
     }
 };
+
 std::array<std::array<char, 2>, 100> Printer::small = [] {
     std::array<std::array<char, 2>, 100> table;
     for (int i = 0; i <= 99; i++) {
