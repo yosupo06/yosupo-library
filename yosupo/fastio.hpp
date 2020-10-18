@@ -1,7 +1,6 @@
 #pragma once
 
 #include <unistd.h>
-#include <x86intrin.h>
 #include <algorithm>
 #include <array>
 #include <cctype>
