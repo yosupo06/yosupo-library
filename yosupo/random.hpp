@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "bit.hpp"
+#include "yosupo/bit.hpp"
 
 namespace yosupo {
 
