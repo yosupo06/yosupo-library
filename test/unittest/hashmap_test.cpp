@@ -24,4 +24,40 @@ TEST(HashMapTest, Iterator) {
     actual = std::vector<std::pair<int, int>>(h.begin(), h.end());
     sort(actual.begin(), actual.end());
     ASSERT_EQ(expect, actual);
+
+    h[4] += 3;
+
+    ASSERT_EQ(3, h[4]);
+
+    h[2] += 5;
+
+    ASSERT_EQ(5, h[2]);
+
+    expect = {{2, 5}, {3, 1}, {4, 3}, {6, 3}};
+    actual = std::vector<std::pair<int, int>>(h.begin(), h.end());
+    sort(actual.begin(), actual.end());
+    ASSERT_EQ(expect, actual);
+}
+
+TEST(HashMapTest, Assign) {
+    HashMap<int, int> h;
+
+    for (int i = 0; i < 100; i++) {
+        h[i] = i;
+    }
+
+    for (int i = 0; i < 100; i++) {
+        ASSERT_EQ(i, h[i]);
+    }
+
+    auto h2 = h;
+
+    for (int i = 0; i < 100; i++) {
+        h2[i] = 2 * i;
+    }
+
+    for (int i = 0; i < 100; i++) {
+        ASSERT_EQ(i, h[i]);
+        ASSERT_EQ(2 * i, h2[i]);
+    }
 }
