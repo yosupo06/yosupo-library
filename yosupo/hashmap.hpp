@@ -24,8 +24,8 @@ struct IncrementalHashMap {
         using iterator_category = std::forward_iterator_tag;
 
         IncrementalHashMap& _mp;
-        int _pos;
-        Iterator(IncrementalHashMap& mp, int pos) : _mp(mp), _pos(pos) {}
+        unsigned int _pos;
+        Iterator(IncrementalHashMap& mp, unsigned int pos) : _mp(mp), _pos(pos) {}
 
         std::pair<K, D> operator*() const { return _mp.data[_pos]; }
 
@@ -96,7 +96,7 @@ struct IncrementalHashMap {
         }
     }
 
-    int next_bucket(int i) const {
+    unsigned int next_bucket(unsigned int i) const {
         while (i <= mask && !used[i]) i++;
         return i;
     }
