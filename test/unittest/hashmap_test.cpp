@@ -1,5 +1,7 @@
 #include <yosupo/hashmap.hpp>
 
+#include <algorithm>
+
 #include "gtest/gtest.h"
 
 using namespace yosupo;
@@ -22,7 +24,7 @@ TEST(HashMapTest, Iterator) {
     h[6] = 3;
     expect = {{3, 1}, {6, 3}};
     actual = std::vector<std::pair<int, int>>(h.begin(), h.end());
-    sort(actual.begin(), actual.end());
+    std::sort(actual.begin(), actual.end());
     ASSERT_EQ(expect, actual);
 
     h[4] += 3;
@@ -35,7 +37,7 @@ TEST(HashMapTest, Iterator) {
 
     expect = {{2, 5}, {3, 1}, {4, 3}, {6, 3}};
     actual = std::vector<std::pair<int, int>>(h.begin(), h.end());
-    sort(actual.begin(), actual.end());
+    std::sort(actual.begin(), actual.end());
     ASSERT_EQ(expect, actual);
 }
 
