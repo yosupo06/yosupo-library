@@ -113,7 +113,7 @@ struct Scanner {
         while (true) {
             while (st != ed && line[st] <= ' ') st++;
             if (ed - st > token_len) return true;
-            for (int i = st; i < ed; i++) {
+            for (auto i = st; i < ed; i++) {
                 if (line[i] <= ' ') return true;
             }
             if (!reread()) return false;
