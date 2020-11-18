@@ -1,4 +1,4 @@
-#include "yosupo/hashmap.hpp"
+#include <yosupo/hashmap.hpp>
 
 #include "gtest/gtest.h"
 
@@ -7,7 +7,7 @@ using ll = long long;
 using ull = unsigned long long;
 
 TEST(HashMapTest, Iterator) {
-    HashMap<int, int> h;
+    IncrementalHashMap<int, int> h;
     h[3] = 1;
     h[6] = 2;
 
@@ -40,7 +40,7 @@ TEST(HashMapTest, Iterator) {
 }
 
 TEST(HashMapTest, Assign) {
-    HashMap<int, int> h;
+    IncrementalHashMap<int, int> h;
 
     for (int i = 0; i < 100; i++) {
         h[i] = i;

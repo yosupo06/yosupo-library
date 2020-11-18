@@ -9,7 +9,8 @@
 
 namespace yosupo {
 
-template <class K, class D, class H = UniversalHash32<K>> struct HashMap {
+template <class K, class D, class H = UniversalHash32<K>>
+struct IncrementalHashMap {
   public:
     using Data = std::pair<K, D>;
 
@@ -22,9 +23,9 @@ template <class K, class D, class H = UniversalHash32<K>> struct HashMap {
         using reference = Data&;
         using iterator_category = std::forward_iterator_tag;
 
-        HashMap& _mp;
+        IncrementalHashMap& _mp;
         int _pos;
-        Iterator(HashMap& mp, int pos) : _mp(mp), _pos(pos) {}
+        Iterator(IncrementalHashMap& mp, int pos) : _mp(mp), _pos(pos) {}
 
         std::pair<K, D> operator*() const { return _mp.data[_pos]; }
 
@@ -43,7 +44,8 @@ template <class K, class D, class H = UniversalHash32<K>> struct HashMap {
     };
 
   public:
-    HashMap() : mask(3), filled(0), status(mask + 1), data(mask + 1) {}
+    IncrementalHashMap(size_t s) : mask((1 << s) - 1), filled(0), used(mask + 1), data(mask + 1) {}
+    IncrementalHashMap() : IncrementalHashMap(2) {}
 
     Iterator begin() { return Iterator(*this, next_bucket(0)); }
     Iterator end() { return Iterator(*this, mask + 1); }
@@ -51,50 +53,51 @@ template <class K, class D, class H = UniversalHash32<K>> struct HashMap {
 
     D& operator[](const K& k) {
         unsigned int i = H()(k) & mask;
-        while (status[i] != Status::Empty && data[i].first != k) {
+        while (used[i] && data[i].first != k) {
             i = (i + 1) & mask;
         }
-        if (status[i] == Status::Empty) {
+        if (!used[i]) {
             if (filled * 2 > mask) {
                 rehash();
                 return (*this)[k];
             }
             filled++;
-        }
-        if (status[i] != Status::Fill) {
-            status[i] = Status::Fill;
+            used[i] = true;
             data[i] = {k, D()};
         }
         return data[i].second;
     }
 
+    Iterator find(const K& k) {
+        unsigned int i = H()(k) & mask;
+        while (used[i] && data[i].first != k) {
+            i = (i + 1) & mask;
+        }
+        if (!used[i]) return end();
+        return Iterator(*this, i);
+    }
+
   private:
     unsigned int mask, filled;  // data.size() == 1 << s
 
-    enum Status {
-        Empty = 0,
-        Fill = 1,
-        Deleted = 2,
-    };
-
-    std::vector<Status> status;
+    std::vector<bool> used;
     std::vector<Data> data;
 
     void rehash() {
         unsigned int pmask = mask;
         mask = mask * 2 + 1;
         filled = 0;
-        auto pstatus = std::exchange(status, std::vector<Status>(mask + 1));
+        auto pused = std::exchange(used, std::vector<bool>(mask + 1));
         auto pdata = std::exchange(data, std::vector<Data>(mask + 1));
         for (unsigned int i = 0; i <= pmask; i++) {
-            if (pstatus[i] == Status::Fill) {
+            if (pused[i]) {
                 (*this)[pdata[i].first] = pdata[i].second;
             }
         }
     }
 
-    int next_bucket(int i) {
-        while (i <= mask && status[i] != Status::Fill) i++;
+    int next_bucket(int i) const {
+        while (i <= mask && !used[i]) i++;
         return i;
     }
 };
