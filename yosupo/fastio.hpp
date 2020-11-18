@@ -109,7 +109,7 @@ struct Scanner {
         return line[st];
     }
 
-    bool skip_space(int token_len = 0) {
+    bool skip_space(unsigned int token_len = 0) {
         while (true) {
             while (st != ed && line[st] <= ' ') st++;
             if (ed - st > token_len) return true;
