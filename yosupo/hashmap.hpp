@@ -28,7 +28,7 @@ struct IncrementalHashMap {
         Iterator(IncrementalHashMap& mp, unsigned int pos)
             : _mp(mp), _pos(pos) {}
 
-        std::pair<K, D> operator*() const { return _mp.data[_pos]; }
+        std::pair<K, D>& operator*() const { return _mp.data[_pos]; }
         std::pair<K, D>* operator->() const { return &_mp.data[_pos]; }
 
         Iterator& operator++() {
