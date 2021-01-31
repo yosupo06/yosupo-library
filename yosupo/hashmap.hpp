@@ -25,9 +25,11 @@ struct IncrementalHashMap {
 
         IncrementalHashMap& _mp;
         unsigned int _pos;
-        Iterator(IncrementalHashMap& mp, unsigned int pos) : _mp(mp), _pos(pos) {}
+        Iterator(IncrementalHashMap& mp, unsigned int pos)
+            : _mp(mp), _pos(pos) {}
 
         std::pair<K, D> operator*() const { return _mp.data[_pos]; }
+        std::pair<K, D>* operator->() const { return &_mp.data[_pos]; }
 
         Iterator& operator++() {
             _pos = _mp.next_bucket(_pos + 1);
@@ -44,7 +46,8 @@ struct IncrementalHashMap {
     };
 
   public:
-    IncrementalHashMap(size_t s) : mask((1 << s) - 1), filled(0), used(mask + 1), data(mask + 1) {}
+    IncrementalHashMap(size_t s)
+        : mask((1 << s) - 1), filled(0), used(mask + 1), data(mask + 1) {}
     IncrementalHashMap() : IncrementalHashMap(2) {}
 
     Iterator begin() { return Iterator(*this, next_bucket(0)); }

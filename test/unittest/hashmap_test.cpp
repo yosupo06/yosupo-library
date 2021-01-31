@@ -63,3 +63,19 @@ TEST(HashMapTest, Assign) {
         ASSERT_EQ(2 * i, h2[i]);
     }
 }
+
+TEST(HashMapTest, Rewrite) {
+    IncrementalHashMap<int, int> h;
+
+    h[3] = 100;
+
+    auto it = h.find(3);
+
+    it->second = 101;
+
+    ASSERT_EQ(101, h[3]);
+
+    (*it).second = 102;
+
+    ASSERT_EQ(102, h[3]);
+}
