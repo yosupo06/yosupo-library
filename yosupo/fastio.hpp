@@ -147,14 +147,6 @@ struct Printer {
     static std::array<std::array<char, 2>, 100> small;
     static std::array<unsigned long long, 20> tens;
 
-    static int calc_len(unsigned long long x) {
-        int i = (bsr(x) * 3 + 3) / 10;
-        if (x < tens[i])
-            return i;
-        else
-            return i + 1;
-    }
-
     static constexpr size_t SIZE = 1 << 15;
     int fd;
     char line[SIZE];
@@ -191,16 +183,18 @@ struct Printer {
         write_unsigned(uval);
     }
 
-    template <class U,
-              internal::is_unsigned_int_t<U>* = nullptr,
-              std::enable_if_t<sizeof(U) == 4>* = nullptr>
-    void write_unsigned(U uval) {
-        write_unsigned(uint64_t(uval));
+    template <class U, internal::is_unsigned_int_t<U>* = nullptr>
+    static int calc_len(U x) {
+        int i = (bsr(x) * 3 + 3) / 10;
+        if (x < tens[i])
+            return i;
+        else
+            return i + 1;
     }
 
     template <class U,
               internal::is_unsigned_int_t<U>* = nullptr,
-              std::enable_if_t<sizeof(U) == 8>* = nullptr>
+              std::enable_if_t<sizeof(U) <= 8>* = nullptr>
     void write_unsigned(U uval) {
         size_t len = calc_len(uval);
         pos += len;
@@ -216,6 +210,21 @@ struct Printer {
         } else {
             *(ptr - 1) = char('0' + uval);
         }
+    }
+
+    template <
+        class U,
+        std::enable_if_t<internal::is_unsigned_int128<U>::value>* = nullptr>
+    void write_unsigned(U uval) {
+        static char buf[50];
+        size_t len = 0;
+        while (uval > 0) {
+            buf[len++] = char((uval % 10) + '0');
+            uval /= 10;
+        }
+        std::reverse(buf, buf + len);
+        memcpy(line + pos, buf, len);
+        pos += len;
     }
 
     void write_single(const std::string& s) {

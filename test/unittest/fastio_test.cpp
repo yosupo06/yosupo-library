@@ -285,6 +285,33 @@ TEST(FastIOTest, PrinterUnsignedLongLong) {
     }
 }
 
+TEST(FastIOTest, ScannerPrinterInt128) {
+    std::vector<__int128> v;
+    for (int i = 0; i < 1000; i++) {
+        v.push_back(i);
+        v.push_back(-i);
+    }
+
+    v.push_back(__int128(1) * 1234567890 * 1234567890 * 1234567890);
+
+    auto tmpf = tmpfile();
+    Printer pr(tmpf);
+
+    for (auto x : v) {
+        pr.writeln(x);
+    }
+    pr.flush();
+
+    rewind(tmpf);
+
+    Scanner sc(tmpf);
+    for (auto x : v) {
+        __int128 y;
+        sc.read(y);
+        ASSERT_EQ(x, y);
+    }
+}
+
 TEST(FastIOTest, ScannerPreSpace) {
     auto tmpf = tmpfile();
     fputs(" 1234", tmpf);
