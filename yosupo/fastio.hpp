@@ -54,7 +54,15 @@ struct Scanner {
         return true;
     }
 
-    template <class T, internal::is_signed_int_t<T>* = nullptr>
+    template <class T, std::enable_if_t<std::is_same<T, char>::value>* = nullptr>
+    bool read_single(T& ref) {
+        if (!skip_space(50)) return false;
+        ref = top();
+        st++;
+        return true;
+    }
+
+    template <class T, internal::is_signed_int_t<T>* = nullptr, std::enable_if_t<!std::is_same<T, char>::value>* = nullptr>
     bool read_single(T& sref) {
         using U = internal::to_unsigned_t<T>;
         if (!skip_space(50)) return false;
@@ -70,7 +78,7 @@ struct Scanner {
         sref = neg ? -ref : ref;
         return true;
     }
-    template <class U, internal::is_unsigned_int_t<U>* = nullptr>
+    template <class U, internal::is_unsigned_int_t<U>* = nullptr, std::enable_if_t<!std::is_same<U, char>::value>* = nullptr>
     bool read_single(U& ref) {
         if (!skip_space(50)) return false;
         ref = 0;

@@ -82,6 +82,28 @@ TEST(FastIOTest, ScannerInt128) {
     ASSERT_EQ(1234567890123456LL, x);
 }
 
+TEST(FastIOTest, ScannerChar) {
+    auto tmpf = tmpfile();
+    std::vector<char> v;
+    v.push_back('a');
+    v.push_back('b');
+
+    for (auto x : v) {
+        std::string s = "";
+        s += x;
+        s += "\n";
+        fputs(s.c_str(), tmpf);
+    }
+    rewind(tmpf);
+
+    Scanner sc(tmpf);
+    char y;
+    for (auto x : v) {
+        sc.read(y);
+        ASSERT_EQ(x, y);
+    }
+}
+
 TEST(FastIOTest, ScannerInt) {
     auto tmpf = tmpfile();
     std::vector<int> v;
