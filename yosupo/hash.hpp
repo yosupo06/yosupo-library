@@ -43,9 +43,7 @@ struct DynHasher32 {
         return DynHasher32{len + 1, v + x * get_seed(len)};
     }
 
-    DynHasher32 to_dyn() const {
-        return *this;
-    }
+    DynHasher32 to_dyn() const { return *this; }
     uint32_t digest() const { return uint32_t(v >> 32); }
 };
 
@@ -61,8 +59,10 @@ template <int I = 1> struct Hasher32 {
     uint32_t digest() const { return uint32_t(v >> 32); }
 };
 
+namespace {  // integer
 
-template <class H, class T,
+template <class H,
+          class T,
           is_integral_t<T>* = nullptr,
           std::enable_if_t<sizeof(T) <= 4>* = nullptr>
 auto update(const H& h, const T& x) {
@@ -84,11 +84,18 @@ template <class H,
 auto update(const H& h, const T& x) {
     return update(update(h, uint64_t(x)), uint64_t((__uint128_t)(x) >> 64));
 }
+}  // namespace
+
+namespace {  // pair
 
 template <class H, class S, class T>
 auto update(const H& h, const std::pair<S, T>& x) {
     return update(update(h, x.first), x.second);
 }
+
+}  // namespace
+
+namespace {  // tuple
 
 template <int I,
           class H,
@@ -106,20 +113,31 @@ auto update_tuple(const H& h, const T& x) {
     return update(h, std::get<I>(x));
 }
 
-
 template <class H, class... Args>
 auto update(const H& h, const std::tuple<Args...>& x) {
     return update_tuple(h, x);
 }
 
-template <class... Args> uint32_t hash32(const std::tuple<Args...>& x) {
-    return hash32_tuple(Hasher32<>{}, x);
+}  // namespace
+
+namespace {  // vector
+
+template <class H, class T> auto update(const H& h, const std::vector<T>& v) {
+    auto h2 = h.to_dyn();
+    for (const auto& x : v) {
+        h2 = update(h2, x);
+    }
+    return update(h2, uint_32(1234));
 }
+
+}  // namespace
 
 }  // namespace internal
 
 template <class T> struct UniversalHash32 {
-    uint32_t operator()(const T& x) { return update(internal::Hasher32<>{}, x).digest(); }
+    uint32_t operator()(const T& x) {
+        return update(internal::Hasher32<>{}, x).digest();
+    }
 };
 
 }  // namespace yosupo
