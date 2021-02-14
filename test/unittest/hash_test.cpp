@@ -31,4 +31,8 @@ TEST(HashTest, Usage) {
     using T = std::tuple<int, bool, unsigned long long>;
     ASSERT_EQ(UniversalHash32<T>()(T(123, false, 1)),
               UniversalHash32<T>()(T(123, false, 1)));
+
+    using V = std::vector<int>;
+    ASSERT_EQ(UniversalHash32<T>()(V{1, 2, 3}),
+              UniversalHash32<T>()(V{1, 2, 3});
 }

@@ -127,7 +127,7 @@ template <class H, class T> auto update(const H& h, const std::vector<T>& v) {
     for (const auto& x : v) {
         h2 = update(h2, x);
     }
-    return update(h2, uint_32(1234));
+    return update(h2, uint32_t(1234));
 }
 
 }  // namespace
@@ -136,7 +136,7 @@ template <class H, class T> auto update(const H& h, const std::vector<T>& v) {
 
 template <class T> struct UniversalHash32 {
     uint32_t operator()(const T& x) {
-        return update(internal::Hasher32<>{}, x).digest();
+        return internal::update(internal::Hasher32<>{}, x).digest();
     }
 };
 
