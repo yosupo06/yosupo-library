@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cctype>
 #include <cstring>
 #include <string>
@@ -139,8 +140,11 @@ struct Printer {
     ~Printer() { flush(); }
 
     void flush() {
-        ::write(fd, line, pos);
-        pos = 0;
+        if (pos) {
+            auto res = ::write(fd, line, pos);
+            assert(res != -1);
+            pos = 0;
+        }
     }
 
   private:
