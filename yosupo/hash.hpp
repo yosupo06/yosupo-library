@@ -87,7 +87,7 @@ auto update(const H& h, const T& x) {
 
 template <class H, class S, class T>
 auto update(const H& h, const std::pair<S, T>& x) {
-    return h.update32(x.first).update(x.second);
+    return update(update(h, x.first), x.second);
 }
 
 template <int I,
@@ -119,7 +119,7 @@ template <class... Args> uint32_t hash32(const std::tuple<Args...>& x) {
 }  // namespace internal
 
 template <class T> struct UniversalHash32 {
-    uint32_t operator()(const T& x) { return internal::Hasher32<>{}.update(x).digest(); }
+    uint32_t operator()(const T& x) { return update(internal::Hasher32<>{}, x).digest(); }
 };
 
 }  // namespace yosupo
