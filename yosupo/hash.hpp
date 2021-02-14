@@ -35,58 +35,81 @@ uint64_t get_seed(int i) {
     return long_seed[i - THRESHOLD_HASH];
 }
 
-template <int I = 1> struct Hasher32 {
+struct DynHasher32 {
+    int len = 0;
     uint64_t v = get_seed(0);
 
-    template <class T,
-              is_integral_t<T>* = nullptr,
-              std::enable_if_t<sizeof(T) == 4>* = nullptr>
-    Hasher32<I + 1> update(T x) const {
-        return Hasher32<I + 1>{v + uint32_t(x) * get_seed(I)};
+    DynHasher32 update32(uint32_t x) const {
+        return DynHasher32{len + 1, v + x * get_seed(len)};
     }
-    template <class T,
-              is_integral_t<T>* = nullptr,
-              std::enable_if_t<sizeof(T) == 1>* = nullptr>
-    Hasher32<I + 1> update(T x) const {
-        return update(uint32_t(x));
-    }
-    template <class T,
-              is_integral_t<T>* = nullptr,
-              std::enable_if_t<sizeof(T) == 8>* = nullptr>
-    Hasher32<I + 2> update(T x) const {
-        return update(uint32_t(x)).update(uint32_t(uint64_t(x) >> 32));
-    }
-    template <class T,
-              is_integral_t<T>* = nullptr,
-              std::enable_if_t<sizeof(T) == 16>* = nullptr>
-    Hasher32<I + 4> update(T x) const {
-        return update(uint64_t(x)).update(uint64_t((__uint128_t)(x) >> 64));
+
+    DynHasher32 to_dyn() const {
+        return *this;
     }
     uint32_t digest() const { return uint32_t(v >> 32); }
 };
 
-template <class T, is_integral_t<T>* = nullptr> uint32_t hash32(const T& x) {
-    return Hasher32<>{}.update(x).digest();
+template <int I = 1> struct Hasher32 {
+    uint64_t v = get_seed(0);
+
+    Hasher32<I + 1> update32(uint32_t x) const {
+        return Hasher32<I + 1>{v + x * get_seed(I)};
+    }
+
+    DynHasher32 to_dyn() const { return DynHasher32{I, v}; }
+
+    uint32_t digest() const { return uint32_t(v >> 32); }
+};
+
+
+template <class H, class T,
+          is_integral_t<T>* = nullptr,
+          std::enable_if_t<sizeof(T) <= 4>* = nullptr>
+auto update(const H& h, const T& x) {
+    return h.update32(uint32_t(x));
 }
 
-template <class S, class T> uint32_t hash32(const std::pair<S, T>& x) {
-    return Hasher32<>{}.update(x.first).update(x.second).digest();
-}
-
-template <int I = 0,
-          class H,
+template <class H,
           class T,
-          std::enable_if_t<(I != std::tuple_size<T>::value)>* = nullptr>
-uint32_t hash32_tuple(const H& h, const T& x) {
-    return hash32_tuple<I + 1>(h.update(std::get<I>(x)), x);
+          is_integral_t<T>* = nullptr,
+          std::enable_if_t<sizeof(T) == 8>* = nullptr>
+auto update(const H& h, const T& x) {
+    return update(update(h, uint32_t(x)), uint32_t(uint64_t(x) >> 32));
+}
+
+template <class H,
+          class T,
+          is_integral_t<T>* = nullptr,
+          std::enable_if_t<sizeof(T) == 16>* = nullptr>
+auto update(const H& h, const T& x) {
+    return update(update(h, uint64_t(x)), uint64_t((__uint128_t)(x) >> 64));
+}
+
+template <class H, class S, class T>
+auto update(const H& h, const std::pair<S, T>& x) {
+    return h.update32(x.first).update(x.second);
 }
 
 template <int I,
           class H,
           class T,
           std::enable_if_t<(I == std::tuple_size<T>::value)>* = nullptr>
-uint32_t hash32_tuple(const H& h, const T&) {
-    return h.digest();
+auto update_tuple(const H& h, const T&) {
+    return h;
+}
+
+template <int I = 0,
+          class H,
+          class T,
+          std::enable_if_t<(I != std::tuple_size<T>::value)>* = nullptr>
+auto update_tuple(const H& h, const T& x) {
+    return update(h, std::get<I>(x));
+}
+
+
+template <class H, class... Args>
+auto update(const H& h, const std::tuple<Args...>& x) {
+    return update_tuple(h, x);
 }
 
 template <class... Args> uint32_t hash32(const std::tuple<Args...>& x) {
@@ -96,7 +119,7 @@ template <class... Args> uint32_t hash32(const std::tuple<Args...>& x) {
 }  // namespace internal
 
 template <class T> struct UniversalHash32 {
-    uint32_t operator()(const T& x) { return internal::hash32(x); }
+    uint32_t operator()(const T& x) { return internal::Hasher32<>{}.update(x).digest(); }
 };
 
 }  // namespace yosupo
