@@ -19,13 +19,14 @@ else()
     add_compile_options(/W4 /permissive- /sdl)
 endif()
 
+enable_testing()
+
 add_subdirectory(googletest)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-include_directories(.)
-enable_testing()
 include(GoogleTest)
+
+include_directories(.)
 include_directories(../../)
-enable_testing()
 
 add_executable(BitTest bit_test.cpp)
 target_link_libraries(BitTest gtest gtest_main)

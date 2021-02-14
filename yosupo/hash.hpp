@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <tuple>
 #include <vector>
+#include <set>
+#include <map>
 
 #include "yosupo/internal_type_traits.hpp"
 #include "yosupo/random.hpp"
@@ -59,29 +61,6 @@ template <int I = 1> struct Hasher32 {
     uint32_t digest() const { return uint32_t(v >> 32); }
 };
 
-namespace {
-
-/*template <class H,
-          class T,
-          is_integral_t<T>* = nullptr,
-          std::enable_if_t<sizeof(T) <= 4>* = nullptr>
-auto update(const H& h, const T& x);
-
-template <class H,
-          class T,
-          is_integral_t<T>* = nullptr,
-          std::enable_if_t<sizeof(T) == 8>* = nullptr>
-auto update(const H& h, const T& x);
-
-template <class H,
-          class T,
-          is_integral_t<T>* = nullptr,
-          std::enable_if_t<sizeof(T) == 16>* = nullptr>
-auto update(const H& h, const T& x);
-*/
-
-}
-
 // integer
 template <class H,
           class T,
@@ -116,25 +95,48 @@ template <int I,
           class H,
           class T,
           std::enable_if_t<(I == std::tuple_size<T>::value)>* = nullptr>
-auto update_tuple(const H& h, const T&) {
+auto update(const H& h, const T&) {
     return h;
 }
 template <int I = 0,
           class H,
           class T,
           std::enable_if_t<(I != std::tuple_size<T>::value)>* = nullptr>
-auto update_tuple(const H& h, const T& x) {
-    return update(h, std::get<I>(x));
+auto update(const H& h, const T& x) {
+    return update<I + 1>(update(h, std::get<I>(x)), x);
 }
-template <class H, class... Args>
-auto update(const H& h, const std::tuple<Args...>& x) {
-    return update_tuple(h, x);
+
+// array
+template <int I = 0,
+          class H,
+          class T,
+          int N>
+auto update(const H& h, const std::array<T, N>& x) {
+    return I == N ? h : update<I + 1>(update(h, x[I]), x);
 }
 
 // vector
 template <class H, class T> auto update(const H& h, const std::vector<T>& v) {
     auto h2 = h.to_dyn();
     for (const auto& x : v) {
+        h2 = update(h2, x);
+    }
+    return update(h2, uint32_t(1234));
+}
+
+// set
+template <class H, class T> auto update(const H& h, const std::set<T>& s) {
+    auto h2 = h.to_dyn();
+    for (const auto& x : s) {
+        h2 = update(h2, x);
+    }
+    return update(h2, uint32_t(1234));
+}
+
+// map
+template <class H, class T, class U> auto update(const H& h, const std::map<T, U>& m) {
+    auto h2 = h.to_dyn();
+    for (const auto& x : m) {
         h2 = update(h2, x);
     }
     return update(h2, uint32_t(1234));
