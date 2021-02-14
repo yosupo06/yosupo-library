@@ -33,6 +33,21 @@ TEST(HashTest, Usage) {
               UniversalHash32<T>()(T(123, false, 1)));
 
     using V = std::vector<int>;
-    ASSERT_EQ(UniversalHash32<T>()(V{1, 2, 3}),
-              UniversalHash32<T>()(V{1, 2, 3});
+    ASSERT_EQ(UniversalHash32<V>()(V{1, 2, 3}),
+              UniversalHash32<V>()(V{1, 2, 3}));
+}
+
+TEST(HashTest, Complex) {
+    {
+        using T = std::pair<std::tuple<int, int>, std::tuple<int, int>>;
+        UniversalHash32<T>()(T({1, 2}, {3, 4}));
+    }
+    {
+        using T = std::tuple<std::pair<int, int>, std::pair<int, int>>;
+        UniversalHash32<T>()(T({1, 2}, {3, 4}));
+    }
+    {
+        using T = std::pair<std::vector<int>, std::vector<int>>;
+        UniversalHash32<T>()(T({1, 2}, {3, 4}));
+    }
 }

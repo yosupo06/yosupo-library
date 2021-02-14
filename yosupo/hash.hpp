@@ -59,8 +59,30 @@ template <int I = 1> struct Hasher32 {
     uint32_t digest() const { return uint32_t(v >> 32); }
 };
 
-namespace {  // integer
+namespace {
 
+/*template <class H,
+          class T,
+          is_integral_t<T>* = nullptr,
+          std::enable_if_t<sizeof(T) <= 4>* = nullptr>
+auto update(const H& h, const T& x);
+
+template <class H,
+          class T,
+          is_integral_t<T>* = nullptr,
+          std::enable_if_t<sizeof(T) == 8>* = nullptr>
+auto update(const H& h, const T& x);
+
+template <class H,
+          class T,
+          is_integral_t<T>* = nullptr,
+          std::enable_if_t<sizeof(T) == 16>* = nullptr>
+auto update(const H& h, const T& x);
+*/
+
+}
+
+// integer
 template <class H,
           class T,
           is_integral_t<T>* = nullptr,
@@ -68,7 +90,6 @@ template <class H,
 auto update(const H& h, const T& x) {
     return h.update32(uint32_t(x));
 }
-
 template <class H,
           class T,
           is_integral_t<T>* = nullptr,
@@ -76,7 +97,6 @@ template <class H,
 auto update(const H& h, const T& x) {
     return update(update(h, uint32_t(x)), uint32_t(uint64_t(x) >> 32));
 }
-
 template <class H,
           class T,
           is_integral_t<T>* = nullptr,
@@ -84,19 +104,14 @@ template <class H,
 auto update(const H& h, const T& x) {
     return update(update(h, uint64_t(x)), uint64_t((__uint128_t)(x) >> 64));
 }
-}  // namespace
 
-namespace {  // pair
-
+// pair
 template <class H, class S, class T>
 auto update(const H& h, const std::pair<S, T>& x) {
     return update(update(h, x.first), x.second);
 }
 
-}  // namespace
-
-namespace {  // tuple
-
+// tuple
 template <int I,
           class H,
           class T,
@@ -104,7 +119,6 @@ template <int I,
 auto update_tuple(const H& h, const T&) {
     return h;
 }
-
 template <int I = 0,
           class H,
           class T,
@@ -112,16 +126,12 @@ template <int I = 0,
 auto update_tuple(const H& h, const T& x) {
     return update(h, std::get<I>(x));
 }
-
 template <class H, class... Args>
 auto update(const H& h, const std::tuple<Args...>& x) {
     return update_tuple(h, x);
 }
 
-}  // namespace
-
-namespace {  // vector
-
+// vector
 template <class H, class T> auto update(const H& h, const std::vector<T>& v) {
     auto h2 = h.to_dyn();
     for (const auto& x : v) {
@@ -129,8 +139,6 @@ template <class H, class T> auto update(const H& h, const std::vector<T>& v) {
     }
     return update(h2, uint32_t(1234));
 }
-
-}  // namespace
 
 }  // namespace internal
 
