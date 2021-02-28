@@ -14,9 +14,9 @@ logger = getLogger(__name__)  # type: Logger
 
 class Expander:
     atcoder_include = re.compile(
-        r'#include\s*["<]((atcoder|yosupo)/[a-z_]*(|.hpp))[">]\s*')
+        r'#include\s*["<]((atcoder|yosupo)/[a-z0-9_]*(|.hpp))[">]\s*')
     algorithm_include = re.compile(
-        r'#include\s*"([a-z_/]*\.hpp)"\s*')
+        r'#include\s*"([a-z0-9_/]*\.hpp)"\s*')
 
     include_guard = re.compile('#.*ATCODER_[A-Z_]*_HPP')
 
@@ -98,12 +98,12 @@ if __name__ == "__main__":
     parser.add_argument('source', help='Source File')
     parser.add_argument('-c', '--console',
                         action='store_true', help='Print to Console')
-    parser.add_argument('--lib', help='Path to Atcoder Library')
+    parser.add_argument('--lib', help='Path to Atcoder Library', action='append')
     opts = parser.parse_args()
 
     lib_paths = []
     if opts.lib:
-        lib_paths.append(Path(opts.lib))
+        lib_paths.extend(map(Path, opts.lib))
     if 'CPLUS_INCLUDE_PATH' in environ:
         lib_paths.extend(
             map(Path, filter(None, environ['CPLUS_INCLUDE_PATH'].split(pathsep))))
