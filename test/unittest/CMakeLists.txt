@@ -52,3 +52,7 @@ gtest_discover_tests(RandomTest)
 add_executable(FastIOTest fastio_test.cpp)
 target_link_libraries(FastIOTest gtest gtest_main)
 gtest_discover_tests(FastIOTest)
+
+add_executable(MathTest math_test.cpp)
+target_link_libraries(MathTest gtest gtest_main)
+gtest_discover_tests(MathTest)
