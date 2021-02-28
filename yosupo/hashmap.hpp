@@ -80,6 +80,10 @@ struct IncrementalHashMap {
         return Iterator(*this, i);
     }
 
+    size_t count(const K& k) {
+        return find(k) == end() ? 0 : 1;
+    }
+
   private:
     unsigned int mask, filled;  // data.size() == 1 << s
 
