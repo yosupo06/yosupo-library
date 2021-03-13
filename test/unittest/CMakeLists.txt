@@ -27,6 +27,7 @@ include(GoogleTest)
 
 include_directories(.)
 include_directories(../../)
+include_directories(../ac-library)
 
 add_executable(BitTest bit_test.cpp)
 target_link_libraries(BitTest gtest gtest_main)
@@ -56,3 +57,7 @@ gtest_discover_tests(FastIOTest)
 add_executable(MathTest math_test.cpp)
 target_link_libraries(MathTest gtest gtest_main)
 gtest_discover_tests(MathTest)
+
+add_executable(ModIntTest modint_test.cpp)
+target_link_libraries(ModIntTest gtest gtest_main)
+gtest_discover_tests(ModIntTest)
