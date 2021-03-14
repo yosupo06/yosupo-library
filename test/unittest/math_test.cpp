@@ -13,6 +13,11 @@ bool naive_is_prime(int x) {
     return true;
 }
 
+long long gcd(long long a, long long b) {
+    if (b == 0) return a;
+    return gcd(b, a % b);
+}
+
 TEST(MathTest, Prime) {
     for (int i = 0; i < 10000; i++) {        
         ASSERT_EQ(naive_is_prime(i), yosupo::is_prime(i));
@@ -22,7 +27,7 @@ TEST(MathTest, Prime) {
 TEST(MathTest, GCD) {
     for (int a = -100; a < 100; a++) {
         for (int b = -100; b < 100; b++) {
-            ASSERT_EQ(std::gcd(std::abs(a), std::abs(b)), yosupo::gcd(a, b));
+            ASSERT_EQ(gcd(std::abs(a), std::abs(b)), yosupo::gcd(a, b));
         }
     }
 }
