@@ -1,12 +1,9 @@
 #include "yosupo/math.hpp"
 
 #include <algorithm>
+#include <numeric>
 
 #include "gtest/gtest.h"
-
-using namespace yosupo;
-using ll = long long;
-using ull = unsigned long long;
 
 bool naive_is_prime(int x) {
     if (x <= 1) return false;
@@ -18,6 +15,14 @@ bool naive_is_prime(int x) {
 
 TEST(MathTest, Prime) {
     for (int i = 0; i < 10000; i++) {        
-        ASSERT_EQ(naive_is_prime(i), is_prime(i));
+        ASSERT_EQ(naive_is_prime(i), yosupo::is_prime(i));
+    }
+}
+
+TEST(MathTest, GCD) {
+    for (int a = -100; a < 100; a++) {
+        for (int b = -100; b < 100; b++) {
+            ASSERT_EQ(std::gcd(std::abs(a), std::abs(b)), yosupo::gcd(a, b));
+        }
     }
 }

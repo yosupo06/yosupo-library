@@ -22,11 +22,19 @@ unsigned long long gcd(unsigned long long a, unsigned long long b) {
 }
 long long gcd(long long a, long long b) {
     unsigned long long _a = a, _b = b;
-    if (std::numeric_limits<long long>::max() < a) _a = -a;
-    if (std::numeric_limits<long long>::max() < b) _b = -_b;
+    if (std::numeric_limits<long long>::max() < _a) _a = -_a;
+    if (std::numeric_limits<long long>::max() < _b) _b = -_b;
     return gcd(_a, _b);
 }
+unsigned int gcd(unsigned int a, unsigned int b) {
+    return (unsigned int)gcd((unsigned long long)a, (unsigned long long)b);
+}
+int gcd(int a, int b) {
+    return (int)gcd((long long)a, (long long)b);
+}
 
+// @param m `1 <= m`
+// @return x ** n % m
 unsigned long long pow_mod_u64(unsigned long long x, unsigned long long n, unsigned long long m) {
     if (m == 1) return 0;
     unsigned long long r = 1;
@@ -39,9 +47,29 @@ unsigned long long pow_mod_u64(unsigned long long x, unsigned long long n, unsig
     return r;
 }
 
-bool is_prime(unsigned long long n) {
-    if (n <= 1) return false;
+bool is_prime(unsigned int n) {
     if (n == 2) return true;
+    if (n % 2 == 0) return false;
+    unsigned long long d = n - 1;
+    while (d % 2 == 0) d /= 2;
+    for (unsigned long long a : {2, 7, 61}) {
+        if (a % n == 0) return true;
+        unsigned long long t = d;
+        unsigned long long y = pow_mod_u64(a, t, n);
+        while (t != n - 1 && y != 1 && y != n - 1) {
+            y = (unsigned long long)((unsigned __int128)(1) * y * y % n);
+            t <<= 1;
+        }
+        if (y != n - 1 && t % 2 == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+bool is_prime(unsigned long long n) {
+    if (n <= std::numeric_limits<unsigned int>::max()) {
+        return is_prime((unsigned int)n);
+    }
     if (n % 2 == 0) return false;
     unsigned long long d = n - 1;
     while (d % 2 == 0) d /= 2;
@@ -58,6 +86,14 @@ bool is_prime(unsigned long long n) {
         }
     }
     return true;
+}
+bool is_prime(int n) {
+    if (n <= 1) return false;
+    return is_prime((unsigned int)n);
+}
+bool is_prime(long long n) {
+    if (n <= 1) return false;
+    return is_prime((unsigned long long)n);
 }
 
 long long pollard_single(long long n) {
