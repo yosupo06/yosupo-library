@@ -97,7 +97,7 @@ bool is_prime(long long n) {
 }
 
 long long pollard_single(long long n) {
-    auto f = [&](long long x) { return (long long)((__int128_t(x) * x + 1) % n); };
+    auto f = [&](long long x) { return (long long)(((unsigned __int128)(x) * x + 1) % n); };
     if (is_prime((unsigned long long)n)) return n;
     if (n % 2 == 0) return 2;
     long long st = 0;
