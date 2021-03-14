@@ -1,5 +1,4 @@
-#define PROBLEM "https://judge.yosupo.jp/problem/many_aplusb"
-
+// verification-helper: PROBLEM https://judge.yosupo.jp/problem/many_aplusb
 #include <cstdio>
 
 #include "yosupo/fastio.hpp"
