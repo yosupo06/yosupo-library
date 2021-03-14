@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cctype>
 #include <cstring>
+#include <sstream>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -17,6 +18,9 @@ namespace yosupo {
 
 struct Scanner {
   public:
+    Scanner(const Scanner&) = delete;
+    Scanner& operator=(const Scanner&) = delete;
+
     Scanner(FILE* fp) : fd(fileno(fp)) {}
 
     void read() {}
@@ -33,8 +37,15 @@ struct Scanner {
         return 1 + read_unsafe(t...);
     }
 
+    int close() { return ::close(fd); }
+
   private:
     static constexpr size_t SIZE = 1 << 15;
+
+    int fd = -1;
+    std::array<char, SIZE> line;
+    size_t st = 0, ed = 0;
+    bool eof = false;
 
     bool read_single(std::string& ref) {
         if (!skip_space()) return false;
@@ -54,7 +65,8 @@ struct Scanner {
         return true;
     }
 
-    template <class T, std::enable_if_t<std::is_same<T, char>::value>* = nullptr>
+    template <class T,
+              std::enable_if_t<std::is_same<T, char>::value>* = nullptr>
     bool read_single(T& ref) {
         if (!skip_space(50)) return false;
         ref = top();
@@ -62,7 +74,9 @@ struct Scanner {
         return true;
     }
 
-    template <class T, internal::is_signed_int_t<T>* = nullptr, std::enable_if_t<!std::is_same<T, char>::value>* = nullptr>
+    template <class T,
+              internal::is_signed_int_t<T>* = nullptr,
+              std::enable_if_t<!std::is_same<T, char>::value>* = nullptr>
     bool read_single(T& sref) {
         using U = internal::to_unsigned_t<T>;
         if (!skip_space(50)) return false;
@@ -78,7 +92,9 @@ struct Scanner {
         sref = neg ? -ref : ref;
         return true;
     }
-    template <class U, internal::is_unsigned_int_t<U>* = nullptr, std::enable_if_t<!std::is_same<U, char>::value>* = nullptr>
+    template <class U,
+              internal::is_unsigned_int_t<U>* = nullptr,
+              std::enable_if_t<!std::is_same<U, char>::value>* = nullptr>
     bool read_single(U& ref) {
         if (!skip_space(50)) return false;
         ref = 0;
@@ -88,19 +104,15 @@ struct Scanner {
         return true;
     }
 
-    int fd = -1;
-    char line[SIZE];
-    size_t st = 0, ed = 0;
-    bool eof = false;
     bool reread() {
         if (ed - st >= 50) return true;
         if (st > SIZE / 2) {
-            std::memmove(line, line + st, ed - st);
+            std::memmove(line.data(), line.data() + st, ed - st);
             ed -= st;
             st = 0;
         }
         if (eof) return false;
-        auto u = ::read(fd, line + ed, SIZE - ed);
+        auto u = ::read(fd, line.data() + ed, SIZE - ed);
         if (u == 0) {
             eof = true;
             line[ed] = '\0';
@@ -132,24 +144,29 @@ struct Scanner {
 
 struct Printer {
   public:
-    template <bool F = false> void write() {}
-    template <bool F = false, class H, class... T>
+    template <char sep = ' ', bool F = false> void write() {}
+    template <char sep = ' ', bool F = false, class H, class... T>
     void write(const H& h, const T&... t) {
-        if (F) write_single(' ');
+        if (F) write_single(sep);
         write_single(h);
         write<true>(t...);
     }
-    template <class... T> void writeln(const T&... t) {
-        write(t...);
+    template <char sep = ' ', class... T> void writeln(const T&... t) {
+        write<sep>(t...);
         write_single('\n');
     }
 
     Printer(FILE* _fp) : fd(fileno(_fp)) {}
     ~Printer() { flush(); }
 
+    int close() {
+        flush();
+        return ::close(fd);
+    }
+
     void flush() {
         if (pos) {
-            auto res = ::write(fd, line, pos);
+            auto res = ::write(fd, line.data(), pos);
             assert(res != -1);
             pos = 0;
         }
@@ -161,14 +178,20 @@ struct Printer {
 
     static constexpr size_t SIZE = 1 << 15;
     int fd;
-    char line[SIZE];
+    std::array<char, SIZE> line;
     size_t pos = 0;
-    void write_single(const char& val) {
+    std::stringstream ss;
+
+    template <class T,
+              std::enable_if_t<std::is_same<char, T>::value>* = nullptr>
+    void write_single(const T& val) {
         if (pos == SIZE) flush();
         line[pos++] = val;
     }
 
-    template <class T, internal::is_signed_int_t<T>* = nullptr>
+    template <class T,
+              internal::is_signed_int_t<T>* = nullptr,
+              std::enable_if_t<!std::is_same<char, T>::value>* = nullptr>
     void write_single(const T& val) {
         using U = internal::to_unsigned_t<T>;
         if (val == 0) {
@@ -206,12 +229,12 @@ struct Printer {
 
     template <class U,
               internal::is_unsigned_int_t<U>* = nullptr,
-              std::enable_if_t<sizeof(U) <= 8>* = nullptr>
+              std::enable_if_t<8 >= sizeof(U)>* = nullptr>
     void write_unsigned(U uval) {
         size_t len = calc_len(uval);
         pos += len;
 
-        char* ptr = line + pos;
+        char* ptr = line.data() + pos;
         while (uval >= 100) {
             ptr -= 2;
             memcpy(ptr, small[uval % 100].data(), 2);
@@ -228,14 +251,14 @@ struct Printer {
         class U,
         std::enable_if_t<internal::is_unsigned_int128<U>::value>* = nullptr>
     void write_unsigned(U uval) {
-        static char buf[50];
+        static std::array<char, 50> buf;
         size_t len = 0;
         while (uval > 0) {
             buf[len++] = char((uval % 10) + '0');
             uval /= 10;
         }
-        std::reverse(buf, buf + len);
-        memcpy(line + pos, buf, len);
+        std::reverse(buf.begin(), buf.begin() + len);
+        memcpy(line.data() + pos, buf.data(), len);
         pos += len;
     }
 
