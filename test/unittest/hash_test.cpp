@@ -1,4 +1,5 @@
 #include "yosupo/hash.hpp"
+#include "yosupo/bitvector.hpp"
 
 #include <numeric>
 #include <random>
@@ -44,6 +45,9 @@ TEST(HashTest, Usage) {
     m[1] = 2;
     m[3] = 2;
     UniversalHash32<M>()(m);
+
+    BitVec bs(100);
+    UniversalHash32<BitVec>()(bs);
 }
 
 TEST(HashTest, Complex) {

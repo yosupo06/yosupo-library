@@ -9,6 +9,7 @@
 
 #include "yosupo/internal_type_traits.hpp"
 #include "yosupo/random.hpp"
+#include "yosupo/bitvector.hpp"
 
 namespace yosupo {
 
@@ -57,7 +58,6 @@ template <int I = 1> struct Hasher32 {
     }
 
     DynHasher32 to_dyn() const { return DynHasher32{I, v}; }
-
     uint32_t digest() const { return uint32_t(v >> 32); }
 };
 
@@ -65,7 +65,7 @@ template <int I = 1> struct Hasher32 {
 template <class H,
           class T,
           is_integral_t<T>* = nullptr,
-          std::enable_if_t<sizeof(T) <= 4>* = nullptr>
+          std::enable_if_t<4 >= sizeof(T)>* = nullptr>
 auto update(const H& h, const T& x) {
     return h.update32(uint32_t(x));
 }
@@ -117,29 +117,29 @@ auto update(const H& h, const std::array<T, N>& x) {
 
 // vector
 template <class H, class T> auto update(const H& h, const std::vector<T>& v) {
-    auto h2 = h.to_dyn();
+    auto h2 = update(h, v.size()).to_dyn();
     for (const auto& x : v) {
         h2 = update(h2, x);
     }
-    return update(h2, uint32_t(1234));
+    return h2;
 }
 
 // set
 template <class H, class T> auto update(const H& h, const std::set<T>& s) {
-    auto h2 = h.to_dyn();
+    auto h2 = update(h, s.size()).to_dyn();
     for (const auto& x : s) {
         h2 = update(h2, x);
     }
-    return update(h2, uint32_t(1234));
+    return h2;
 }
 
 // map
 template <class H, class T, class U> auto update(const H& h, const std::map<T, U>& m) {
-    auto h2 = h.to_dyn();
+    auto h2 = update(h, m.size()).to_dyn();
     for (const auto& x : m) {
         h2 = update(h2, x);
     }
-    return update(h2, uint32_t(1234));
+    return h2;
 }
 
 }  // namespace internal
