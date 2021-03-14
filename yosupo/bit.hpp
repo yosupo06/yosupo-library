@@ -25,6 +25,12 @@ int bsf(unsigned long n) { return __builtin_ctzl(n); }
 int bsf(unsigned long long n) { return __builtin_ctzll(n); }
 // @param n `1 <= n`
 // @return minimum non-negative `x` s.t. `(n & (1 << x)) != 0`
+int bsf(unsigned char n) { return bsf((unsigned int)n); }
+// @param n `1 <= n`
+// @return minimum non-negative `x` s.t. `(n & (1 << x)) != 0`
+int bsf(unsigned short n) { return bsf((unsigned int)n); }
+// @param n `1 <= n`
+// @return minimum non-negative `x` s.t. `(n & (1 << x)) != 0`
 int bsf(unsigned __int128 n) {
     unsigned long long low = (unsigned long long)(n);
     unsigned long long high = (unsigned long long)(n >> 64);
@@ -48,6 +54,12 @@ int bsr(unsigned long long n) {
 }
 // @param n `1 <= n`
 // @return minimum non-negative `x` s.t. `(n & (1 << x)) != 0`
+int bsr(unsigned char n) { return bsr((unsigned int)n); }
+// @param n `1 <= n`
+// @return minimum non-negative `x` s.t. `(n & (1 << x)) != 0`
+int bsr(unsigned short n) { return bsr((unsigned int)n); }
+// @param n `1 <= n`
+// @return minimum non-negative `x` s.t. `(n & (1 << x)) != 0`
 int bsr(unsigned __int128 n) {
     unsigned long long low = (unsigned long long)(n);
     unsigned long long high = (unsigned long long)(n >> 64);
@@ -56,5 +68,7 @@ int bsr(unsigned __int128 n) {
 
 int popcnt(unsigned int n) { return __builtin_popcount(n); }
 int popcnt(unsigned long n) { return __builtin_popcountll(n); }
+int popcnt(unsigned char n) { return popcnt((unsigned int)n); }
+int popcnt(unsigned short n) { return popcnt((unsigned int)n); }
 
 }  // namespace yosupo
