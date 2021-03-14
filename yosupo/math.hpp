@@ -22,8 +22,8 @@ unsigned long long gcd(unsigned long long a, unsigned long long b) {
 }
 long long gcd(long long a, long long b) {
     unsigned long long _a = a, _b = b;
-    if (std::numeric_limits<long long>::max() < _a) _a = -_a;
-    if (std::numeric_limits<long long>::max() < _b) _b = -_b;
+    if ((unsigned long long)std::numeric_limits<long long>::max() < _a) _a = -_a;
+    if ((unsigned long long)std::numeric_limits<long long>::max() < _b) _b = -_b;
     return gcd(_a, _b);
 }
 unsigned int gcd(unsigned int a, unsigned int b) {
