@@ -38,8 +38,6 @@ TEST(BitTest, BSF) {
     ASSERT_EQ(0, bsf((1U << 31) - 1));
     ASSERT_EQ(31, bsf(1U << 31));
     ASSERT_EQ(0, bsf(std::numeric_limits<unsigned int>::max()));
-
-    ASSERT_EQ(0, bsf((unsigned char)3));
 }
 
 TEST(BitTest, BSR) {
