@@ -11,13 +11,19 @@ namespace yosupo {
 unsigned long long gcd(unsigned long long a, unsigned long long b) {
     if (a == 0) return b;
     if (b == 0) return a;
-    int shift = bsf(a | b);
-    a >>= bsf(a);
-    do {
-        b >>= bsf(b);
+    int shift;
+    {
+        int a_bsf = bsf(a);
+        a >>= a_bsf;
+        int b_bsf = bsf(b);
+        b >>= b_bsf;
+        shift = std::min(a_bsf, b_bsf);
+    }
+    while (a != b) {
         if (a > b) std::swap(a, b);
         b -= a;
-    } while (b);
+        b >>= bsf(b);
+    }
     return (a << shift);
 }
 long long gcd(long long a, long long b) {
