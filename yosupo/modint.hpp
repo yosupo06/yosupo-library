@@ -16,7 +16,7 @@ std::ostream& operator<<(std::ostream& os, const dynamic_modint<ID>& x) {
     return os << x.val();
 }
 
-}  // namespace yosupo
+}  // namespace atcoder
 
 namespace yosupo {
 
@@ -28,4 +28,4 @@ using modint998244353 = atcoder::modint998244353;
 using modint1000000007 = atcoder::modint1000000007;
 using modint = atcoder::modint;
 
-}
+}  // namespace yosupo
