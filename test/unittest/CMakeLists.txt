@@ -61,3 +61,7 @@ gtest_discover_tests(MathTest)
 add_executable(ModIntTest modint_test.cpp)
 target_link_libraries(ModIntTest gtest gtest_main)
 gtest_discover_tests(ModIntTest)
+
+add_executable(CombTest comb_test.cpp)
+target_link_libraries(CombTest gtest gtest_main)
+gtest_discover_tests(CombTest)
