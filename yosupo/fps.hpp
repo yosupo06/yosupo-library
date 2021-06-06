@@ -1,20 +1,23 @@
 #pragma once
 
-#include "yosupo/modint.hpp"
+#include <vector>
+
+#include "atcoder/convolution.hpp"
+#include "yosupo/comb.hpp"
 
 namespace yosupo {
 
 template <class T> struct FPS {
   private:
     std::vector<T> v;
-    ModPoly& shrink() {
+    FPS& shrink() {
         while (v.size() && v.back() == T(0)) v.pop_back();
         return *this;
     }
 
   public:
-    ModPoly() {}
-    ModPoly(const std::vector<T>& _v) : v(_v) { shrink(); }
+    FPS() {}
+    FPS(const std::vector<T>& _v) : v(_v) { shrink(); }
 
     int size() const { return int(v.size()); }
     void set(int p, T x) {
@@ -53,25 +56,25 @@ template <class T> struct FPS {
         return shrink();
     }
     FPS& operator>>=(int s) {
-        if (size() <= s) return ModPoly();
+        if (size() <= s) return FPS();
         v.erase(v.begin(), v.begin() + s);
         return shrink();
     }
 
     friend FPS operator+(const FPS& lhs, const FPS& rhs) {
-        return ModPoly(lhs) += rhs;
+        return FPS(lhs) += rhs;
     }
     friend FPS operator-(const FPS& lhs, const FPS& rhs) {
-        return ModPoly(lhs) -= rhs;
+        return FPS(lhs) -= rhs;
     }
     friend FPS operator*(const FPS& lhs, const FPS& rhs) {
-        return ModPoly(lhs) *= rhs;
+        return FPS(lhs) *= rhs;
     }
     friend FPS operator<<(const FPS& lhs, const int s) {
-        return ModPoly(lhs) <<= s;
+        return FPS(lhs) <<= s;
     }
     friend FPS operator>>(const FPS& lhs, const int s) {
-        return ModPoly(lhs) >>= s;
+        return FPS(lhs) >>= s;
     }
 
     FPS integral() const {
@@ -110,5 +113,38 @@ template <class T> struct FPS {
         return os;
     }
 };
+
+template <class T> FPS<T> berlekamp_massey(const std::vector<T>& s) {
+    int n = int(s.size());
+    std::vector<T> b = {T(-1)}, c = {T(-1)};
+    T y = T(1);
+    for (int ed = 1; ed <= n; ed++) {
+        int l = int(c.size()), m = int(b.size());
+        T x = 0;
+        for (int i = 0; i < l; i++) {
+            x += c[i] * s[ed - l + i];
+        }
+        b.push_back(0);
+        m++;
+        if (x == T(0)) continue;
+        T freq = x / y;
+        if (l < m) {
+            // use b
+            auto tmp = c;
+            c.insert(begin(c), m - l, T(0));
+            for (int i = 0; i < m; i++) {
+                c[m - 1 - i] -= freq * b[m - 1 - i];
+            }
+            b = tmp;
+            y = x;
+        } else {
+            // use c
+            for (int i = 0; i < m; i++) {
+                c[l - 1 - i] -= freq * b[m - 1 - i];
+            }
+        }
+    }
+    return c;
+}
 
 }

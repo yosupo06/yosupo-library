@@ -27,7 +27,7 @@ include(GoogleTest)
 
 include_directories(.)
 include_directories(../../)
-include_directories(../ac-library)
+include_directories(../../ac-library)
 
 add_executable(BitTest bit_test.cpp)
 target_link_libraries(BitTest gtest gtest_main)
