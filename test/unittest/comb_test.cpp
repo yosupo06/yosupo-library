@@ -46,3 +46,10 @@ TEST(CombTest, NegComb) {
         }
     }
 }
+
+TEST(CombTest, Inv) {
+    using mint = modint998244353;
+    for (int i = 1; i < 100; i++) {
+        ASSERT_EQ(mint(1), (mint(i) * inv<mint>(i)));
+    }
+}
