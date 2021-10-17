@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <iostream>
 #include <vector>
 
 #include "atcoder/convolution.hpp"
@@ -76,6 +78,9 @@ template <class T> struct FPS {
     friend FPS operator>>(const FPS& lhs, const int s) {
         return FPS(lhs) >>= s;
     }
+    friend bool operator==(const FPS& lhs, const FPS& rhs) {
+        return lhs.v == rhs.v;
+    }
 
     FPS integral() const {
         std::vector<T> res(size() + 1);
@@ -112,6 +117,25 @@ template <class T> struct FPS {
         }
         return os;
     }
+
+    // (f^n).trim(m)
+    FPS pow(int n, int m = -1) const {
+        assert(n > 0);
+        T p0 = freq(0);
+        assert(p0 != T(0));
+        if (m == -1) m = n * (size() - 1) + 1;
+        T ip0 = p0.inv();
+        std::vector<T> val(m);
+        val[0] = p0.pow(n);
+        for (int i = 0; i < m - 1; i++) {
+            T sum = 0;
+            for (int j = 1; j <= std::min(i + 1, size() - 1); j++) {
+                sum += T(j * n - i + j - 1) * val[i + 1 - j] * freq(j);
+            }
+            val[i + 1] = sum * inv<T>(i + 1) * ip0;
+        }
+        return val;
+    }
 };
 
 template <class T> FPS<T> berlekamp_massey(const std::vector<T>& s) {
@@ -147,4 +171,4 @@ template <class T> FPS<T> berlekamp_massey(const std::vector<T>& s) {
     return c;
 }
 
-}
+}  // namespace yosupo

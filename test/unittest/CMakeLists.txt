@@ -65,3 +65,7 @@ gtest_discover_tests(ModIntTest)
 add_executable(CombTest comb_test.cpp)
 target_link_libraries(CombTest gtest gtest_main)
 gtest_discover_tests(CombTest)
+
+add_executable(FPSTest fps_test.cpp)
+target_link_libraries(FPSTest gtest gtest_main)
+gtest_discover_tests(FPSTest)
