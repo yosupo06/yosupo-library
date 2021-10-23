@@ -40,11 +40,11 @@ struct Scanner {
     int close() { return ::close(fd); }
 
   private:
-    static constexpr size_t SIZE = 1 << 15;
+    static constexpr int SIZE = 1 << 15;
 
     int fd = -1;
-    std::array<char, SIZE> line;
-    size_t st = 0, ed = 0;
+    std::array<char, SIZE + 1> line;
+    int st = 0, ed = 0;
     bool eof = false;
 
     bool read_single(std::string& ref) {
@@ -68,7 +68,7 @@ struct Scanner {
     template <class T,
               std::enable_if_t<std::is_same<T, char>::value>* = nullptr>
     bool read_single(T& ref) {
-        if (!skip_space(50)) return false;
+        if (!skip_space<50>()) return false;
         ref = top();
         st++;
         return true;
@@ -79,7 +79,7 @@ struct Scanner {
               std::enable_if_t<!std::is_same<T, char>::value>* = nullptr>
     bool read_single(T& sref) {
         using U = internal::to_unsigned_t<T>;
-        if (!skip_space(50)) return false;
+        if (!skip_space<50>()) return false;
         bool neg = false;
         if (line[st] == '-') {
             neg = true;
@@ -96,7 +96,7 @@ struct Scanner {
               internal::is_unsigned_int_t<U>* = nullptr,
               std::enable_if_t<!std::is_same<U, char>::value>* = nullptr>
     bool read_single(U& ref) {
-        if (!skip_space(50)) return false;
+        if (!skip_space<50>()) return false;
         ref = 0;
         do {
             ref = 10 * ref + (line[st++] & 0x0f);
@@ -118,7 +118,8 @@ struct Scanner {
             line[ed] = '\0';
             u = 1;
         }
-        ed += u;
+        ed += int(u);
+        line[ed] = char(127);
         return true;
     }
 
@@ -130,10 +131,12 @@ struct Scanner {
         return line[st];
     }
 
-    bool skip_space(unsigned int token_len = 0) {
+    template <int TOKEN_LEN = 0>
+    bool skip_space() {
         while (true) {
-            while (st != ed && line[st] <= ' ') st++;
-            if (ed - st > token_len) return true;
+            while (line[st] <= ' ') st++;   
+            if (ed - st > TOKEN_LEN) return true;
+            if (st > ed) st = ed;
             for (auto i = st; i < ed; i++) {
                 if (line[i] <= ' ') return true;
             }
