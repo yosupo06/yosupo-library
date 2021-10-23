@@ -229,7 +229,54 @@ struct Printer {
 
     template <class U,
               internal::is_unsigned_int_t<U>* = nullptr,
-              std::enable_if_t<8 >= sizeof(U)>* = nullptr>
+              std::enable_if_t<2 >= sizeof(U)>* = nullptr>
+    void write_unsigned(U uval) {
+        size_t len = calc_len(uval);
+        pos += len;
+
+        char* ptr = line.data() + pos;
+        while (uval >= 100) {
+            ptr -= 2;
+            memcpy(ptr, small[uval % 100].data(), 2);
+            uval /= 100;
+        }
+        if (uval >= 10) {
+            memcpy(ptr - 2, small[uval].data(), 2);
+        } else {
+            *(ptr - 1) = char('0' + uval);
+        }
+    }
+
+    template <class U,
+              internal::is_unsigned_int_t<U>* = nullptr,
+              std::enable_if_t<4 == sizeof(U)>* = nullptr>
+    void write_unsigned(U uval) {
+        std::array<char, 8> buf;
+        memcpy(buf.data() + 6, small[uval % 100].data(), 2);
+        memcpy(buf.data() + 4, small[uval / 100 % 100].data(), 2);
+        memcpy(buf.data() + 2, small[uval / 10000 % 100].data(), 2);
+        memcpy(buf.data() + 0, small[uval / 1000000 % 100].data(), 2);
+
+        if (uval >= 100000000) {
+            if (uval >= 1000000000) {
+                memcpy(line.data() + pos, small[uval / 100000000 % 100].data(), 2);
+                pos += 2;
+            } else {
+                line[pos] = char('0' + uval / 100000000);
+                pos++;
+            }
+            memcpy(line.data() + pos, buf.data(), 8);
+            pos += 8;
+        } else {
+            size_t len = calc_len(uval);
+            memcpy(line.data() + pos, buf.data() + (8 - len), len);
+            pos += len;
+        }
+    }
+
+    template <class U,
+              internal::is_unsigned_int_t<U>* = nullptr,
+              std::enable_if_t<8 == sizeof(U)>* = nullptr>
     void write_unsigned(U uval) {
         size_t len = calc_len(uval);
         pos += len;

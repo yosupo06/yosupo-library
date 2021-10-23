@@ -223,6 +223,41 @@ TEST(FastIOTest, PrinterInt) {
     }
 }
 
+TEST(FastIOTest, PrinterUnsignedInt) {
+    auto tmpf = tmpfile();
+    std::vector<unsigned int> v;
+    for (int i = 0; i < 1000; i++) {
+        v.push_back(
+            uniform(0U, std::numeric_limits<unsigned int>::max()));
+    }
+    for (int i = 0; i < 100; i++) {
+        v.push_back(i);
+        v.push_back(std::numeric_limits<unsigned int>::max() - i);
+    }
+    for (int i = 1; i <= 9; i++) {
+        unsigned int x = 1;
+        for (int j = 0; j < i; j++) {
+            x *= 10;
+        }
+        for (int j = -10; j < 10; j++) {
+            v.push_back(x + j);
+        }
+    }
+
+    Printer pr(tmpf);
+    for (auto x : v) {
+        pr.writeln(x);
+    }
+    pr.flush();
+
+    rewind(tmpf);
+    char buf[100];
+    for (auto x : v) {
+        fgets(buf, 100, tmpf);
+        ASSERT_EQ(std::to_string(x) + "\n", std::string(buf));
+    }
+}
+
 TEST(FastIOTest, PrinterLongLong) {
     auto tmpf = tmpfile();
     std::vector<long long> v;
