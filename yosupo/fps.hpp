@@ -130,9 +130,9 @@ template <class T> struct FPS {
         for (int i = 0; i < m - 1; i++) {
             T sum = 0;
             for (int j = 1; j <= std::min(i + 1, size() - 1); j++) {
-                sum += T(j * n - i + j - 1) * val[i + 1 - j] * freq(j);
+                sum += T(j * n - i + j - 1) * val[i + 1 - j] * v[j];
             }
-            val[i + 1] = sum * inv<T>(i + 1) * ip0;
+            val[i + 1] = sum * ip0 * inv<T>(i + 1);
         }
         return val;
     }
