@@ -21,7 +21,7 @@ struct Scanner {
     Scanner(const Scanner&) = delete;
     Scanner& operator=(const Scanner&) = delete;
 
-    Scanner(FILE* fp) : fd(fileno(fp)) {}
+    Scanner(FILE* fp) : fd(fileno(fp)) { line[0] = 127; }
 
     void read() {}
     template <class H, class... T> void read(H& h, T&... t) {
@@ -131,10 +131,9 @@ struct Scanner {
         return line[st];
     }
 
-    template <int TOKEN_LEN = 0>
-    bool skip_space() {
+    template <int TOKEN_LEN = 0> bool skip_space() {
         while (true) {
-            while (line[st] <= ' ') st++;   
+            while (line[st] <= ' ') st++;
             if (ed - st > TOKEN_LEN) return true;
             if (st > ed) st = ed;
             for (auto i = st; i < ed; i++) {
@@ -262,7 +261,8 @@ struct Printer {
 
         if (uval >= 100000000) {
             if (uval >= 1000000000) {
-                memcpy(line.data() + pos, small[uval / 100000000 % 100].data(), 2);
+                memcpy(line.data() + pos, small[uval / 100000000 % 100].data(),
+                       2);
                 pos += 2;
             } else {
                 line[pos] = char('0' + uval / 100000000);
