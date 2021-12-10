@@ -24,7 +24,7 @@ template <class T> struct FPS {
     int size() const { return int(v.size()); }
     void set(int p, T x) {
         if (int(v.size()) <= p && x == T(0)) return;
-        while (int(v.size()) < p) v.resize(p + 1);
+        if (int(v.size()) <= p) v.resize(p + 1);
         v[p] = x;
     }
     T freq(int p) const { return (p < size()) ? v[p] : T(0); }
@@ -39,7 +39,7 @@ template <class T> struct FPS {
     FPS& operator-=(const FPS& rhs) {
         if (size() < rhs.size()) v.resize(rhs.size());
         for (int i = 0; i < rhs.size(); i++) {
-            v[i] -= rhs[i];
+            v[i] -= rhs.v[i];
         }
         return shrink();
     }
