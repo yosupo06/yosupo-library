@@ -69,3 +69,19 @@ gtest_discover_tests(CombTest)
 add_executable(FPSTest fps_test.cpp)
 target_link_libraries(FPSTest gtest gtest_main)
 gtest_discover_tests(FPSTest)
+
+add_executable(SimdVectorTest simd/vector_test.cpp)
+target_link_libraries(SimdVectorTest gtest gtest_main)
+gtest_discover_tests(SimdVectorTest)
+
+add_executable(SimdModintTest simd/modint_test.cpp)
+target_link_libraries(SimdModintTest gtest gtest_main)
+gtest_discover_tests(SimdModintTest)
+
+add_executable(SimdConvolutionTest simd/convolution_test.cpp)
+target_link_libraries(SimdConvolutionTest gtest gtest_main)
+gtest_discover_tests(SimdConvolutionTest)
+
+add_executable(SimdFPSTest simd/fps_test.cpp)
+target_link_libraries(SimdFPSTest gtest gtest_main)
+gtest_discover_tests(SimdFPSTest)
