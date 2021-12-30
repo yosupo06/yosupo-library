@@ -30,16 +30,22 @@ template <int MOD> struct FPS {
     }
 
     mint freq(int n) const { return v[n / 8].at(n % 8); }
+    void set_freq(int n, mint x) {
+        assert(0 <= n && n <= int(size()));
+        v[n / 8].set(n % 8, x);
+    }
 
     size_t size() const { return _size; }
 
     FPS pre(int n) const {
-        n = std::min(n, int(v.size() * 8));
-        auto v2 = std::vector<mintx8>({v.begin(), v.begin() + (n + 7) / 8});
-        if (n % 8) {
-            v2.back().clear((unsigned char)(-1U << (n % 8)));
-        }
-        return FPS(n, v2);
+        int n2 = std::min(n, int(v.size() * 8));
+        auto v2 = std::vector<mintx8>({v.begin(), v.begin() + (n2 + 7) / 8});
+        return FPS(n2, v2).resize(n);
+    }
+    FPS& resize(int n) {
+        _size = n;
+        v.resize((n + 7) / 8);
+        return clean_prefix();
     }
 
     FPS& operator+=(const FPS& rhs) {
@@ -70,6 +76,11 @@ template <int MOD> struct FPS {
     }
 
     FPS& operator*=(const FPS& rhs) {
+        if (!size()) return *this;
+        if (!rhs.size()) {
+            *this = FPS();
+            return *this;
+        }
         _size = _size + int(rhs.size()) - 1;
         int nsize8 = (_size + 7) / 8;
         int z = 1 << atcoder::internal::ceil_pow2(nsize8);
@@ -90,6 +101,7 @@ template <int MOD> struct FPS {
         return *this;
     }
     friend FPS operator*(const FPS& lhs, const FPS& rhs) {
+        if (!lhs.size() || !rhs.size()) return FPS();
         return FPS(lhs) *= rhs;
     }
 
@@ -104,7 +116,23 @@ template <int MOD> struct FPS {
         return FPS(lhs) *= rhs;
     }
 
+    FPS& operator<<=(int n) {
+        if (n % 8) {
+            // TODO: optimize
+            auto v2 = to_vec();
+            v2.insert(v2.begin(), n, mint());
+            return *this = FPS(v2);
+        }
+        _size += n;
+        v.insert(v.begin(), n / 8, mintx8());
+        return *this;
+    }
+    friend FPS operator<<(const FPS& lhs, int n) {
+        return FPS(lhs) <<= n;
+    }
+
     FPS diff() const {
+        // TODO: optimize
         if (size() == 0) return FPS();
         std::vector<mint> res = to_vec();
         for (int i = 1; i < int(size()); i++) res[i - 1] = res[i] * i;
@@ -112,7 +140,25 @@ template <int MOD> struct FPS {
         return FPS(res);
     }
 
+    FPS& diff_x_assign() {
+        static std::vector<mintx8> is;
+        while (is.size() < v.size()) {
+            int m = int(is.size()) * 8;
+            is.push_back(
+                mintx8(m, m + 1, m + 2, m + 3, m + 4, m + 5, m + 6, m + 7));
+        }
+        for (int i = 0; i < int(v.size()); i++) {
+            v[i] *= is[i];
+        }
+        return *this;
+    }
+    // diff_x() = diff() * x
+    FPS diff_x() const {
+        return FPS(*this).diff_x_assign();
+    }
+
     FPS inte() const {
+        // TODO: optimize
         std::vector<mint> res = to_vec();
         res.push_back(mint(0));
         for (int i = int(size()); i >= 1; i--) res[i] = res[i - 1] * yosupo::inv<mint>(i);
@@ -120,76 +166,144 @@ template <int MOD> struct FPS {
         return FPS(res);
     }
 
-    FPS inv(int n) const {        
-        assert(size() >= 1);
-        auto naive_conv = [&](mintx8 l, mintx8 r) {
-            auto lv = l.to_array();
-            auto rv = r.to_array();
-            std::array<mint, 8> z;
+    FPS& ix_inte_assign() {
+        static std::vector<mintx8> is;
+        while (is.size() < v.size()) {
+            int m = int(is.size()) * 8;
+            std::array<mint, 8> x;
             for (int i = 0; i < 8; i++) {
-                for (int j = 0; i + j < 8; j++) {
-                    z[i + j] += lv[i] * rv[j];
-                }
+                x[i] = (m + i == 0 ? 0 : yosupo::inv<mint>(m + i));
             }
-            return mintx8(z);
-        };
-        
-        mint if0 = freq(0).inv();
+            is.push_back(x);
+        }
+        for (int i = 0; i < int(v.size()); i++) {
+            v[i] *= is[i];
+        }
+        return *this;
+    }
+    // ix_inte() = inte(this / x)
+    FPS ix_inte() const {
+        return FPS(*this).ix_inte_assign();
+    }
 
-        mintx8 one;
-        one.set(0, 1);
-        mintx8 x = one - v[0] * if0;
-        mintx8 x2 = naive_conv(x, x);
-        mintx8 d0 = naive_conv(naive_conv(one + x, one + x2), one + naive_conv(x2, x2));
+    FPS& ntt() {
+        assert((size() & -size()) == size()); // size() = 2^n
+        butterfly(v);
+        return clean_prefix();
+    }
+    FPS& intt() {
+        assert((size() & -size()) == size());  // size() = 2^n
+        butterfly_inv(v);
+        mintx8 iz = mint(size()).inv();
+        for (auto& x : v) {
+            x *= iz;
+        }
+        return clean_prefix();
+    }
 
-        std::vector<mintx8> res = {d0 * if0};
+    FPS& dot_assign(const FPS& rhs) {
+        for (int i = 0; i < int(std::min(v.size(), rhs.v.size())); i++) {
+            v[i] *= rhs.v[i];
+        }
+        return *this;
+    }
 
-        for (int d = 8; d < n; d *= 2) {
-            // res <- (2 * res - res * res * pre(2 * d)).pre(2 * d)
-            mint i2 = mint(2 * d).inv();
-            std::vector<mintx8> buf1(2 * d / 8);
-            copy_n(v.begin(), std::min(int(v.size()), 2 * d / 8), buf1.begin());
-
-            std::vector<mintx8> buf2 = res;
-            buf2.resize(2 * d / 8);
-
-            butterfly(buf1);
-            butterfly(buf2);
-            for (int i = 0; i < 2 * d / 8; i++) {
-                buf1[i] *= buf2[i];
+    FPS& clean_range(int s, int t) {
+        assert(0 <= s && s <= t && t <= int(size()));
+        {
+            // TODO: optimize
+            while (s < t && s % 8) {
+                set_freq(s, 0);
+                s++;
             }
-            butterfly_inv(buf1);
-            for (int i = 0; i < 2 * d / 8; i++) {
-                buf1[i] *= i2;
-            }
-            for (int i = 0; i < d / 8; i++) {
-                buf1[i] = mintx8();
-            }
-            butterfly(buf1);
-            for (int i = 0; i < 2 * d / 8; i++) {
-                buf1[i] *= buf2[i];
-            }
-            butterfly_inv(buf1);
-            for (int i = 0; i < 2 * d / 8; i++) {
-                buf1[i] *= i2;
-            }
-
-            res.resize(2 * d / 8);
-            for (int i = d / 8; i < 2 * d / 8; i++) {
-                res[i] = -buf1[i];
+            while (s < t && t % 8) {
+                t--;
+                set_freq(t, 0);
             }
         }
-        return FPS(int(res.size() * 8), res).pre(n);
+        for (int i = s / 8; i < t / 8; i++) {
+            v[i] = mintx8();
+        }
+        return *this;
+    }
+
+    // f_ntt = f.pre(2 * d).ntt()
+    FPS& inv_extend(FPS& f, const FPS& f_ntt) const {
+        assert((f.size() & -f.size()) == f.size());
+        int d = int(f.size());
+        FPS buf1 = pre(2 * d);
+        buf1.ntt();
+        buf1.dot_assign(f_ntt);
+        buf1.intt();
+        buf1.clean_range(0, d);
+        buf1.ntt();
+        buf1.dot_assign(f_ntt);
+        buf1.intt();
+        return f.resize(2 * d) -= buf1.clean_range(0, d);
+    }
+    // input:
+    //  f.size() = 2^n
+    //  f = inv(f.size())
+    // output:
+    //  f <- inv(f.size() * 2)
+    FPS& inv_extend(FPS& f) const {
+        assert((f.size() & -f.size()) == f.size());
+        int d = int(f.size());
+        return inv_extend(f, f.pre(2 * d).ntt());
+    }
+
+    FPS inv(int n) const {        
+        assert(size() >= 1);
+        FPS res({freq(0).inv()});
+        for (int d = 1; d < n; d *= 2) {
+            inv_extend(res);
+        }
+        return res.resize(n);
     }
 
     FPS exp(int n) const {
         assert(freq(0) == 0);
         FPS f({1}), g({1});
-        for (int i = 1; i < n; i *= 2) {
-            g = (g * mint(2) - f * g * g).pre(i);
-            FPS q = diff().pre(i - 1);
-            FPS w = (q + g * (f.diff() - f * q)).pre(2 * i - 1);
-            f = (f + f * (*this - w.inte()).pre(2 * i)).pre(2 * i);
+        for (int d = 1; d < n; d *= 2) {
+            // t = (*this)
+            // f = t.exp(d)
+            // g = t.exp(d).inv(d)
+
+            FPS f2 = f.pre(2 * d).ntt();
+            FPS g2 = g.pre(2 * d).ntt();
+
+            FPS dt = pre(d).diff_x_assign();
+
+            // w = (f * dt) % (x^m - 1)
+            // w % (x^m) = f.diff_x() (because f.diff_x() = f * t.pre(d).diff_x())
+            FPS w = dt;
+            w.ntt();
+            w.dot_assign(f2);
+            w.intt();
+            // w = (f * dt - f.diff_x()) / x^d
+            w -= f.diff_x();
+
+            // w = g * (f * dt - f.diff_x())
+            w.resize(2 * d);
+            w.ntt();
+            w.dot_assign(g2);
+            w.intt();
+            w.resize(d);
+            w <<= d;
+
+            // w = g * (f * dt - f.diff_x()) - dt
+            w -= dt;
+
+            FPS z = pre(2 * d);
+            z += w.ix_inte_assign();
+            z.ntt();
+            z.dot_assign(f2);
+            z.intt();
+            f.resize(2 * d) += z.clean_range(0, d);
+
+            if (d * 2 < n) {
+                f.inv_extend(g, g2);
+            }
         }
         return f.pre(n);
     }
@@ -216,9 +330,17 @@ template <int MOD> struct FPS {
 
     FPS(const int n, const std::vector<mintx8>& _v) : _size(n), v(_v) {
         assert((n + 7) / 8 == int(v.size()));
+        clean_prefix();
     }
 
     size_t size8() const { return (_size + 7) / 8; }
+
+    FPS& clean_prefix() {
+        if (_size % 8) {
+            v.back().clear((unsigned char)(-1U << (_size % 8)));
+        }
+        return *this;
+    }
 };
 
 }  // namespace yosupo
