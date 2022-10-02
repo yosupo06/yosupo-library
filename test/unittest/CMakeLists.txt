@@ -85,3 +85,7 @@ gtest_discover_tests(SimdConvolutionTest)
 add_executable(SimdFPSTest simd/fps_test.cpp)
 target_link_libraries(SimdFPSTest gtest gtest_main)
 gtest_discover_tests(SimdFPSTest)
+
+add_executable(MaxFlowTest maxflow_test.cpp)
+target_link_libraries(MaxFlowTest gtest gtest_main)
+gtest_discover_tests(MaxFlowTest)

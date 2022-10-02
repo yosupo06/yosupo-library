@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <vector>
 #include <initializer_list>
+#include <limits>
 
 #include "yosupo/bit.hpp"
 namespace yosupo {

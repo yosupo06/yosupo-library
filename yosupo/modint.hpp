@@ -136,4 +136,16 @@ struct modint61 {
     static constexpr unsigned long long umod() { return mod(); }
 };
 
+std::ostream& operator<<(std::ostream& os, const modint61& x) {
+    return os << x.val();
+}
+
+namespace internal {
+
+template <class H> auto update(const H& h, const modint61& x) {
+    return update(h, x.val());
+}
+
+}  // namespace internal
+
 }  // namespace yosupo
