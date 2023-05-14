@@ -89,7 +89,8 @@ struct modint61 {
     mint& operator*=(const mint& rhs) {
         __uint128_t z = _v;
         z *= rhs._v;
-        _v = (unsigned long long)(z % umod());
+        z = (z & umod()) | (z >> 61);
+        if (z >= umod()) z -= umod();
         return *this;
     }
     mint& operator/=(const mint& rhs) { return *this = *this * rhs.inv(); }
