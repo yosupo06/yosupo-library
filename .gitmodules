@@ -1,9 +1,3 @@
-[submodule "test/unittest/googletest"]
-	path = test/unittest/googletest
-	url = https://github.com/google/googletest
 [submodule "test/ac-library"]
 	path = ac-library
 	url = https://github.com/atcoder/ac-library
-[submodule "test/benchmark/benchmark"]
-	path = test/benchmark/benchmark
-	url = https://github.com/google/benchmark
