@@ -1,33 +1,19 @@
 name: Unittest
 
-on:
-  push:
-    branches:
-      - '*'
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   gtest:    
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        cxx: [g++, clang++]
-        stdcxx: [17]
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
+      - uses: actions/checkout@v4
       - name: run unittest
         run: |
-          cd test/unittest
           mkdir build
           cd build
-          cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=$STDCXX
+          cmake ../test -DCMAKE_BUILD_TYPE=Debug
           make
-          ctest -VV
+          ./unittest
         env:
-          CXX: ${{ matrix.cxx }}
-          STDCXX: ${{ matrix.stdcxx }}
           GTEST_COLOR: "1"
