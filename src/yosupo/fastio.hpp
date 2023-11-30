@@ -219,9 +219,8 @@ struct Printer {
         write_unsigned(uval);
     }
 
-    template <class U, internal::is_unsigned_int_t<U>* = nullptr>
-    static int calc_len(U x) {
-        int i = (bsr(x) * 3 + 3) / 10;
+    static int calc_len(uint64_t x) {
+        int i = ((63 - std::countl_zero(x)) * 3 + 3) / 10;
         if (x < tens[i])
             return i;
         else
