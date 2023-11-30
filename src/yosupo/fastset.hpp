@@ -81,7 +81,7 @@ struct FastSet {
                 continue;
             }
             // find
-            i += B - 1 - std::countl_zero(d) - (B - 1);
+            i -= std::countl_zero(d);
             for (int g = h - 1; g >= 0; g--) {
                 i *= B;
                 i += B - 1 - std::countl_zero(seg[g][i / B]);
