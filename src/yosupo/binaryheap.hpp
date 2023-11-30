@@ -1,6 +1,6 @@
+#include <algorithm>
 #include <functional>
 #include <vector>
-#include <algorithm>
 
 namespace yosupo {
 
