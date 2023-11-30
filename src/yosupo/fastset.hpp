@@ -1,11 +1,10 @@
 #pragma once
 
 #include <algorithm>
+#include <bit>
 #include <cassert>
 #include <cstdint>
 #include <vector>
-
-#include "yosupo/bit.hpp"
 
 namespace yosupo {
 
@@ -53,10 +52,10 @@ struct FastSet {
                 continue;
             }
             // find
-            i += bsf(d);
+            i += std::countr_zero(d);
             for (int g = h - 1; g >= 0; g--) {
                 i *= B;
-                i += bsf(seg[g][i / B]);
+                i += std::countr_zero(seg[g][i / B]);
             }
             assert((*this)[i]);
             return i;
@@ -82,10 +81,10 @@ struct FastSet {
                 continue;
             }
             // find
-            i += bsr(d) - (B - 1);
+            i += B - 1 - std::countl_zero(d) - (B - 1);
             for (int g = h - 1; g >= 0; g--) {
                 i *= B;
-                i += bsr(seg[g][i / B]);
+                i += B - 1 - std::countl_zero(seg[g][i / B]);
             }
             return i;
         }

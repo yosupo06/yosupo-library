@@ -26,6 +26,16 @@ FetchContent_MakeAvailable(googletest)
 
 # unittest
 add_executable(unittest
-  unittest/binaryheap_test.cpp)
+  unittest/binaryheap_test.cpp
+  unittest/comb_test.cpp  
+  unittest/fastio_test.cpp  
+  unittest/fastset_test.cpp
+  unittest/random_test.cpp
+  unittest/hash_test.cpp
+  unittest/hashmap_test.cpp
+  unittest/math_test.cpp
+  unittest/maxflow_test.cpp
+  unittest/random_test.cpp
+  )
 target_link_libraries(unittest gtest_main)
 add_test(NAME test COMMAND unittest)

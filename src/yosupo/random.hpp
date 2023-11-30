@@ -1,12 +1,11 @@
 #pragma once
 
 #include <array>
+#include <bit>
 #include <cassert>
 #include <chrono>
 #include <cstdint>
 #include <type_traits>
-
-#include "yosupo/bit.hpp"
 
 namespace yosupo {
 
@@ -66,7 +65,7 @@ template <class G> uint64_t uniform(uint64_t upper, G& gen) {
         // b = 00..0011..11
         return gen() & upper;
     }
-    int log = bsr(upper);
+    int log = 63 - std::countl_zero(upper);
     uint64_t mask = (log == 63) ? ~0ULL : (1ULL << (log + 1)) - 1;
     while (true) {
         uint64_t r = gen() & mask;
@@ -76,7 +75,7 @@ template <class G> uint64_t uniform(uint64_t upper, G& gen) {
 
 }  // namespace internal
 
-Xoshiro256StarStar& global_gen() {
+inline Xoshiro256StarStar& global_gen() {
     static Xoshiro256StarStar gen(
         std::chrono::steady_clock::now().time_since_epoch().count());
     return gen;
@@ -92,7 +91,7 @@ template <class T> T uniform(T lower, T upper) {
 template <class G> bool uniform_bool(G& gen) {
     return internal::uniform(1, gen) == 1;
 }
-bool uniform_bool() { return uniform_bool(global_gen()); }
+inline bool uniform_bool() { return uniform_bool(global_gen()); }
 
 template <class T, class G>
 std::pair<T, T> uniform_pair(T lower, T upper, G& gen) {

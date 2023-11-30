@@ -19,7 +19,7 @@ constexpr int THRESHOLD_HASH = 100;
 
 // Reference: Lemire, Daniel., and Owen, Kaser.
 // Strongly Universal String Hashing Is Fast.
-uint64_t get_seed(int i) {
+inline uint64_t get_seed(int i) {
     static std::array<uint64_t, THRESHOLD_HASH> seed = []() {
         std::array<uint64_t, THRESHOLD_HASH> _seed;
         for (auto& x : _seed) {

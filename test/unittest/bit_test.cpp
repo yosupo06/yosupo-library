@@ -1,5 +1,6 @@
 #include "yosupo/bit.hpp"
 
+#include <bit>
 #include <numeric>
 
 #include "gtest/gtest.h"
@@ -54,6 +55,23 @@ TEST(BitTest, BSR) {
     ASSERT_EQ(30, bsr((1U << 31) - 1));
     ASSERT_EQ(31, bsr(1U << 31));
     ASSERT_EQ(31, bsr(std::numeric_limits<unsigned int>::max()));
+}
+
+TEST(BitTest, BSR2) {
+    ASSERT_EQ(0, 31 - std::countl_zero(1U));
+    ASSERT_EQ(1, 31 - std::countl_zero(2U));
+    ASSERT_EQ(1, 31 - std::countl_zero(3U));
+    ASSERT_EQ(2, 31 - std::countl_zero(4U));
+    ASSERT_EQ(2, 31 - std::countl_zero(5U));
+    ASSERT_EQ(2, 31 - std::countl_zero(6U));
+    ASSERT_EQ(2, 31 - std::countl_zero(7U));
+    ASSERT_EQ(3, 31 - std::countl_zero(8U));
+    ASSERT_EQ(3, 31 - std::countl_zero(9U));
+    ASSERT_EQ(30, 31 - std::countl_zero(1U << 30));
+    ASSERT_EQ(30, 31 - std::countl_zero((1U << 31) - 1));
+    ASSERT_EQ(31, 31 - std::countl_zero(1U << 31));
+    ASSERT_EQ(
+        31, 31 - std::countl_zero(std::numeric_limits<unsigned int>::max()));
 }
 
 TEST(BitTest, BSRLL) {

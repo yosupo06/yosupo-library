@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <bit>
 
 namespace yosupo {
 
@@ -36,7 +37,7 @@ struct BitVec {
 
     size_t count() const {
         size_t sm = 0;
-        for (auto x : d) sm += popcnt(x);
+        for (auto x : d) sm += std::popcount(x);
         return sm;
     }
     bool any() const {
@@ -47,7 +48,7 @@ struct BitVec {
     int find_first() const {
         auto m = d.size();
         for (size_t i = 0; i < m; i++) {
-            if (d[i]) return int(i * B + ::yosupo::bsf(d[i]));
+            if (d[i]) return int(i * B + std::countr_zero(d[i]));
         }
         return int(size());
     }

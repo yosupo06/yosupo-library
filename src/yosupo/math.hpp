@@ -1,11 +1,11 @@
 #pragma once
 
 #include <algorithm>
-#include <vector>
+#include <bit>
 #include <initializer_list>
 #include <limits>
+#include <vector>
 
-#include "yosupo/bit.hpp"
 namespace yosupo {
 
 // binary gcd
@@ -14,35 +14,37 @@ unsigned long long gcd(unsigned long long a, unsigned long long b) {
     if (b == 0) return a;
     int shift;
     {
-        int a_bsf = bsf(a);
+        int a_bsf = std::countr_zero(a);
         a >>= a_bsf;
-        int b_bsf = bsf(b);
+        int b_bsf = std::countr_zero(b);
         b >>= b_bsf;
         shift = std::min(a_bsf, b_bsf);
     }
     while (a != b) {
         if (a > b) std::swap(a, b);
         b -= a;
-        b >>= bsf(b);
+        b >>= std::countr_zero(b);
     }
     return (a << shift);
 }
 long long gcd(long long a, long long b) {
     unsigned long long _a = a, _b = b;
-    if ((unsigned long long)std::numeric_limits<long long>::max() < _a) _a = -_a;
-    if ((unsigned long long)std::numeric_limits<long long>::max() < _b) _b = -_b;
+    if ((unsigned long long)std::numeric_limits<long long>::max() < _a)
+        _a = -_a;
+    if ((unsigned long long)std::numeric_limits<long long>::max() < _b)
+        _b = -_b;
     return gcd(_a, _b);
 }
 unsigned int gcd(unsigned int a, unsigned int b) {
     return (unsigned int)gcd((unsigned long long)a, (unsigned long long)b);
 }
-int gcd(int a, int b) {
-    return (int)gcd((long long)a, (long long)b);
-}
+int gcd(int a, int b) { return (int)gcd((long long)a, (long long)b); }
 
 // @param m `1 <= m`
 // @return x ** n % m
-unsigned long long pow_mod_u64(unsigned long long x, unsigned long long n, unsigned long long m) {
+unsigned long long pow_mod_u64(unsigned long long x,
+                               unsigned long long n,
+                               unsigned long long m) {
     if (m == 1) return 0;
     unsigned long long r = 1;
     unsigned long long y = x % m;
@@ -80,7 +82,8 @@ bool is_prime(unsigned long long n) {
     if (n % 2 == 0) return false;
     unsigned long long d = n - 1;
     while (d % 2 == 0) d /= 2;
-    for (unsigned long long a : {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) {
+    for (unsigned long long a :
+         {2, 325, 9375, 28178, 450775, 9780504, 1795265022}) {
         if (a % n == 0) return true;
         unsigned long long t = d;
         unsigned long long y = pow_mod_u64(a, t, n);
@@ -104,7 +107,9 @@ bool is_prime(long long n) {
 }
 
 long long pollard_single(long long n) {
-    auto f = [&](long long x) { return (long long)(((unsigned __int128)(x) * x + 1) % n); };
+    auto f = [&](long long x) {
+        return (long long)(((unsigned __int128)(x)*x + 1) % n);
+    };
     if (is_prime((unsigned long long)n)) return n;
     if (n % 2 == 0) return 2;
     long long st = 0;
@@ -130,4 +135,4 @@ std::vector<long long> factor(long long n) {
     return f0;
 }
 
-}
+}  // namespace yosupo
