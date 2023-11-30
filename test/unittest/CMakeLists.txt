@@ -33,6 +33,10 @@ add_executable(BitTest bit_test.cpp)
 target_link_libraries(BitTest gtest gtest_main)
 gtest_discover_tests(BitTest)
 
+add_executable(BinaryHeapTest binaryheap_test.cpp)
+target_link_libraries(BinaryHeapTest gtest gtest_main)
+gtest_discover_tests(BinaryHeapTest)
+
 add_executable(FastSetTest fastset_test.cpp)
 target_link_libraries(FastSetTest gtest gtest_main)
 gtest_discover_tests(FastSetTest)

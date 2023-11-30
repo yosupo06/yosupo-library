@@ -16,7 +16,7 @@ template <int MOD> struct fft_info {
     static constexpr int g = atcoder::internal::primitive_root<MOD>;
 
     static constexpr int rank2 =
-        atcoder::internal::bsf_constexpr(mint::mod() - 1);
+        atcoder::internal::countr_zero_constexpr(mint::mod() - 1);
     std::array<mint, rank2 + 1> root,
         iroot;  // root[i]^(2^i) == 1, root[i] * iroot[i] == 1
 

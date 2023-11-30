@@ -72,7 +72,7 @@ template <int MOD> struct FPS {
     FPS& operator*=(const FPS& rhs) {
         _size = _size + int(rhs.size()) - 1;
         int nsize8 = (_size + 7) / 8;
-        int z = 1 << atcoder::internal::ceil_pow2(nsize8);
+        int z = (int)atcoder::internal::bit_ceil((unsigned int)nsize8);
         auto rv = rhs.v;
         v.resize(z);
         rv.resize(z);
