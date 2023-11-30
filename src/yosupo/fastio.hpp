@@ -11,7 +11,6 @@
 #include <type_traits>
 #include <vector>
 
-#include "yosupo/bit.hpp"
 #include "yosupo/internal_type_traits.hpp"
 
 namespace yosupo {
