@@ -12,27 +12,27 @@ template <class T, class Comp = std::less<T>> struct MeldableBinaryHeapManager {
 
     struct Heap {
         std::vector<T> d;
-        int len() const { return int(d.size()); }
-        bool empty() const { return len() == 0; }
+        size_t size() const { return std::size(d); }
+        bool empty() const { return size() == 0; }
         void clear() { d.clear(); }
     };
 
     Heap build() { return Heap(); }
 
     Heap build(std::vector<T> d) {
-        int n = int(d.size());
+        ssize_t n = std::ssize(d);
         auto h = Heap{std::move(d)};
-        for (int i = n / 2 - 1; i >= 0; i--) {
+        for (ssize_t i = n / 2 - 1; i >= 0; i--) {
             down(h, i);
         }
         return h;
     }
 
     void push(Heap& h, const T& x) {
-        int c = int(h.d.size());
+        ssize_t c = std::ssize(h);
         h.d.push_back(x);
         while (c > 0) {
-            int p = (c - 1) / 2;
+            ssize_t p = (c - 1) / 2;
             if (!bool(comp(h.d[p], h.d[c]))) break;
             std::swap(h.d[p], h.d[c]);
             c = p;
@@ -48,23 +48,23 @@ template <class T, class Comp = std::less<T>> struct MeldableBinaryHeapManager {
     const T& top(Heap& h) { return h.d.front(); }
 
     void meld(Heap& h, Heap& other) {
-        if (h.len() < other.len()) swap(h, other);
+        if (h.size() < other.size()) std::swap(h, other);
         if (other.empty()) return;
 
-        static constexpr int THRESHOLD = 50;
-        if (other.len() < THRESHOLD) {
+        static constexpr ssize_t THRESHOLD = 50;
+        if (std::ssize(other) < THRESHOLD) {
             for (auto x : other.d) {
                 push(h, x);
             }
         } else {
-            int l = h.len(), r = l + other.len() - 1;
+            ssize_t l = std::ssize(h), r = l + std::ssize(other) - 1;
 
             h.d.insert(h.d.end(), other.d.begin(), other.d.end());
 
             while (l) {
                 l = (l - 1) / 2;
                 r = (r - 1) / 2;
-                for (int i = r; i >= l; i--) {
+                for (ssize_t i = r; i >= l; i--) {
                     down(h, i);
                 }
             }
@@ -72,13 +72,13 @@ template <class T, class Comp = std::less<T>> struct MeldableBinaryHeapManager {
         other = build();
     }
 
-    int len(const Heap& h) const { return int(h.d.size()); }
+    size_t size(const Heap& h) const { return h.size(); }
 
   private:
-    void down(Heap& h, int u) {
-        int n = int(h.d.size());
+    void down(Heap& h, ssize_t u) {
+        ssize_t n = std::ssize(h);
         while (2 * u + 1 < n) {
-            int v = (2 * u + 1);
+            ssize_t v = (2 * u + 1);
             if (v + 1 < n && comp(h.d[v], h.d[v + 1])) v++;
             if (!comp(h.d[u], h.d[v])) break;
             std::swap(h.d[u], h.d[v]);

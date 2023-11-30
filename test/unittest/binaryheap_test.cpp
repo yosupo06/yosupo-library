@@ -10,6 +10,26 @@ using namespace yosupo;
 using ll = long long;
 using ull = unsigned long long;
 
+TEST(BinaryHeapTest, Ssize) {
+    MeldableBinaryHeapManager<int> manager;
+
+    auto h = manager.build({1, 2, 3});
+    
+    ASSERT_EQ(3, h.size());
+    ASSERT_EQ(3, std::ssize(h));
+}
+
+TEST(BinaryHeapTest, Meld) {
+    MeldableBinaryHeapManager<int> manager;
+
+    auto h0 = manager.build({1, 2, 3});
+    auto h1 = manager.build({4, 5});
+
+    manager.meld(h0, h1);
+
+    ASSERT_EQ(manager.top(h0), 5);
+}
+
 TEST(BinaryHeapTest, StressPushPop) {
     for (int ph = 0; ph < 10000; ph++) {
         MeldableBinaryHeapManager<int> manager;
