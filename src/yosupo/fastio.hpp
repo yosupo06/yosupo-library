@@ -10,6 +10,8 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <bit>
+#include <cstdint>
 
 #include "yosupo/internal_type_traits.hpp"
 
