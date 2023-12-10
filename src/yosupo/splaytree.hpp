@@ -1,6 +1,7 @@
+#include <algorithm>
+#include <iostream>
 #include <utility>
 #include <vector>
-#include <algorithm>
 
 namespace yosupo {
 
@@ -110,7 +111,7 @@ template <class M> struct SplayTree {
 
             auto dir = f(lid, rid);
 
-            if (dir == -1) {
+            if (dir == -1 && size(lid) > 1) {
                 if (zig == -1) {
                     inner(rights.back()).lid = rid;
                     update(rights.back());
@@ -125,7 +126,7 @@ template <class M> struct SplayTree {
                 } else {
                     zig = 0;
                 }
-            } else if (dir == 1) {
+            } else if (dir == 1 && size(rid) > 1) {
                 if (zig == 1) {
                     inner(lefts.back()).rid = lid;
                     update(lefts.back());
@@ -166,7 +167,7 @@ template <class M> struct SplayTree {
     }
 
     int splay_k(int id, int k) {
-        return splay(id, [&](int lid, int rid) {
+        return splay(id, [&](int lid, int) {
             int lsz = size(lid);
             if (k == lsz) return 0;
             if (k < lsz) return -1;
@@ -175,13 +176,23 @@ template <class M> struct SplayTree {
         });
     }
 
-    Tree _build(const std::vector<S>& v, int l, int r) {
-        if (r - l == 1) {
-            return make_leaf(v[l]);
-        }
-        int md = (l + r) / 2;
-        return merge(_build(v, l, md), _build(v, md, r));
+    template <class F> int max_right(Tree& t, F f) {
+        if (f(all_prod(t))) return size(t.id);
+        S s = m.e();
+        int r = 0;
+        t.id = splay(t.id, [&](int lid, int) {
+            S s2 = m.op(s, all_prod(lid));
+
+            if (!f(s2)) return -1;
+
+            r += size(lid);
+            s = s2;
+            return 1;
+        });
+
+        return r;
     }
+
     Tree build(const std::vector<S>& v) {
         nodes.reserve(nodes.size() + v.size());
         Tree t = _build(v, 0, int(v.size()));
@@ -199,35 +210,37 @@ template <class M> struct SplayTree {
     Tree split(Tree& t, int k) {
         if (k == 0) return std::exchange(t, Tree());
         if (k == size(t.id)) return Tree();
-        int id = splay(t.id, k);
+        int id = splay_k(t.id, k);
         t.id = inner(id).lid;
         return Tree{inner(id).rid, id};
     }
-/*    
-    template <class F> Tree split_f(Tree& t, F f) {
-        if (f(m.e()))
-            if (k == 0) return std::exchange(t, Tree());
-        if (k == size(t.id)) return Tree();
-        int id = splay(t.id, k);
-        t.id = inner(id).lid;
-        return Tree{inner(id).rid, id};
-    }
-*/
 
-    void to_vec(int id, std::vector<S>& buf) {
+    std::vector<S> to_vec(const Tree& t) {
+        std::vector<S> buf;
+        buf.reserve(size(t.id));
+        _to_vec(t.id, buf);
+        return buf;
+    }
+
+  private:
+    Tree _build(const std::vector<S>& v, int l, int r) {
+        if (r - l == 1) {
+            return make_leaf(v[l]);
+        }
+        int md = (l + r) / 2;
+        return merge(_build(v, l, md), _build(v, md, r));
+    }
+
+    void _to_vec(int id, std::vector<S>& buf) {
         if (leaf_id(id)) {
             buf.push_back(leaf(id).s);
             return;
         }
         push(id);
         int lid = inner(id).lid, rid = inner(id).rid;
-        to_vec(lid, buf);
-        to_vec(rid, buf);
-    }
-    std::vector<S> to_vec(const Tree& t) {
-        std::vector<S> buf;
-        to_vec(t.id, buf);
-        return buf;
+        _to_vec(lid, buf);
+        _to_vec(rid, buf);
     }
 };
-}
+
+}  // namespace yosupo
