@@ -6,8 +6,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "yosupo/bit.hpp"
 #include "atcoder/internal_csr.hpp"
+
 namespace yosupo {
 
 struct HLEulerTour {

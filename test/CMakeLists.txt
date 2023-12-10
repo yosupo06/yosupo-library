@@ -36,6 +36,13 @@ add_executable(unittest
   unittest/math_test.cpp
   unittest/maxflow_test.cpp
   unittest/random_test.cpp
+  unittest/splaytree_test.cpp
   )
 target_link_libraries(unittest gtest_main)
 add_test(NAME test COMMAND unittest)
+
+# oj
+add_executable(oj_aplusb oj/aplusb.test.cpp)
+add_executable(oj_factorize oj/factorize.test.cpp)
+add_executable(oj_hl_lca oj/hl_lca.test.cpp)
+add_executable(oj_matching oj/matching.test.cpp)
