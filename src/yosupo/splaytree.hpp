@@ -9,6 +9,82 @@ template <class M> struct SplayTree {
     using S = M::S;
     using F = M::F;
 
+    SplayTree(M _m) : m(_m) {}
+
+    struct Tree {
+        int id = -1, ex = -1;
+    };
+
+    Tree make_empty() { return Tree{}; }
+    Tree make_leaf(S s) {
+        int id = int(nodes.size());
+        nodes.push_back({
+            Inner{},
+            Leaf{s},
+        });
+        return Tree{2 * id + 1, 2 * id};
+    }
+
+    S all_prod(const Tree& t) {
+        if (t.id == -1) return m.e();
+        return all_prod(t.id);
+    }
+    void all_apply(Tree& t, F f) {
+        if (t.id != -1) all_apply(t.id, f);
+    }
+    void reverse(Tree& t) {
+        if (t.id == -1) return;
+        reverse(t.id);
+    }
+
+    template <class F> int max_right(Tree& t, F f) {
+        if (f(all_prod(t))) return size(t.id);
+        S s = m.e();
+        int r = 0;
+        splay(t, [&](int lid, int) {
+            S s2 = m.op(s, all_prod(lid));
+
+            if (!f(s2)) return -1;
+
+            r += size(lid);
+            s = s2;
+            return 1;
+        });
+        return r;
+    }
+
+    Tree build(const std::vector<S>& v) {
+        nodes.reserve(nodes.size() + v.size());
+        Tree t = _build(v, 0, int(v.size()));
+        return t;
+    }
+
+    Tree merge(Tree l, Tree r) {
+        if (l.id == -1) return r;
+        if (r.id == -1) return l;
+        inner(l.ex) = Inner{l.id, r.id, -1, false, false, m.e(), m.id()};
+        update(l.ex);
+        return Tree{l.ex, r.ex};
+    }
+
+    Tree split(Tree& t, int k) {
+        if (k == 0) return std::exchange(t, make_empty());
+        if (k == size(t.id)) return make_empty();
+        splay_k(t, k);
+        int id = t.id;
+        t.id = inner(id).lid;
+        return Tree{inner(id).rid, id};
+    }
+
+    std::vector<S> to_vec(const Tree& t) {
+        if (t.id == -1) return {};
+        std::vector<S> buf;
+        buf.reserve(size(t.id));
+        _to_vec(t.id, buf);
+        return buf;
+    }
+
+  private:
     M m;
 
     struct Inner {
@@ -26,28 +102,34 @@ template <class M> struct SplayTree {
     Leaf& leaf(int id) { return nodes[id / 2].second; }
 
     int size(int id) { return leaf_id(id) ? 1 : inner(id).sz; }
+    S all_prod(int id) { return leaf_id(id) ? leaf(id).s : inner(id).s; }
 
-    SplayTree(M _m) : m(_m) {}
-
-    struct Tree {
-        int id = -1, ex = -1;
-    };
-
-    Tree make_empty() { return Tree{}; }
-    Tree make_leaf(S s) {
-        int id = int(nodes.size());
-        nodes.push_back({
-            Inner{},
-            Leaf{s},
-        });
-
-        return Tree{2 * id + 1, 2 * id};
+    Tree _build(const std::vector<S>& v, int l, int r) {
+        if (r - l == 1) {
+            return make_leaf(v[l]);
+        }
+        int md = (l + r) / 2;
+        return merge(_build(v, l, md), _build(v, md, r));
     }
 
-    S all_prod(int id) { return leaf_id(id) ? leaf(id).s : inner(id).s; }
-    S all_prod(const Tree& t) {
-        if (t.id == -1) return m.e();
-        return all_prod(t.id);
+    void _to_vec(int id, std::vector<S>& buf) {
+        if (leaf_id(id)) {
+            buf.push_back(leaf(id).s);
+            return;
+        }
+        push(id);
+        int lid = inner(id).lid, rid = inner(id).rid;
+        _to_vec(lid, buf);
+        _to_vec(rid, buf);
+    }
+
+    void reverse(int id) {
+        if (!leaf_id(id)) {
+            Inner& n = inner(id);
+            n.rev = !n.rev;
+            std::swap(n.lid, n.rid);
+            n.s = m.rev(n.s);
+        }
     }
 
     void all_apply(int id, F f) {
@@ -60,22 +142,6 @@ template <class M> struct SplayTree {
             n.f = m.composition(f, n.f);
             n.lz = true;
         }
-    }
-    void all_apply(Tree& t, F f) {
-        if (t.id != -1) all_apply(t.id, f);
-    }
-
-    void reverse(int id) {
-        if (!leaf_id(id)) {
-            Inner& n = inner(id);
-            n.rev = !n.rev;
-            std::swap(n.lid, n.rid);
-            n.s = m.rev(n.s);
-        }
-    }
-    void reverse(Tree& t) {
-        if (t.id == -1) return;
-        reverse(t.id);
     }
 
     void push(int id) {
@@ -100,11 +166,12 @@ template <class M> struct SplayTree {
         n.s = m.op(all_prod(n.lid), all_prod(n.rid));
     }
 
-    template <class F> int splay(int id, F f) {
+    template <class F> void splay(Tree& t, F f) {
         static std::vector<int> lefts, rights;
         lefts.clear();
         rights.clear();
         int zig = 0;
+        int id = t.id;
         while (true) {
             push(id);
             int lid = inner(id).lid, rid = inner(id).rid;
@@ -162,84 +229,17 @@ template <class M> struct SplayTree {
                 break;
             }
         }
-
-        return id;
+        t.id = id;
     }
 
-    int splay_k(int id, int k) {
-        return splay(id, [&](int lid, int) {
+    void splay_k(Tree& t, int k) {
+        splay(t, [&](int lid, int) {
             int lsz = size(lid);
             if (k == lsz) return 0;
             if (k < lsz) return -1;
             k -= lsz;
             return 1;
         });
-    }
-
-    template <class F> int max_right(Tree& t, F f) {
-        if (f(all_prod(t))) return size(t.id);
-        S s = m.e();
-        int r = 0;
-        t.id = splay(t.id, [&](int lid, int) {
-            S s2 = m.op(s, all_prod(lid));
-
-            if (!f(s2)) return -1;
-
-            r += size(lid);
-            s = s2;
-            return 1;
-        });
-
-        return r;
-    }
-
-    Tree build(const std::vector<S>& v) {
-        nodes.reserve(nodes.size() + v.size());
-        Tree t = _build(v, 0, int(v.size()));
-        return t;
-    }
-
-    Tree merge(Tree l, Tree r) {
-        if (l.id == -1) return r;
-        if (r.id == -1) return l;
-        inner(l.ex) = Inner{l.id, r.id, -1, false, false, m.e(), m.id()};
-        update(l.ex);
-        return Tree{l.ex, r.ex};
-    }
-
-    Tree split(Tree& t, int k) {
-        if (k == 0) return std::exchange(t, Tree());
-        if (k == size(t.id)) return Tree();
-        int id = splay_k(t.id, k);
-        t.id = inner(id).lid;
-        return Tree{inner(id).rid, id};
-    }
-
-    std::vector<S> to_vec(const Tree& t) {
-        std::vector<S> buf;
-        buf.reserve(size(t.id));
-        _to_vec(t.id, buf);
-        return buf;
-    }
-
-  private:
-    Tree _build(const std::vector<S>& v, int l, int r) {
-        if (r - l == 1) {
-            return make_leaf(v[l]);
-        }
-        int md = (l + r) / 2;
-        return merge(_build(v, l, md), _build(v, md, r));
-    }
-
-    void _to_vec(int id, std::vector<S>& buf) {
-        if (leaf_id(id)) {
-            buf.push_back(leaf(id).s);
-            return;
-        }
-        push(id);
-        int lid = inner(id).lid, rid = inner(id).rid;
-        _to_vec(lid, buf);
-        _to_vec(rid, buf);
     }
 };
 
