@@ -25,6 +25,11 @@ template <class M> struct SplayTree {
         return Tree{2 * id + 1, 2 * id};
     }
 
+    size_t size(const Tree& t) {
+        if (t.id == -1) return 0;
+        return size(t.id);
+    }
+
     S all_prod(const Tree& t) {
         if (t.id == -1) return m.e();
         return all_prod(t.id);

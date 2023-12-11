@@ -25,6 +25,14 @@ TEST(SplayTreeTest, ToVec) {
     ASSERT_EQ(std::vector<int>({}), tree.to_vec(tr2));
 }
 
+TEST(SplayTreeTest, Size) {
+    yosupo::SplayTree tree((RangeAddMax()));
+    auto tr = tree.build({1, 2, 3, 4, 5});
+    ASSERT_EQ(5, tree.size(tr));
+    auto tr2 = tree.make_empty();
+    ASSERT_EQ(0, tree.size(tr2));
+}
+
 TEST(SplayTreeTest, Split) {
     yosupo::SplayTree tree((RangeAddMax()));
     auto tr1 = tree.build({1, 2, 3, 4, 5});
