@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <utility>
 #include <vector>
@@ -12,7 +13,7 @@ template <class M> struct SplayTree {
     SplayTree(M _m) : m(_m) {}
 
     struct Tree {
-        int id = -1, ex = -1;
+        int id = EMPTY_ID, ex = EMPTY_ID;
     };
 
     Tree make_empty() { return Tree{}; }
@@ -26,24 +27,26 @@ template <class M> struct SplayTree {
     }
 
     size_t size(const Tree& t) {
-        if (t.id == -1) return 0;
+        if (t.id == EMPTY_ID) return 0;
         return size(t.id);
     }
+    ssize_t ssize(const Tree& t) { return ssize_t(size(t)); }
 
     S all_prod(const Tree& t) {
-        if (t.id == -1) return m.e();
+        if (t.id == EMPTY_ID) return m.e();
         return all_prod(t.id);
     }
     void all_apply(Tree& t, F f) {
-        if (t.id != -1) all_apply(t.id, f);
+        if (t.id != EMPTY_ID) all_apply(t.id, f);
     }
     void reverse(Tree& t) {
-        if (t.id == -1) return;
+        if (t.id == EMPTY_ID) return;
         reverse(t.id);
     }
 
     template <class F> int max_right(Tree& t, F f) {
-        if (f(all_prod(t))) return size(t.id);
+        if (f(all_prod(t))) return (int)size(t);
+        if (ssize(t) == 1) return 0;
         S s = m.e();
         int r = 0;
         splay(t, [&](int lid, int) {
@@ -65,8 +68,8 @@ template <class M> struct SplayTree {
     }
 
     Tree merge(Tree l, Tree r) {
-        if (l.id == -1) return r;
-        if (r.id == -1) return l;
+        if (l.id == EMPTY_ID) return r;
+        if (r.id == EMPTY_ID) return l;
         inner(l.ex) = Inner{l.id, r.id, -1, false, false, m.e(), m.id()};
         update(l.ex);
         return Tree{l.ex, r.ex};
@@ -81,8 +84,19 @@ template <class M> struct SplayTree {
         return Tree{inner(id).rid, id};
     }
 
+    S get(Tree& t, int k) {
+        assert(0 <= k && k < ssize(t));
+        S s;
+        access_leaf_k(t, k, [&](int id) { s = leaf(id).s; });
+        return s;
+    }
+    void set(Tree& t, int k, S s) {
+        assert(0 <= k && k < ssize(t));
+        access_leaf_k(t, k, [&](int id) { leaf(id).s = s; });
+    }
+
     std::vector<S> to_vec(const Tree& t) {
-        if (t.id == -1) return {};
+        if (t.id == EMPTY_ID) return {};
         std::vector<S> buf;
         buf.reserve(size(t.id));
         _to_vec(t.id, buf);
@@ -90,6 +104,8 @@ template <class M> struct SplayTree {
     }
 
   private:
+    static constexpr int EMPTY_ID = -1234567;
+
     M m;
 
     struct Inner {
@@ -107,6 +123,7 @@ template <class M> struct SplayTree {
     Leaf& leaf(int id) { return nodes[id / 2].second; }
 
     int size(int id) { return leaf_id(id) ? 1 : inner(id).sz; }
+    ssize_t ssize(int id) { return leaf_id(id) ? 1 : inner(id).sz; }
     S all_prod(int id) { return leaf_id(id) ? leaf(id).s : inner(id).s; }
 
     Tree _build(const std::vector<S>& v, int l, int r) {
@@ -155,14 +172,14 @@ template <class M> struct SplayTree {
         if (n.lz) {
             all_apply(n.lid, n.f);
             all_apply(n.rid, n.f);
+            n.f = m.id();
+            n.lz = false;
         }
         if (n.rev) {
             reverse(n.lid);
             reverse(n.rid);
+            n.rev = false;
         }
-
-        n.f = m.id();
-        n.rev = false;
     }
 
     void update(int id) {
@@ -172,6 +189,7 @@ template <class M> struct SplayTree {
     }
 
     template <class F> void splay(Tree& t, F f) {
+        assert(!leaf_id(t.id));
         static std::vector<int> lefts, rights;
         lefts.clear();
         rights.clear();
@@ -245,6 +263,36 @@ template <class M> struct SplayTree {
             k -= lsz;
             return 1;
         });
+    }
+
+    template <class F, class G> void access_leaf(Tree& t, F f, G g) {
+        assert(ssize(t));
+        if (ssize(t) == 1) {
+            g(t.id);
+            return;
+        }
+        splay(t, [&](int lid, int rid) {
+            int dir = f(lid, rid);
+            if (dir == -1 && ssize(lid) == 1) {
+                g(lid);
+            }
+            if (dir == 1 && ssize(rid) == 1) {
+                g(rid);
+            }
+            return dir;
+        });
+    }
+    template <class F> void access_leaf_k(Tree& t, int k, F f) {
+        assert(0 <= k && k < ssize(t));
+        access_leaf(
+            t,
+            [&](int lid, int) {
+                int lsz = size(lid);
+                if (k < lsz) return -1;
+                k -= lsz;
+                return 1;
+            },
+            f);
     }
 };
 

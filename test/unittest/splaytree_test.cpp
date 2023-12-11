@@ -33,6 +33,25 @@ TEST(SplayTreeTest, Size) {
     ASSERT_EQ(0, tree.size(tr2));
 }
 
+TEST(SplayTreeTest, Get) {
+    yosupo::SplayTree tree((RangeAddMax()));
+    auto tr = tree.build({1, 2, 3, 4, 5});
+    ASSERT_EQ(1, tree.get(tr, 0));
+    ASSERT_EQ(2, tree.get(tr, 1));
+    ASSERT_EQ(3, tree.get(tr, 2));
+    ASSERT_EQ(4, tree.get(tr, 3));
+    ASSERT_EQ(5, tree.get(tr, 4));
+}
+TEST(SplayTreeTest, Set) {
+    yosupo::SplayTree tree((RangeAddMax()));
+    auto tr = tree.build({1, 2, 3, 4, 5});
+    tree.set(tr, 0, 10);
+    tree.set(tr, 1, 20);
+    tree.set(tr, 4, 50);
+
+    ASSERT_EQ(std::vector<int>({10, 20, 3, 4, 50}), tree.to_vec(tr));
+}
+
 TEST(SplayTreeTest, Split) {
     yosupo::SplayTree tree((RangeAddMax()));
     auto tr1 = tree.build({1, 2, 3, 4, 5});
@@ -70,4 +89,13 @@ TEST(SplayTreeTest, MaxRight) {
     ASSERT_EQ(3, tree.max_right(tr, [&](int x) { return x <= 3; }));
     ASSERT_EQ(4, tree.max_right(tr, [&](int x) { return x <= 4; }));
     ASSERT_EQ(5, tree.max_right(tr, [&](int x) { return x <= 5; }));
+
+    auto tr2 = tree.make_leaf({10});
+
+    ASSERT_EQ(0, tree.max_right(tr2, [&](int x) { return x <= 9; }));
+    ASSERT_EQ(1, tree.max_right(tr2, [&](int x) { return x <= 10; }));
+
+    auto tr3 = tree.make_empty();
+
+    ASSERT_EQ(0, tree.max_right(tr3, [&](int x) { return x <= 9; }));
 }
