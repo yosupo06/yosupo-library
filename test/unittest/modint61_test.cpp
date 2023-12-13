@@ -24,3 +24,10 @@ TEST(ModInt61Test, Mul) {
     yosupo::ModInt61 b = (1LL << 32);
     ASSERT_EQ(1, (a * b).val());
 }
+
+TEST(ModInt61Test, Hash) {
+    yosupo::RHash a("ab"), b("c"), c("a"), d("bc");
+
+    ASSERT_EQ(a + b, c + d);
+    ASSERT_NE(yosupo::RHash("aaa"), yosupo::RHash("aab"));
+}
