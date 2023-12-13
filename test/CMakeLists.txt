@@ -35,6 +35,7 @@ add_executable(unittest
   unittest/hashmap_test.cpp
   unittest/math_test.cpp
   unittest/maxflow_test.cpp
+  unittest/modint61_test.cpp
   unittest/random_test.cpp
   unittest/splaytree_test.cpp
   )
