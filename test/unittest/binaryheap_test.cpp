@@ -57,3 +57,20 @@ TEST(BinaryHeapTest, StressPushPop) {
         }
     }
 }
+
+TEST(BinaryHeapTest, PopPush) {
+    MeldableBinaryHeapManager<int> manager;
+
+    auto h = manager.build({1, 2, 3});
+
+    ASSERT_EQ(manager.top(h), 3);
+
+    manager.pop_push(h, 0);
+    ASSERT_EQ(manager.top(h), 2);
+    manager.pop(h);
+    ASSERT_EQ(manager.top(h), 1);
+    manager.pop(h);
+    ASSERT_EQ(manager.top(h), 0);
+    manager.pop(h);
+    ASSERT_TRUE(h.empty());
+}

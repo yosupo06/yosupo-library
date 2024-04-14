@@ -45,6 +45,11 @@ template <class T, class Comp = std::less<T>> struct MeldableBinaryHeapManager {
         if (!h.d.empty()) down(h, 0);
     }
 
+    void pop_push(Heap& h, const T& x) {
+        h.d.front() = x;
+        down(h, 0);
+    }
+
     const T& top(Heap& h) { return h.d.front(); }
 
     void meld(Heap& h, Heap& other) {
