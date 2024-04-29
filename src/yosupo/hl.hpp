@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "atcoder/internal_csr.hpp"
+#include "yosupo/flattenvector.hpp"
 
 namespace yosupo {
 
@@ -14,12 +15,12 @@ struct HLEulerTour {
     HLEulerTour(int _n) : n(_n) {}
 
     void add_edge(int u, int v) {
-        edges.push_back({u, {v}});
-        edges.push_back({v, {u}});
+        edges.push_back({u, v});
+        edges.push_back({v, u});
     }
 
     void build(int r = 0) {
-        auto g = atcoder::internal::csr(n, edges);
+        auto g = FlattenVector(n, edges);
 
         auto par = std::vector<int>(n, -1);
         auto topo = std::vector<int>();
@@ -27,8 +28,7 @@ struct HLEulerTour {
         topo.push_back(r);
         for (int i = 0; i < n; i++) {
             int u = topo[i];
-            for (int j = g.start[u]; j < g.start[u + 1]; j++) {
-                int v = g.elist[j].to;
+            for (int v : g.at(u)) {
                 if (v == par[u]) continue;
                 par[v] = u;
                 topo.push_back(v);
@@ -41,8 +41,7 @@ struct HLEulerTour {
         for (int i = n - 1; i >= 0; i--) {
             int u = topo[i];
             int max_size = -1;
-            for (int j = g.start[u]; j < g.start[u + 1]; j++) {
-                int v = g.elist[j].to;
+            for (int v : g.at(u)) {
                 if (v == par[u]) continue;
 
                 size[u] += size[v];
@@ -77,8 +76,7 @@ struct HLEulerTour {
                 info[i].ppar = info[i - 1].ppar;
             }
 
-            for (int j = g.start[u]; j < g.start[u + 1]; j++) {
-                int v = g.elist[j].to;
+            for (int v : g.at(u)) {
                 if (v == par[u] || v == max_ch[u]) continue;
                 stack.push_back({v, true});
             }
@@ -106,7 +104,7 @@ struct HLEulerTour {
     struct Edge {
         int to;
     };
-    std::vector<std::pair<int, Edge>> edges;
+    std::vector<std::pair<int, int>> edges;
 
   public:
     std::vector<int> ord, rord, pos, ipos;
