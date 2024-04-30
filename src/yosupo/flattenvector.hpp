@@ -11,7 +11,7 @@ template <class T> struct FlattenVector {
     std::vector<int> start;
     FlattenVector(int n, const std::vector<std::pair<int, T>>& _v) : start(n + 1) {
         for (const auto& x : _v) {
-            start[x.second + 1]++;
+            start[x.first + 1]++;
         }
         for (int i = 1; i <= n; i++) {
             start[i] += start[i - 1];
@@ -20,8 +20,8 @@ template <class T> struct FlattenVector {
 
         auto pos = start;
         for (const auto& x : _v) {
-            v[pos[x.second]] = x.first;
-            pos[x.second]++;
+            v[pos[x.first]] = x.second;
+            pos[x.first]++;
         }
     }
 
