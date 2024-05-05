@@ -39,6 +39,7 @@ add_executable(unittest
   unittest/modint61_test.cpp
   unittest/random_test.cpp
   unittest/splaytree_test.cpp
+  unittest/util_test.cpp
   )
 target_link_libraries(unittest gtest_main)
 add_test(NAME test COMMAND unittest)
