@@ -24,6 +24,7 @@ using std::pair, std::tuple, std::bitset;
 using std::array, std::vector, std::string, std::queue, std::deque;
 using std::priority_queue, std::set, std::multiset, std::map;
 using std::istream, std::ostream, std::cerr, std::endl;
+using std::min, std::max;
 namespace ranges = std::ranges;
 using ranges::sort;
 using std::views::iota, std::views::reverse;
