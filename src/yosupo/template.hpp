@@ -9,17 +9,14 @@
 #include <array>
 #include <bitset>
 #include <cassert>
-#include <complex>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <map>
-#include <numeric>
 #include <queue>
 #include <set>
 #include <string>
 #include <vector>
-#include <memory>
 #include <utility>
 #include <ranges>
 
@@ -40,7 +37,7 @@ template <class T> using VV = V<V<T>>;
 
 #ifdef YOSUPO_LOCAL
 
-ostream& operator<<(ostream& os, __int128_t x) {
+inline ostream& operator<<(ostream& os, __int128_t x) {
     if (x < 0) {
         os << "-";
         x *= -1;
@@ -56,7 +53,7 @@ ostream& operator<<(ostream& os, __int128_t x) {
     ranges::reverse(s);
     return os << s;
 }
-ostream& operator<<(ostream& os, __uint128_t x) {
+inline ostream& operator<<(ostream& os, __uint128_t x) {
     if (x == 0) {
         return os << "0";
     }
