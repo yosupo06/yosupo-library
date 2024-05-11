@@ -9,7 +9,7 @@
 namespace yosupo {
 
 // binary gcd
-unsigned long long gcd(unsigned long long a, unsigned long long b) {
+inline unsigned long long gcd(unsigned long long a, unsigned long long b) {
     if (a == 0) return b;
     if (b == 0) return a;
     int shift;
@@ -27,7 +27,7 @@ unsigned long long gcd(unsigned long long a, unsigned long long b) {
     }
     return (a << shift);
 }
-long long gcd(long long a, long long b) {
+inline long long gcd(long long a, long long b) {
     unsigned long long _a = a, _b = b;
     if ((unsigned long long)std::numeric_limits<long long>::max() < _a)
         _a = -_a;
@@ -35,14 +35,14 @@ long long gcd(long long a, long long b) {
         _b = -_b;
     return gcd(_a, _b);
 }
-unsigned int gcd(unsigned int a, unsigned int b) {
+inline unsigned int gcd(unsigned int a, unsigned int b) {
     return (unsigned int)gcd((unsigned long long)a, (unsigned long long)b);
 }
-int gcd(int a, int b) { return (int)gcd((long long)a, (long long)b); }
+inline int gcd(int a, int b) { return (int)gcd((long long)a, (long long)b); }
 
 // @param m `1 <= m`
 // @return x ** n % m
-unsigned long long pow_mod_u64(unsigned long long x,
+inline unsigned long long pow_mod_u64(unsigned long long x,
                                unsigned long long n,
                                unsigned long long m) {
     if (m == 1) return 0;
@@ -56,7 +56,7 @@ unsigned long long pow_mod_u64(unsigned long long x,
     return r;
 }
 
-bool is_prime(unsigned int n) {
+inline bool is_prime(unsigned int n) {
     if (n == 2) return true;
     if (n % 2 == 0) return false;
     unsigned long long d = n - 1;
@@ -75,7 +75,7 @@ bool is_prime(unsigned int n) {
     }
     return true;
 }
-bool is_prime(unsigned long long n) {
+inline bool is_prime(unsigned long long n) {
     if (n <= std::numeric_limits<unsigned int>::max()) {
         return is_prime((unsigned int)n);
     }
@@ -97,16 +97,16 @@ bool is_prime(unsigned long long n) {
     }
     return true;
 }
-bool is_prime(int n) {
+inline bool is_prime(int n) {
     if (n <= 1) return false;
     return is_prime((unsigned int)n);
 }
-bool is_prime(long long n) {
+inline bool is_prime(long long n) {
     if (n <= 1) return false;
     return is_prime((unsigned long long)n);
 }
 
-long long pollard_single(long long n) {
+inline long long pollard_single(long long n) {
     if (is_prime((unsigned long long)n)) return n;
     if (n % 2 == 0) return 2;
     long long st = 0;
@@ -126,7 +126,7 @@ long long pollard_single(long long n) {
     }
 }
 
-std::vector<long long> factor(long long n) {
+inline std::vector<long long> factor(long long n) {
     if (n == 1) return {};
     long long x = pollard_single(n);
     if (x == n) return {x};

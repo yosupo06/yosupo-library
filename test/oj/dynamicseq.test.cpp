@@ -1,9 +1,9 @@
-// verification-helper: PROBLEM https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum
+// verification-helper: PROBLEM
+// https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum
 
 #include <utility>
 
 #include "yosupo/fastio.hpp"
-#include "yosupo/math.hpp"
 #include "yosupo/modint.hpp"
 #include "yosupo/splaytree.hpp"
 
@@ -56,8 +56,8 @@ int main() {
             auto tr2 = treem.make_leaf({x, 1});
             auto tr3 = treem.split(tr, i);
 
-            tr2 = treem.merge(move(tr2), move(tr3));
-            tr = treem.merge(move(tr), move(tr2));
+            tr2 = treem.merge(std::move(tr2), std::move(tr3));
+            tr = treem.merge(std::move(tr), std::move(tr2));
         } else if (ty == 1) {
             int i;
             sc.read(i);
@@ -65,7 +65,7 @@ int main() {
             auto tr2 = treem.split(tr, i);
             auto tr3 = treem.split(tr2, 1);
 
-            tr = treem.merge(move(tr), move(tr3));
+            tr = treem.merge(std::move(tr), std::move(tr3));
         } else if (ty == 2) {
             int l, r;
             sc.read(l, r);
@@ -75,8 +75,8 @@ int main() {
 
             treem.reverse(tr2);
 
-            tr2 = treem.merge(move(tr2), move(tr3));
-            tr = treem.merge(move(tr), move(tr2));
+            tr2 = treem.merge(std::move(tr2), std::move(tr3));
+            tr = treem.merge(std::move(tr), std::move(tr2));
         } else if (ty == 3) {
             int l, r, b, c;
             sc.read(l, r, b, c);
@@ -86,8 +86,8 @@ int main() {
 
             treem.all_apply(tr2, {b, c});
 
-            tr2 = treem.merge(move(tr2), move(tr3));
-            tr = treem.merge(move(tr), move(tr2));
+            tr2 = treem.merge(std::move(tr2), std::move(tr3));
+            tr = treem.merge(std::move(tr), std::move(tr2));
         } else if (ty == 4) {
             int l, r;
             sc.read(l, r);
@@ -97,8 +97,8 @@ int main() {
 
             pr.writeln(treem.all_prod(tr2).first.val());
 
-            tr2 = treem.merge(move(tr2), move(tr3));
-            tr = treem.merge(move(tr), move(tr2));
+            tr2 = treem.merge(std::move(tr2), std::move(tr3));
+            tr = treem.merge(std::move(tr), std::move(tr2));
         }
     }
     return 0;

@@ -1,7 +1,6 @@
 #include "yosupo/splaytree.hpp"
 
 #include <algorithm>
-#include <iostream>
 
 #include "gtest/gtest.h"
 
@@ -90,7 +89,7 @@ TEST(SplayTreeTest, MaxRight) {
     ASSERT_EQ(4, tree.max_right(tr, [&](int x) { return x <= 4; }));
     ASSERT_EQ(5, tree.max_right(tr, [&](int x) { return x <= 5; }));
 
-    auto tr2 = tree.make_leaf({10});
+    auto tr2 = tree.make_leaf(RangeAddMax::S(10));
 
     ASSERT_EQ(0, tree.max_right(tr2, [&](int x) { return x <= 9; }));
     ASSERT_EQ(1, tree.max_right(tr2, [&](int x) { return x <= 10; }));

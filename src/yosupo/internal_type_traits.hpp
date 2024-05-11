@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include <numeric>
 #include <type_traits>
 
 namespace yosupo {

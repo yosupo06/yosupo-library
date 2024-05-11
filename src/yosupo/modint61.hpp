@@ -2,9 +2,9 @@
 
 #include <cassert>
 #include <concepts>
-#include <vector>
-#include <string>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include "yosupo/random.hpp"
 
@@ -110,9 +110,8 @@ struct ModInt61 {
     friend bool operator!=(const mint& lhs, const mint& rhs) {
         return !(lhs == rhs);
     }
-
-    friend std::ostream& operator<<(std::ostream& os, const mint& x) {
-        return os << "(" << x.val() << ")";
+    friend std::ostream& operator<<(std::ostream& os, const mint& m) {
+        return os << "(" << m.val() << ")";
     }
 
   private:
@@ -122,19 +121,19 @@ struct ModInt61 {
 
 namespace hash {
 
-ModInt61 base = yosupo::uniform(0LL, ModInt61::mod() - 1);
-ModInt61 ibase = base.inv();
+inline ModInt61 base = yosupo::uniform(0LL, ModInt61::mod() - 1);
+inline ModInt61 ibase = base.inv();
 
-std::vector<ModInt61> pow_base = {1}, pow_ibase = {1};
+inline std::vector<ModInt61> pow_base = {1}, pow_ibase = {1};
 
-ModInt61 pw_b(int k) {
+inline ModInt61 pw_b(int k) {
     while (std::ssize(pow_base) <= k) {
         pow_base.push_back(pow_base.back() * base);
     }
     return pow_base[k];
 }
 
-ModInt61 pw_ib(int k) {
+inline ModInt61 pw_ib(int k) {
     while (std::ssize(pow_ibase) <= k) {
         pow_ibase.push_back(pow_ibase.back() * ibase);
     }
@@ -176,7 +175,7 @@ struct RHash {
     }
 
     friend std::ostream& operator<<(std::ostream& os, const RHash& x) {
-        return os << "(" << x.sz << ", " << x.h <<  ")";
+        return os << "(" << x.sz << ", " << x.h << ")";
     }
 
   private:

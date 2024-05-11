@@ -1,12 +1,10 @@
 #pragma once
 
 #include <algorithm>
-#include <initializer_list>
 #include <vector>
 #include <cassert>
 #include <iostream>
 
-#include "atcoder/internal_csr.hpp"
 #include "yosupo/flattenvector.hpp"
 
 namespace yosupo {
@@ -114,7 +112,7 @@ struct HLEulerTour {
     };
     std::vector<Info> info;
 };
-std::ostream& operator<<(std::ostream& os, HLEulerTour::Info i) {
+inline std::ostream& operator<<(std::ostream& os, HLEulerTour::Info i) {
     return os << "Info(" << i.proot << ", " << i.ppar << ")";
 }
 

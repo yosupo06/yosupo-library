@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <queue>
 #include <vector>
 
 #include "atcoder/internal_queue"
