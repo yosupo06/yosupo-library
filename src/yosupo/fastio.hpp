@@ -3,15 +3,15 @@
 #include <unistd.h>
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cassert>
 #include <cctype>
+#include <cstdint>
 #include <cstring>
 #include <sstream>
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <bit>
-#include <cstdint>
 
 #include "yosupo/internal_type_traits.hpp"
 
@@ -328,7 +328,7 @@ struct Printer {
     }
 };
 
-std::array<std::array<char, 2>, 100> Printer::small = [] {
+inline std::array<std::array<char, 2>, 100> Printer::small = [] {
     std::array<std::array<char, 2>, 100> table;
     for (int i = 0; i <= 99; i++) {
         table[i][1] = char('0' + (i % 10));
@@ -336,7 +336,7 @@ std::array<std::array<char, 2>, 100> Printer::small = [] {
     }
     return table;
 }();
-std::array<unsigned long long, 20> Printer::tens = [] {
+inline std::array<unsigned long long, 20> Printer::tens = [] {
     std::array<unsigned long long, 20> table;
     for (int i = 0; i < 20; i++) {
         table[i] = 1;
