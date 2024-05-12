@@ -26,7 +26,7 @@ using std::priority_queue, std::set, std::multiset, std::map;
 using std::istream, std::ostream, std::cerr, std::endl;
 using std::min, std::max;
 namespace ranges = std::ranges;
-using ranges::sort;
+using ranges::sort, ranges::copy_n;
 using std::views::iota, std::views::reverse;
 
 using uint = unsigned int;
