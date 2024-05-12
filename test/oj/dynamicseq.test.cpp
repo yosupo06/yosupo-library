@@ -1,5 +1,6 @@
-// verification-helper: PROBLEM
-// https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum
+// clang-format off
+// verification-helper: PROBLEM https://judge.yosupo.jp/problem/dynamic_sequence_range_affine_range_sum
+// clang-format on
 
 #include <utility>
 

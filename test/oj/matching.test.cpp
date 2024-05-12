@@ -1,9 +1,7 @@
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/general_matching
-#include <cstdio>
-#include <vector>
 
-#include "yosupo/fastio.hpp"
 #include "yosupo/matching.hpp"
+#include "yosupo/fastio.hpp"
 
 yosupo::Scanner sc(stdin);
 yosupo::Printer pr(stdout);

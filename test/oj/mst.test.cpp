@@ -1,8 +1,9 @@
+// clang-format off
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/minimum_spanning_tree
-#include <vector>
+// clang-format on
 
-#include "yosupo/fastio.hpp"
 #include "yosupo/mst.hpp"
+#include "yosupo/fastio.hpp"
 
 using ll = long long;
 
