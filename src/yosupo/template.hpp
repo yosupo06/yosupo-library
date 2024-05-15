@@ -7,27 +7,33 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <bitset>
 #include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <map>
 #include <queue>
+#include <ranges>
 #include <set>
 #include <string>
-#include <vector>
 #include <utility>
-#include <ranges>
+#include <vector>
 
-using std::pair, std::tuple, std::bitset;
+using std::abs, std::pow, std::sqrt;
 using std::array, std::vector, std::string, std::queue, std::deque;
-using std::priority_queue, std::set, std::multiset, std::map;
+using std::countl_zero, std::countl_one, std::countr_zero, std::countr_one;
 using std::istream, std::ostream, std::cerr, std::endl;
 using std::min, std::max;
+using std::pair, std::tuple, std::bitset;
+using std::popcount;
+using std::priority_queue, std::set, std::multiset, std::map;
+using std::views::iota, std::views::reverse;
+
 namespace ranges = std::ranges;
 using ranges::sort, ranges::copy_n;
-using std::views::iota, std::views::reverse;
 
 using uint = unsigned int;
 using ll = long long;
