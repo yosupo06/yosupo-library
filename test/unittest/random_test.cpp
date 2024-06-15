@@ -12,7 +12,7 @@ using ull = unsigned long long;
 
 TEST(RandomTest, Usage) {
     {
-        Xoshiro256StarStar gen;
+        Random gen(123);
         for (int n = 1; n <= 30; n++) {
             std::vector<bool> pop(n);
             for (int ph = 0; ph < 3000; ph++) {
@@ -27,7 +27,7 @@ TEST(RandomTest, Usage) {
         }
     }
     {
-        Xoshiro256StarStar gen;
+        Random gen(234);
         for (int n = 1; n <= 30; n++) {
             std::vector<bool> pop(n);
             for (int ph = 0; ph < 3000; ph++) {
@@ -72,7 +72,7 @@ TEST(RandomTest, UniformBool) {
     {
         ull result[2] = {};
         for (int phase = 0; phase < 2; phase++) {
-            Xoshiro256StarStar gen;
+            Random gen(123);
             ull x = 0;
             for (int i = 0; i < 50; i++) {
                 x *= 2;
@@ -106,4 +106,13 @@ TEST(RandomTest, UniformPair) {
 
 TEST(RandomTest, UniformMinMax) {
     uniform(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
+}
+
+TEST(RandomTest, OpenClosed01) {
+    Random gen(123);
+    for (int i = 0; i < 10; i++) {
+        double x = open_closed_01();
+        ASSERT_GT(x, 0.0);
+        ASSERT_LE(x, 1.0);
+    }
 }

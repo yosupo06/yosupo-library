@@ -5,6 +5,7 @@
 #include <cassert>
 #include <chrono>
 #include <cstdint>
+#include <random>
 #include <type_traits>
 
 namespace yosupo {
@@ -54,13 +55,40 @@ struct Xoshiro256StarStar {
     std::array<uint64_t, 4> s;
 };
 
+// https://github.com/wangyi-fudan/wyhash
+struct WYRand {
+  public:
+    using result_type = uint64_t;
+    explicit WYRand(uint64_t seed) : s(seed) {}
+
+    static constexpr result_type min() { return 0; }
+    static constexpr result_type max() { return -1; }
+
+    result_type operator()() {
+        s += 0x2d358dccaa6c78a5;
+        auto x = (unsigned __int128)s * (s ^ 0x8bb84b93962eacc9);
+        return (uint64_t)(x ^ (x >> 64));
+    }
+
+  private:
+    uint64_t s;
+};
+using Random = WYRand;
+inline Random& global_gen() {
+    static Random gen(
+        std::chrono::steady_clock::now().time_since_epoch().count());
+    return gen;
+}
+
+template <class G>
+concept random_64 = std::uniform_random_bit_generator<G> &&
+                    std::same_as<uint64_t, std::invoke_result_t<G&>> &&
+                    G::min() == uint64_t(0) && G::max() == uint64_t(-1);
+
 namespace internal {
 
 // random choice from [0, upper]
-template <class G> uint64_t uniform(uint64_t upper, G& gen) {
-    static_assert(std::is_same<uint64_t, typename G::result_type>::value, "");
-    static_assert(G::min() == 0, "");
-    static_assert(G::max() == uint64_t(-1), "");
+template <random_64 G> uint64_t uniform_u64(uint64_t upper, G& gen) {
     if (!(upper & (upper + 1))) {
         // b = 00..0011..11
         return gen() & upper;
@@ -73,27 +101,33 @@ template <class G> uint64_t uniform(uint64_t upper, G& gen) {
     }
 }
 
-}  // namespace internal
-
-inline Xoshiro256StarStar& global_gen() {
-    static Xoshiro256StarStar gen(
-        std::chrono::steady_clock::now().time_since_epoch().count());
-    return gen;
+// random choice from [0, upper], faster than uniform_u64
+template <random_64 G> uint64_t random_u64(uint64_t upper, G& gen) {
+    return (uint64_t)(((unsigned __int128)(upper) + 1) * gen() >> 64);
 }
 
-template <class T, class G> T uniform(T lower, T upper, G& gen) {
-    return T(lower + internal::uniform(uint64_t(upper) - uint64_t(lower), gen));
+}  // namespace internal
+
+template <class T, random_64 G> T uniform(T lower, T upper, G& gen) {
+    return T(lower +
+             internal::uniform_u64(uint64_t(upper) - uint64_t(lower), gen));
 }
 template <class T> T uniform(T lower, T upper) {
     return uniform(lower, upper, global_gen());
 }
-
-template <class G> bool uniform_bool(G& gen) {
-    return internal::uniform(1, gen) == 1;
+template <class T, random_64 G> T random(T lower, T upper, G& gen) {
+    return T(lower +
+             internal::random_u64(uint64_t(upper) - uint64_t(lower), gen));
 }
+template <class T> T random(T lower, T upper) {
+    return random(lower, upper, global_gen());
+}
+
+template <random_64 G> bool uniform_bool(G& gen) { return gen() & 1; }
 inline bool uniform_bool() { return uniform_bool(global_gen()); }
 
-template <class T, class G>
+// select 2 elements from [lower, uppper]
+template <class T, random_64 G>
 std::pair<T, T> uniform_pair(T lower, T upper, G& gen) {
     assert(upper - lower >= 1);
     T a, b;
@@ -106,6 +140,18 @@ std::pair<T, T> uniform_pair(T lower, T upper, G& gen) {
 }
 template <class T> std::pair<T, T> uniform_pair(T lower, T upper) {
     return uniform_pair(lower, upper, global_gen());
+}
+
+// random value in the interval (0.0, 1.0]
+template <class G> inline double open_closed_01(G& gen) {
+    union {
+        uint64_t i;
+        double f;
+    } u = {0xbff0000000000000 | (gen() >> 12)};
+    return 2.0 + u.f;
+}
+inline double open_closed_01() {
+    return open_closed_01(global_gen());
 }
 
 }  // namespace yosupo
