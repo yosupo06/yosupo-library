@@ -10,7 +10,10 @@
 			"settings": {
 				"cmake.sourceDirectory": "/workspaces/yosupo-library/test",
 				"C_Cpp.intelliSenseEngine": "disabled",
-				"clangd.path": "clangd-18"
+				"clangd.path": "clangd-18",
+				"[cpp]": {
+					"editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+				}
 			},
 			"extensions": [
 				"llvm-vs-code-extensions.vscode-clangd",
