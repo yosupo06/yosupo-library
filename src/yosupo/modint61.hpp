@@ -178,6 +178,8 @@ struct RHash {
         return os << "(" << x.sz << ", " << x.h << ")";
     }
 
+    long long val() const { return h.val(); }
+
   private:
     int sz;
     ModInt61 h;

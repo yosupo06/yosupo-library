@@ -30,4 +30,7 @@ TEST(ModInt61Test, Hash) {
 
     ASSERT_EQ(a + b, c + d);
     ASSERT_NE(yosupo::RHash("aaa"), yosupo::RHash("aab"));
+
+    ASSERT_EQ((a + b).val(), (c + d).val());
+    ASSERT_NE(yosupo::RHash("aaa").val(), yosupo::RHash("aab").val());
 }
