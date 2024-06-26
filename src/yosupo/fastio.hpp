@@ -210,7 +210,9 @@ struct Printer {
         write_unsigned(uval);
     }
 
-    template <class U, internal::is_unsigned_int_t<U>* = nullptr>
+    template <class U,
+              internal::is_unsigned_int_t<U>* = nullptr,
+              std::enable_if_t<!std::is_same<char, U>::value>* = nullptr>
     void write_single(U uval) {
         if (uval == 0) {
             write_single('0');
