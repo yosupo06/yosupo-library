@@ -18,4 +18,5 @@ jobs:
           make
           ./unittest
         env:
+          CXX: "clang++"
           GTEST_COLOR: "1"
