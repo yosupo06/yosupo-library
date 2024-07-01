@@ -41,6 +41,7 @@ add_executable(unittest
   unittest/splaytree_test.cpp
   unittest/util_test.cpp
   unittest/mst_test.cpp
+  unittest/networksimplex_test.cpp
   )
 target_link_libraries(unittest gtest_main)
 add_test(NAME test COMMAND unittest)
@@ -52,3 +53,4 @@ add_executable(oj_hl_lca oj/hl_lca.test.cpp)
 add_executable(oj_matching oj/matching.test.cpp)
 add_executable(oj_dynamicseq oj/dynamicseq.test.cpp)
 add_executable(oj_mst oj/mst.test.cpp)
+add_executable(oj_mcf oj/min_cost_b_flow.test.cpp)
