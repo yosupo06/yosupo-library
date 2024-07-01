@@ -1,8 +1,11 @@
 {
 	"image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04",
 	"features": {
-		"ghcr.io/devcontainers/features/python:1": {},
-		"ghcr.io/devcontainers/features/common-utils:2": {}
+		"ghcr.io/devcontainers/features/common-utils:2": {},
+		"ghcr.io/devcontainers-community/features/llvm:3": {
+			"version": 18
+		},
+		"ghcr.io/devcontainers/features/python:1": {}
 	},
 	"postCreateCommand": "./.devcontainer/postCreateCommand.sh",
 	"customizations": {
@@ -10,7 +13,6 @@
 			"settings": {
 				"cmake.sourceDirectory": "/workspaces/yosupo-library/test",
 				"C_Cpp.intelliSenseEngine": "disabled",
-				"clangd.path": "clangd-18",
 				"[cpp]": {
 					"editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
 				},

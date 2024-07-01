@@ -128,11 +128,11 @@ FlowResult<TotalCost, Cap, Cost> solve(NetworkSimplexGraph<Cap, Cost> g) {
             };
 
             if (depth[u] >= depth[v]) {
-                for (int i = 0; i < depth[u] - depth[v]; i++) {
+                for (int _ : std::views::iota(0, depth[u] - depth[v])) {
                     up_u();
                 }
             } else {
-                for (int i = 0; i < depth[v] - depth[u]; i++) {
+                for (int _ : std::views::iota(0, depth[v] - depth[u])) {
                     up_v();
                 }
             }

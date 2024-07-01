@@ -15,7 +15,7 @@ int main() {
         sc.read(b);
         g.add_excess(i, b);
     }
-    for (int i = 0; i < m; i++) {
+    for (int _ : std::views::iota(0, m)) {
         int s, t;
         ll l, u, c;
         sc.read(s, t, l, u, c);
