@@ -26,6 +26,7 @@ FetchContent_MakeAvailable(googletest)
 
 # unittest
 add_executable(unittest
+  unittest/algebra_test.cpp
   unittest/binaryheap_test.cpp
   unittest/comb_test.cpp  
   unittest/fastio_test.cpp  
@@ -39,6 +40,7 @@ add_executable(unittest
   unittest/modint61_test.cpp
   unittest/random_test.cpp
   unittest/splaytree_test.cpp
+  unittest/sparsetable_test.cpp
   unittest/util_test.cpp
   unittest/mst_test.cpp
   unittest/networksimplex_test.cpp
@@ -54,3 +56,4 @@ add_executable(oj_matching oj/matching.test.cpp)
 add_executable(oj_dynamicseq oj/dynamicseq.test.cpp)
 add_executable(oj_mst oj/mst.test.cpp)
 add_executable(oj_mcf oj/min_cost_b_flow.test.cpp)
+add_executable(oj_staticrmq oj/staticrmq.test.cpp)
