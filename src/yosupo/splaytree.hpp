@@ -66,7 +66,7 @@ template <class M> struct SplayTree {
         return t;
     }
 
-    Tree merge(Tree l, Tree r) {
+    Tree merge(Tree&& l, Tree&& r) {
         if (l.id == EMPTY_ID) return r;
         if (r.id == EMPTY_ID) return l;
         inner(l.ex) = Inner{l.id, r.id, -1, false, false, m.e(), m.id()};

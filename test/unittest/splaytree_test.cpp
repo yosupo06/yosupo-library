@@ -73,7 +73,7 @@ TEST(SplayTreeTest, Merge) {
     auto tr1 = tree.build({1, 2, 3, 4, 5});
     auto tr2 = tree.build({6, 7, 8});
 
-    auto tr = tree.merge(tr1, tr2);
+    auto tr = tree.merge(std::move(tr1), std::move(tr2));
 
     ASSERT_EQ(std::vector<int>({1, 2, 3, 4, 5, 6, 7, 8}), tree.to_vec(tr));
 }
