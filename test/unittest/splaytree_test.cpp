@@ -41,6 +41,7 @@ TEST(SplayTreeTest, Get) {
     ASSERT_EQ(4, tree.get(tr, 3));
     ASSERT_EQ(5, tree.get(tr, 4));
 }
+
 TEST(SplayTreeTest, Set) {
     yosupo::SplayTree tree((RangeAddMax()));
     auto tr = tree.build({1, 2, 3, 4, 5});
@@ -49,6 +50,30 @@ TEST(SplayTreeTest, Set) {
     tree.set(tr, 4, 50);
 
     ASSERT_EQ(std::vector<int>({10, 20, 3, 4, 50}), tree.to_vec(tr));
+}
+
+TEST(SplayTreeTest, Insert) {
+    yosupo::SplayTree tree((RangeAddMax()));
+    auto tr = tree.build({1, 2, 3, 4, 5});
+    tree.insert(tr, 0, 10);
+    tree.insert(tr, 1, 20);
+    tree.insert(tr, 4, 50);
+
+    ASSERT_EQ(std::vector<int>({10, 20, 1, 2, 50, 3, 4, 5}), tree.to_vec(tr));
+}
+
+TEST(SplayTreeTest, AllApply) {
+    yosupo::SplayTree tree((RangeAddMax()));
+    auto tr = tree.build({1, 2, 3, 4, 5});
+    tree.all_apply(tr, 10);
+    ASSERT_EQ(std::vector<int>({11, 12, 13, 14, 15}), tree.to_vec(tr));
+}
+
+TEST(SplayTreeTest, Apply) {
+    yosupo::SplayTree tree((RangeAddMax()));
+    auto tr = tree.build({1, 2, 3, 4, 5});
+    tree.apply(tr, 1, 4, 10);
+    ASSERT_EQ(std::vector<int>({1, 12, 13, 14, 5}), tree.to_vec(tr));
 }
 
 TEST(SplayTreeTest, Split) {

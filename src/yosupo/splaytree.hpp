@@ -83,6 +83,21 @@ template <class M> struct SplayTree {
         return Tree{inner(id).rid, id};
     }
 
+    void insert(Tree& t, int k, S s) {
+        auto t2 = split(t, k);
+        t = merge(std::move(t), make_leaf(s));
+        t = merge(std::move(t), std::move(t2));
+    }
+
+    void apply(Tree& t, int l, int r, F f) {
+        assert(0 <= l && l <= r && r <= ssize(t));
+        auto t3 = split(t, r);
+        auto t2 = split(t, l);
+        all_apply(t2, f);
+        t = merge(std::move(t), std::move(t2));
+        t = merge(std::move(t), std::move(t3));
+    }
+
     S get(Tree& t, int k) {
         assert(0 <= k && k < ssize(t));
         S s;
