@@ -84,6 +84,7 @@ template <class M> struct SplayTree {
     }
 
     void insert(Tree& t, int k, S s) {
+        assert(0 <= k && k <= int(ssize(t)));
         auto t2 = split(t, k);
         t = merge(std::move(t), make_leaf(s));
         t = merge(std::move(t), std::move(t2));
