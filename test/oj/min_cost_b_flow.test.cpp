@@ -21,7 +21,7 @@ int main() {
         sc.read(s, t, l, u, c);
         g.add_edge(s, t, l, u, c);
     }
-    auto r = solve<__int128>(std::move(g));
+    auto r = std::move(g).solve<__int128>();
 
     if (!r.feasible) {
         pr.writeln("infeasible");
