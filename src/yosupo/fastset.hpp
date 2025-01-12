@@ -19,6 +19,31 @@ struct FastSet {
         } while (n > 1);
         _log = int(seg.size());
     }
+    // bool配列a_0, a_1, ..., a_nを作る
+    template <class F> explicit FastSet(int n, F f) : _n(n) {
+        {
+            int n2 = (n + B - 1) / B;
+            seg.push_back(std::vector<uint64_t>(n2));
+            for (int i = 0; i < n; i++) {
+                if (f(i)) seg[0][i / B] |= 1ULL << (i % B);
+            }
+            n = n2;
+        }
+        while (n > 1) {
+            int n2 = (n + B - 1) / B;
+            std::vector<uint64_t> v2(n2);
+            for (int i = 0; i < n; i++) {
+                if (seg.back()[i]) {
+                    v2[i / B] |= 1ULL << (i % B);
+                }
+            }
+            seg.push_back(std::move(v2));
+            n = n2;
+        }
+        _log = int(seg.size());
+    }
+
+    size_t size() const { return _n; }
 
     // a[i]を返す。a[i] = falseは出来ないことに注意(要検討)
     bool operator[](int i) const { return (seg[0][i / B] >> (i % B) & 1) != 0; }
@@ -65,7 +90,6 @@ struct FastSet {
 
     // @return iより大きい最小の要素 or n
     int more(int i) const {
-        if (i >= _n - 1) return _n;
         return or_more(i + 1);
     }
 
@@ -93,7 +117,6 @@ struct FastSet {
 
     // @return iより小さい最大の要素 or -1
     int less(int i) const {
-        if (i <= 0) return -1;
         return or_less(i - 1);
     }
 

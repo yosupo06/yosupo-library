@@ -1,7 +1,5 @@
 #include "yosupo/fastset.hpp"
 
-#include <numeric>
-
 #include "gtest/gtest.h"
 
 #include "../utils/random.hpp"
@@ -17,6 +15,15 @@ TEST(FastSetTest, Usage) {
     ASSERT_TRUE(f[0]);
     f.reset(0);
     ASSERT_FALSE(f[0]);
+    ASSERT_EQ(f.size(), 1);
+}
+
+TEST(FastSetTest, Constructor) {
+    bool a[] = {true, false, true};
+    FastSet f(3, [&](int i) { return a[i]; });
+    ASSERT_TRUE(f[0]);
+    ASSERT_FALSE(f[1]);
+    ASSERT_TRUE(f[2]);
 }
 
 TEST(FastSetTest, Zero) { FastSet f(0); }
