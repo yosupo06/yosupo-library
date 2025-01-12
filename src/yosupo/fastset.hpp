@@ -90,6 +90,7 @@ struct FastSet {
 
     // @return iより大きい最小の要素 or n
     int more(int i) const {
+        if (i >= _n - 1) return _n;
         return or_more(i + 1);
     }
 
@@ -117,6 +118,7 @@ struct FastSet {
 
     // @return iより小さい最大の要素 or -1
     int less(int i) const {
+        if (i <= 0) return -1;
         return or_less(i - 1);
     }
 
