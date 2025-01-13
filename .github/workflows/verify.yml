@@ -71,6 +71,8 @@ jobs:
           ["0"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Download verify_files.json
         uses: competitive-verifier/actions/download-verify-artifact@v2
