@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -60,7 +60,7 @@ jobs:
           retention-days: 1
 
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [setup]
     env:
       SPLIT_SIZE: "1"
@@ -98,7 +98,7 @@ jobs:
           retention-days: 1
 
   docs-and-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [verify]
     outputs:
       upload-pages: ${{steps.upload-pages.outcome == 'success'}}
