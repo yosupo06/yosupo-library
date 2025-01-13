@@ -6,8 +6,8 @@
 namespace yosupo {
 
 template <class M> struct SplayTree {
-    using S = M::S;
-    using F = M::F;
+    using S = typename M::S;
+    using F = typename M::F;
 
     SplayTree(M _m) : m(_m) {}
 
