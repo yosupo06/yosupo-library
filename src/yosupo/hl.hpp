@@ -50,10 +50,11 @@ struct HLEulerTour {
             }
         }
 
-        pos = std::vector<int>(n);
-        ipos.clear();
-        ipos.reserve(n);
-        info = std::vector<Info>(n);
+        ord = std::vector<int>(n);
+        rord.clear();
+        rord.reserve(n);
+
+        nxt = std::vector<int>(n);
 
         std::vector<std::pair<int, bool>> stack;
         stack.reserve(n);
@@ -62,16 +63,14 @@ struct HLEulerTour {
             auto [u, proot] = stack.back();
             stack.pop_back();
 
-            int i = int(ipos.size());
-            pos[u] = i;
-            ipos.push_back(u);
+            int i = int(rord.size());
+            ord[u] = i;
+            rord.push_back(u);
 
             if (proot) {
-                info[i].proot = i;
-                info[i].ppar = par[u] == -1 ? -1 : pos[par[u]];
+                nxt[i] = par[u] == -1 ? 2 * n : ord[par[u]] + n;
             } else {
-                info[i].proot = info[i - 1].proot;
-                info[i].ppar = info[i - 1].ppar;
+                nxt[i] = nxt[i - 1] >= n ? i - 1 : nxt[i - 1];
             }
 
             for (int v : g.at(u)) {
@@ -82,20 +81,27 @@ struct HLEulerTour {
                 stack.push_back({max_ch[u], false});
             }
         }
+
+        _size = std::vector<int>(n);
+        for (int i = 0; i < n; i++) {
+            _size[i] = size[rord[i]];
+        }
     }
 
-    int lca(int u, int v) const {
-        int a = pos[u], b = pos[v];
-        while (a != b) {
-            if (a > b) std::swap(a, b);
-            if (info[b].proot <= a) {
-                break;
-            } else {
-                b = info[b].ppar;
-            }
+    int _lca(int a, int b) const {
+        if (a > b) std::swap(a, b);
+        if (b < a + _size[a]) return a;
+        while (a < b) {
+            b = nxt[b];
+            if (b >= n) b -= n;
         }
-        return ipos[a];
+        return b;
     }
+    int lca(int u, int v) const {
+        return rord[_lca(ord[u], ord[v])];
+    }
+
+    int size(int u) const { return _size[u]; }
 
   private:
     int n;
@@ -104,16 +110,11 @@ struct HLEulerTour {
     };
     std::vector<std::pair<int, int>> edges;
 
+    // key / value is ordinal
+    std::vector<int> nxt, _size;
+
   public:
-    std::vector<int> ord, rord, pos, ipos;
-    struct Info {
-        int proot = -1; // path root
-        int ppar; //path parent
-    };
-    std::vector<Info> info;
+    std::vector<int> ord, rord;
 };
-inline std::ostream& operator<<(std::ostream& os, HLEulerTour::Info i) {
-    return os << "Info(" << i.proot << ", " << i.ppar << ")";
-}
 
 }  // namespace yosupo
