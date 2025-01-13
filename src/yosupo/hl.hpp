@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <vector>
 #include <cassert>
-#include <iostream>
 
 #include "yosupo/flattenvector.hpp"
 
@@ -105,9 +104,6 @@ struct HLEulerTour {
 
   private:
     int n;
-    struct Edge {
-        int to;
-    };
     std::vector<std::pair<int, int>> edges;
 
     // key / value is ordinal
