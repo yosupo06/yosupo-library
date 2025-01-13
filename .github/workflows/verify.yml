@@ -36,7 +36,7 @@ jobs:
           # include: your-own-include/
           # exclude: your-own-exclude/
           # If you have config.toml
-          # config: .verify-helper/config.toml
+          config: .verify-helper/config.toml
       - name: parse-doxygen
         uses: competitive-verifier/actions/parse-doxygen@v2
         with:
