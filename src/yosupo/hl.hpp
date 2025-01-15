@@ -19,7 +19,7 @@ struct HLEulerTour {
     void build(int r = 0) {
         auto g = FlattenVector(n, edges);
 
-        auto par = std::vector<int>(n, -1);
+        auto par = std::vector<int>(n, n);
         auto topo = std::vector<int>();
         topo.reserve(n);
         topo.push_back(r);
@@ -35,17 +35,11 @@ struct HLEulerTour {
 
         auto max_ch = std::vector<int>(n, -1);
         std::vector<int> size(n, 1);
-        for (int i = n - 1; i >= 0; i--) {
+        for (int i = n - 1; i >= 1; i--) {
             int u = topo[i];
-            int max_size = -1;
-            for (int v : g.at(u)) {
-                if (v == par[u]) continue;
-
-                size[u] += size[v];
-                if (max_size < size[v]) {
-                    max_size = size[v];
-                    max_ch[u] = v;
-                }
+            size[par[u]] += size[u];
+            if (max_ch[par[u]] == -1 || size[u] > size[max_ch[par[u]]]) {
+                max_ch[par[u]] = u;
             }
         }
 
@@ -54,36 +48,34 @@ struct HLEulerTour {
         rord.reserve(n);
 
         nxt = std::vector<int>(n);
+        _size = std::vector<int>(n);
 
-        std::vector<std::pair<int, bool>> stack;
+        std::vector<int> stack;
         stack.reserve(n);
-        stack.push_back({r, true});
+        stack.push_back(r);
+
         while (stack.size()) {
-            auto [u, proot] = stack.back();
+            auto u = stack.back();
             stack.pop_back();
 
             int i = int(rord.size());
             ord[u] = i;
             rord.push_back(u);
+            _size[i] = size[u];
 
-            if (proot) {
-                nxt[i] = par[u] == -1 ? 2 * n : ord[par[u]] + n;
+            if (par[u] == -1 || max_ch[par[u]] != u) {
+                nxt[i] = (par[u] == n ? n : ord[par[u]]) + n;
             } else {
                 nxt[i] = nxt[i - 1] >= n ? i - 1 : nxt[i - 1];
             }
 
             for (int v : g.at(u)) {
                 if (v == par[u] || v == max_ch[u]) continue;
-                stack.push_back({v, true});
+                stack.push_back(v);
             }
             if (max_ch[u] != -1) {
-                stack.push_back({max_ch[u], false});
+                stack.push_back(max_ch[u]);
             }
-        }
-
-        _size = std::vector<int>(n);
-        for (int i = 0; i < n; i++) {
-            _size[i] = size[rord[i]];
         }
     }
 
@@ -100,7 +92,7 @@ struct HLEulerTour {
         return rord[_lca(ord[u], ord[v])];
     }
 
-    int size(int u) const { return _size[u]; }
+    int size(int u) const { return _size[ord[u]]; }
 
   private:
     int n;

@@ -21,8 +21,10 @@ int main() {
     for (int i = 0; i < q; i++) {
         int u, v;
         sc.read(u, v);
-        int w = hl.lca(u, v);
-        pr.writeln(w);
+        int w0 = hl.lca(u, v);
+//        int w1 = hl.lca(v, u);
+//        assert(w0 == w1);
+        pr.writeln(w0);
     }
     return 0;
 }
