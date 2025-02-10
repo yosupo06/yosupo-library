@@ -6,4 +6,4 @@ sudo apt-get update
 
 sudo apt-get install -y cmake
 
-pip install online-judge-tools online-judge-verify-helper
+pip install competitive-verifier online-judge-tools online-judge-verify-helper

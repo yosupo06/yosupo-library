@@ -19,7 +19,7 @@ struct HLEulerTour {
     void build(int r = 0) {
         auto g = FlattenVector(n, edges);
 
-        auto par = std::vector<int>(n, n);
+        auto par = std::vector<int>(n, -1);
         auto topo = std::vector<int>();
         topo.reserve(n);
         topo.push_back(r);
@@ -64,9 +64,9 @@ struct HLEulerTour {
             _size[i] = size[u];
 
             if (par[u] == -1 || max_ch[par[u]] != u) {
-                nxt[i] = (par[u] == n ? n : ord[par[u]]) + n;
+                nxt[i] = (par[u] == -1 ? -1 : ord[par[u]]) * 2;
             } else {
-                nxt[i] = nxt[i - 1] >= n ? i - 1 : nxt[i - 1];
+                nxt[i] = (nxt[i - 1] & 1) ? nxt[i - 1] : (i - 1) * 2 + 1;
             }
 
             for (int v : g.at(u)) {
@@ -83,8 +83,7 @@ struct HLEulerTour {
         if (a > b) std::swap(a, b);
         if (b < a + _size[a]) return a;
         while (a < b) {
-            b = nxt[b];
-            if (b >= n) b -= n;
+            b = (nxt[b] >> 1);
         }
         return b;
     }
@@ -92,7 +91,7 @@ struct HLEulerTour {
         return rord[_lca(ord[u], ord[v])];
     }
 
-    int size(int u) const { return _size[ord[u]]; }
+    int subtree_size(int u) const { return _size[ord[u]]; }
 
   private:
     int n;

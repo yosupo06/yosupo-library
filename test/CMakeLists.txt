@@ -44,6 +44,7 @@ add_executable(unittest
   unittest/util_test.cpp
   unittest/mst_test.cpp
   unittest/networksimplex_test.cpp
+  unittest/hl_test.cpp
   )
 target_link_libraries(unittest gtest_main)
 add_test(NAME test COMMAND unittest)
