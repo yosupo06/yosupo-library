@@ -1,6 +1,8 @@
 #include "yosupo/int_n.hpp"
 #include <gtest/gtest.h>
+#include <cstdint>
 #include <limits>
+#include <sstream>
 
 using namespace yosupo;
 
@@ -46,7 +48,13 @@ TEST(UIntNTest, Mul) {
     EXPECT_EQ(bigu0 * bigu1, BigUInt("123443057971290905819138753543557274695709426847861579"));
 }
 
-// Skip because div is broken
+TEST(UIntNTest, DivSmall) {
+    EXPECT_EQ(BigUInt(1000) / 10U, BigUInt(100));
+    EXPECT_EQ(BigUInt(1099) / 100U, BigUInt(10));
+    EXPECT_EQ(BigUInt(1100) / 100U, BigUInt(11));
+    EXPECT_EQ(bigu0 / 1U, bigu0);
+    EXPECT_EQ(bigu0 / 123U, BigUInt("1003713732711030805881762"));
+}
 // TEST(UIntNTest, Div) {
 //     EXPECT_EQ(BigUInt(1000) / BigUInt(10), BigUInt(100));
 //     EXPECT_EQ(BigUInt(1099) / BigUInt(100), BigUInt(10));
@@ -59,6 +67,7 @@ TEST(UIntNTest, Mul) {
 TEST(UIntNTest, LShift) {
     EXPECT_EQ(BigUInt(1) << 1, BigUInt(2));
     EXPECT_EQ(BigUInt(1) << 100, BigUInt("1267650600228229401496703205376"));
+    EXPECT_EQ(BigUInt(1) << 320 << 320, BigUInt(0));
     EXPECT_EQ(BigUInt((uint64_t)(-1)) << 63,
               BigUInt("170141183460469231722463931679029329920"));
     EXPECT_EQ(BigUInt((uint64_t)(-1)) << 64,
@@ -75,6 +84,37 @@ TEST(UIntNTest, RShift) {
     EXPECT_EQ(BigUInt(1) >> 0, BigUInt(1));
     EXPECT_EQ(BigUInt(1) >> 1, BigUInt(0));
     EXPECT_EQ(BigUInt(1) << 100 >> 100, BigUInt(1));
+    EXPECT_EQ(BigUInt(1) << 639 >> 639, BigUInt(1));
+}
+
+TEST(UIntNTest, BitWidth) {
+    EXPECT_EQ(
+        BigUInt(0).bit_width(),
+        0);
+    EXPECT_EQ(BigUInt(1).bit_width(), 1);
+    EXPECT_EQ((BigUInt(1) << 100).bit_width(), 101);
+    EXPECT_EQ((BigUInt(1) << 639).bit_width(), 640);
+}
+
+TEST(UIntNTest, Ostream) {
+    {
+        BigUInt a("123456789123456789123456789");
+        std::stringstream ss;
+        ss << a;
+        EXPECT_EQ(ss.str(), "123456789123456789123456789");
+    }
+    {
+        BigUInt zero(0);
+        std::stringstream ss;
+        ss << zero;
+        EXPECT_EQ(ss.str(), "0");
+    }
+    {
+        BigUInt large = BigUInt(1) << 100;
+        std::stringstream ss;
+        ss << large;
+        EXPECT_EQ(ss.str(), "1267650600228229401496703205376");
+    }
 }
 
 TEST(IntNTest, IsNeg) {

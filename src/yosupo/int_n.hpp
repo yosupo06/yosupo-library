@@ -1,17 +1,33 @@
 #pragma once
 #include <algorithm>
+#include <array>
+#include <bit>
 #include <cassert>
 #include <cctype>
 #include <compare>
 #include <cstdint>
+#include <limits>
 #include <stdexcept>
 #include <string>
+#include <ostream>
 
 namespace yosupo {
 
 template <int N> struct UintN {
   private:
+    using u64 = uint64_t;
+    using u128 = unsigned __int128;
+
     std::array<uint64_t, N> d = {{}};
+
+    static std::pair<u64, u64> div128(u128 a, u64 b) {
+        u128 q = a / b;
+        if (q > std::numeric_limits<u64>::max()) {
+            __builtin_unreachable();
+        }
+        u64 r = a % b;
+        return {(u64)q, r};
+    }
 
   public:
     const std::array<uint64_t, N>& data() const { return d; }
@@ -33,11 +49,11 @@ template <int N> struct UintN {
         }
     }
 
-    UintN(unsigned __int128 v) {
-        d[0] = (uint64_t)v;
+    UintN(u128 v) {
+        d[0] = (u64)v;
         if constexpr (N > 1) d[1] = v >> 64;
     }
-    UintN(__int128 v) : UintN(static_cast<unsigned __int128>(v)) {
+    UintN(__int128 v) : UintN(static_cast<u128>(v)) {
         if (N > 2 && v < 0) {
             std::fill(d.begin() + 2, d.end(), -1);
         }
@@ -91,17 +107,27 @@ template <int N> struct UintN {
     UintN operator*(const UintN& rhs) const {
         UintN res;
         for (int i = 0; i < N; i++) {
-            uint64_t carry = 0;
+            u64 carry = 0;
             for (int j = 0; i + j < N; j++) {
-                unsigned __int128 prod =
-                    (unsigned __int128)d[i] * rhs.d[j] + res.d[i + j] + carry;
-                res.d[i + j] = static_cast<uint64_t>(prod);
-                carry = static_cast<uint64_t>(prod >> 64);
+                u128 prod = (u128)d[i] * rhs.d[j] + res.d[i + j] + carry;
+                res.d[i + j] = static_cast<u64>(prod);
+                carry = static_cast<u64>(prod >> 64);
             }
         }
         return res;
     }
     UintN& operator*=(const UintN& rhs) { return *this = *this * rhs; }
+
+    std::pair<UintN, u64> divrem(const u64& rhs) const {
+        u128 r = 0;
+        UintN q;
+        for (int i = N - 1; i >= 0; i--) {
+            auto qr = div128((r << 64) | d[i], rhs);
+            q.d[i] = qr.first;
+            r = qr.second;
+        }
+        return {q, r};
+    }
 
     // NOTE: broken
     std::pair<UintN, UintN> divrem(const UintN& rhs) const {
@@ -125,7 +151,7 @@ template <int N> struct UintN {
         u = u << shift;
         v = v << shift;
 
-        std::array<uint64_t, N + 1> U = {};
+        std::array<u64, N + 1> U = {};
         for (int i = 0; i < m; i++) U[i] = u.d[i];
         U[m] = 0;
 
@@ -173,6 +199,12 @@ template <int N> struct UintN {
     UintN operator/(const UintN& rhs) const { return this->divrem(rhs).first; }
     UintN& operator/=(const UintN& rhs) { return *this = *this / rhs; }
 
+    template <typename T>
+        requires std::is_unsigned_v<T> && (sizeof(T) <= sizeof(uint64_t))
+    UintN operator/(T v) const {
+        return this->divrem((u64)v).first;
+    }
+
     UintN operator%(const UintN& rhs) const { return this->divrem(rhs).second; }
     UintN& operator%=(const UintN& rhs) { return *this = *this % rhs; }
 
@@ -184,6 +216,7 @@ template <int N> struct UintN {
         }
         return std::strong_ordering::equal;
     }
+    explicit operator bool() const { return *this != UintN(0); }
 
     UintN operator<<(int shift) const {
         if (shift >= 64 * N) return UintN();
@@ -210,7 +243,31 @@ template <int N> struct UintN {
         return res;
     }
     UintN& operator>>=(int shift) { return *this = *this >> shift; }
+
+    int bit_width() const {
+        for (int i = N - 1; i >= 0; i--) {
+            if (d[i] == 0) continue;
+            return (int)std::bit_width(d[i]) + i * 64;
+        }
+        return 0;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, UintN x) {
+        if (!x) {
+            os << "0";
+            return os;
+        }
+        std::string s;
+        while (x) {
+            auto [q, r] = x.divrem(10U);
+            x = q;
+            s.push_back(char('0' + r));
+        }
+        std::reverse(s.begin(), s.end());
+        return os << s;
+    }
 };
+
 
 template <int N> struct IntN {
   private:
