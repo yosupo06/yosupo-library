@@ -186,13 +186,15 @@ template <int N> struct UintN {
             const u128 l_top = (u128)l.data()[i + block + 1] << 64 | l.data()[i + block];
             u64 rough = (r_top == std::numeric_limits<u64>::max()) ? (l_top >> 64) : div128(l_top, r_top+1).first;
             q.d[i] = rough;
-            assert(l >= r * rough);
             l -= r * rough;
             while (l >= r) {
                 l -= r;
                 q.d[i]++;
             }
             r >>= 64;
+        }
+        if (shift) {
+            l >>= shift;
         }
         return {q, UintN(l)};
     }
@@ -312,6 +314,28 @@ template <int N> struct IntN {
             return IntN(prod);
     }
     IntN& operator*=(const IntN& rhs) { return *this = *this * rhs; }
+
+    IntN operator/(const IntN& rhs) const {
+        UintN<N> absL = abs();
+        UintN<N> absR = rhs.abs();
+        UintN<N> q = absL / absR;
+        if (is_negative() ^ rhs.is_negative())
+            return IntN(-q);
+        else
+            return IntN(q);
+    }
+    IntN& operator/=(const IntN& rhs) { return *this = *this / rhs; }
+
+    IntN operator%(const IntN& rhs) const {
+        UintN<N> absL = abs();
+        UintN<N> absR = rhs.abs();
+        UintN<N> r = absL % absR;
+        if (is_negative())
+            return IntN(-r);
+        else
+            return IntN(r);
+    }
+    IntN& operator%=(const IntN& rhs) { return *this = *this % rhs; }
 
     IntN operator<<(int shift) const { return IntN(d << shift); }
 

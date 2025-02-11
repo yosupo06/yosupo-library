@@ -108,7 +108,22 @@ TEST(UIntNTest, Div) {
     EXPECT_EQ(bigu0 / BigUInt(1), bigu0);
     EXPECT_EQ(bigu1 / BigUInt((uint64_t)-1), BigUInt(54204079));
 }
+TEST(IntNTest, DivSign) {
+    EXPECT_EQ(BigInt(7) / BigInt(3), BigInt(2));
+    EXPECT_EQ(BigInt(-7) / BigInt(3), BigInt(-2));
+    EXPECT_EQ(BigInt(7) / BigInt(-3), BigInt(-2));
+    EXPECT_EQ(BigInt(-7) / BigInt(-3), BigInt(2));
+}
 
+TEST(UIntNTest, Rem) {
+    EXPECT_EQ(BigUInt(1000) % BigUInt(10), BigUInt(0));
+    EXPECT_EQ(BigUInt(1099) % BigUInt(100), BigUInt(99));
+    EXPECT_EQ(BigUInt(1100) % BigUInt(100), BigUInt(0));
+    EXPECT_EQ(bigu0 % bigu1, bigu0);
+    EXPECT_EQ(bigu1 % bigu0, BigUInt("12234464678901131345567799"));
+    EXPECT_EQ(bigu0 % BigUInt(1), BigUInt(0));
+    EXPECT_EQ(bigu1 % BigUInt((uint64_t)-1), BigUInt("4602421085539184526"));
+}
 TEST(UIntNTest, RemSmall) {
     EXPECT_EQ(BigUInt(1000) % 10U, BigUInt(0));
     EXPECT_EQ(BigUInt(1099) % 100U, BigUInt(99));
@@ -116,7 +131,12 @@ TEST(UIntNTest, RemSmall) {
     EXPECT_EQ(bigu0 % 1U, BigUInt(0));
     EXPECT_EQ(bigu0 % 12345U, BigUInt(4329));
 }
-
+TEST(IntNTest, RemSign) {
+    EXPECT_EQ(BigInt(7) % BigInt(3), BigInt(1));
+    EXPECT_EQ(BigInt(-7) % BigInt(3), BigInt(-1));
+    EXPECT_EQ(BigInt(7) % BigInt(-3), BigInt(1));
+    EXPECT_EQ(BigInt(-7) % BigInt(-3), BigInt(-1));
+}
 
 TEST(UIntNTest, LShift) {
     EXPECT_EQ(BigUInt(1) << 1, BigUInt(2));
