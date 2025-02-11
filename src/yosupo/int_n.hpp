@@ -32,6 +32,9 @@ template <int N> struct UintN {
     const std::array<uint64_t, N>& data() const { return d; }
 
   public:
+
+    // Constructor
+
     UintN() = default;
 
     template <typename T>
@@ -62,14 +65,19 @@ template <int N> struct UintN {
         }
     }
 
-    template <int M>
-        requires(M <= N)
+    template <int M> requires(M <= N)
     UintN(const UintN<M>& other) {
         for (int i = 0; i < M; i++) {
             d[i] = other.data()[i];
         }
         for (int i = M; i < N; i++) {
             d[i] = 0;
+        }
+    }
+    template <int M> requires(M > N)
+    explicit UintN(const UintN<M>& other) {
+        for (int i = 0; i < N; i++) {
+            d[i] = other.data()[i];
         }
     }
 
@@ -84,6 +92,20 @@ template <int N> struct UintN {
             *this = *this * ten + UintN(uint64_t(c - '0'));
         }
     }
+
+    // Compare
+
+    bool operator==(const UintN& rhs) const { return d == rhs.d; }
+    bool operator!=(const UintN& rhs) const { return d != rhs.d; }
+    std::strong_ordering operator<=>(const UintN& rhs) const {
+        for (int i = N - 1; i >= 0; i--) {
+            if (d[i] != rhs.d[i]) return d[i] <=> rhs.d[i];
+        }
+        return std::strong_ordering::equal;
+    }
+    explicit operator bool() const { return *this != UintN(0); }
+
+    // Arithmetic
 
     UintN operator-() const {
         UintN res;
@@ -143,81 +165,43 @@ template <int N> struct UintN {
         return {q, r};
     }
 
-    // NOTE: broken
-    // std::pair<UintN, UintN> divrem(const UintN& rhs) const {
-    //     if (rhs == UintN()) throw std::runtime_error("Division by zero");
-    //     UintN u = *this, v = rhs;
-    //     UintN q;
-    //     int n = N;
-    //     while (n > 0 && v.d[n - 1] == 0) n--;
-    //     int m = N;
-    //     while (m > 0 && u.d[m - 1] == 0) m--;
-    //     if (m < n) return {q, *this};
+    std::pair<UintN, UintN> divrem(const UintN& rhs) const {
+        assert(rhs);
 
-    //     int shift = 0;
-    //     {
-    //         uint64_t high = v.d[n - 1];
-    //         while ((high >> 63) == 0) {
-    //             high <<= 1;
-    //             shift++;
-    //         }
-    //     }
-    //     u = u << shift;
-    //     v = v << shift;
+        int width = rhs.bit_width();
+        int block = width / 64;
+        int shift = 63 - width % 64;
 
-    //     UintN<N+1> u2 = v;
 
-    //     std::array<u64, N + 1> U = {};
-    //     for (int i = 0; i < m; i++) U[i] = u.d[i];
-    //     U[m] = 0;
+        UintN<N + 1> l = *this, r = rhs;
+        if (shift) {
+            l = l << shift;
+            r = r << shift;
+        }
+        const u64 r_top = r.data()[block];
 
-    //     for (int j = m - n; j >= 0; j--) {
-    //         __uint128_t numerator =
-    //             ((__uint128_t)U[j + n] << 64) | U[j + n - 1];
-    //         uint64_t qhat = static_cast<uint64_t>(numerator / v.d[n - 1]);
-    //         uint64_t rhat = static_cast<uint64_t>(numerator % v.d[n - 1]);
-    //         while (n > 1 && qhat * v.d[n - 2] >
-    //                             (((__uint128_t)rhat << 64) + U[j + n - 2])) {
-    //             qhat--;
-    //             rhat += v.d[n - 1];
-    //             if (rhat < v.d[n - 1]) break;
-    //         }
-    //         __uint128_t borrow = 0;
-    //         for (int i = 0; i < n; i++) {
-    //             __uint128_t prod = (__uint128_t)qhat * v.d[i];
-    //             __uint128_t sub = U[i + j] - (uint64_t)prod - borrow;
-    //             U[i + j] = static_cast<uint64_t>(sub);
-    //             borrow = (prod >> 64) + ((sub >> 64) & 1);
-    //         }
-    //         U[j + n] -= (uint64_t)borrow;
-    //         q.d[j] = qhat;
-    //         if (U[j + n] > (((uint64_t)1 << 63))) {
-    //             q.d[j]--;
-    //             __uint128_t carry = 0;
-    //             for (int i = 0; i < n; i++) {
-    //                 __uint128_t sum = (__uint128_t)U[i + j] + v.d[i] + carry;
-    //                 U[i + j] = static_cast<uint64_t>(sum);
-    //                 carry = sum >> 64;
-    //             }
-    //             U[j + n] += (uint64_t)carry;
-    //         }
-    //     }
-    //     UintN r;
-    //     uint64_t carry = 0;
-    //     for (int i = m - 1; i >= 0; i--) {
-    //         uint64_t current = U[i];
-    //         r.d[i] = (current >> shift) | (carry << (64 - shift));
-    //         carry = current & ((1ULL << shift) - 1);
-    //     }
-    //     return {q, r};
-    // }
+        UintN<N> q;
+        r <<= (N - 1 - block) * 64;
+        for (int i = N - 1 - block; i >= 0; i--) {
+            const u128 l_top = (u128)l.data()[i + block + 1] << 64 | l.data()[i + block];
+            u64 rough = (r_top == std::numeric_limits<u64>::max()) ? (l_top >> 64) : div128(l_top, r_top+1).first;
+            q.d[i] = rough;
+            assert(l >= r * rough);
+            l -= r * rough;
+            while (l >= r) {
+                l -= r;
+                q.d[i]++;
+            }
+            r >>= 64;
+        }
+        return {q, UintN(l)};
+    }
 
-    // UintN operator/(const UintN& rhs) const { return this->divrem(rhs).first;
-    // } UintN& operator/=(const UintN& rhs) { return *this = *this / rhs; }
+    UintN operator/(const UintN& rhs) const { return this->divrem(rhs).first; }
+    UintN& operator/=(const UintN& rhs) { return *this = *this / rhs; }
 
-    // UintN operator%(const UintN& rhs) const { return
-    // this->divrem(rhs).second; } UintN& operator%=(const UintN& rhs) { return
-    // *this = *this % rhs; }
+    UintN operator%(const UintN& rhs) const { return this->divrem(rhs).second; }
+    UintN& operator%=(const UintN& rhs) { return *this = *this % rhs; }
 
     template <typename T>
         requires std::is_unsigned_v<T> && (sizeof(T) <= sizeof(uint64_t))
@@ -230,15 +214,7 @@ template <int N> struct UintN {
         return this->divrem((u64)v).second;
     }
 
-    bool operator==(const UintN& rhs) const { return d == rhs.d; }
-    bool operator!=(const UintN& rhs) const { return d != rhs.d; }
-    std::strong_ordering operator<=>(const UintN& rhs) const {
-        for (int i = N - 1; i >= 0; i--) {
-            if (d[i] != rhs.d[i]) return d[i] <=> rhs.d[i];
-        }
-        return std::strong_ordering::equal;
-    }
-    explicit operator bool() const { return *this != UintN(0); }
+    // Bitop
 
     UintN operator<<(int shift) const {
         if (shift >= 64 * N) return UintN();
@@ -307,24 +283,6 @@ template <int N> struct IntN {
     explicit IntN(const std::string& s) : d(s) {}
     operator UintN<N>() const { return d; }
 
-    IntN operator-() const { return IntN(-d); }
-
-    IntN operator+(const IntN& rhs) const { return IntN(d + rhs.d); }
-    IntN& operator+=(const IntN& rhs) { return *this = *this + rhs; }
-    IntN operator-(const IntN& rhs) const { return IntN(d - rhs.d); }
-    IntN& operator-=(const IntN& rhs) { return *this = *this - rhs; }
-
-    IntN operator*(const IntN& rhs) const {
-        UintN<N> absL = abs();
-        UintN<N> absR = rhs.abs();
-        UintN<N> prod = absL * absR;
-        if (is_negative() ^ rhs.is_negative())
-            return IntN(-prod);
-        else
-            return IntN(prod);
-    }
-    IntN& operator*=(const IntN& rhs) { return *this = *this * rhs; }
-
     bool operator==(const IntN& rhs) const { return d == rhs.d; }
     bool operator!=(const IntN& rhs) const { return d != rhs.d; }
     std::strong_ordering operator<=>(const IntN& rhs) const {
@@ -337,10 +295,36 @@ template <int N> struct IntN {
         }
         return std::strong_ordering::equal;
     }
+    explicit operator bool() const { return (bool)this->d; }
+
+    IntN operator-() const { return IntN(-d); }
+    IntN operator+(const IntN& rhs) const { return IntN(d + rhs.d); }
+    IntN& operator+=(const IntN& rhs) { return *this = *this + rhs; }
+    IntN operator-(const IntN& rhs) const { return IntN(d - rhs.d); }
+    IntN& operator-=(const IntN& rhs) { return *this = *this - rhs; }
+    IntN operator*(const IntN& rhs) const {
+        UintN<N> absL = abs();
+        UintN<N> absR = rhs.abs();
+        UintN<N> prod = absL * absR;
+        if (is_negative() ^ rhs.is_negative())
+            return IntN(-prod);
+        else
+            return IntN(prod);
+    }
+    IntN& operator*=(const IntN& rhs) { return *this = *this * rhs; }
+
+    IntN operator<<(int shift) const { return IntN(d << shift); }
 
     bool is_negative() const { return data()[N - 1] >> 63; }
-
     IntN abs() const { return is_negative() ? -*this : *this; }
+
+    friend std::ostream& operator<<(std::ostream& os, IntN x) {
+        if (x.is_negative()) {
+            os << "-";
+            x = -x;
+        }
+        return os << static_cast<UintN<N>>(x);
+    }
 };
 
 }  // namespace yosupo
