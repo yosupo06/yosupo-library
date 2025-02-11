@@ -7,9 +7,8 @@
 #include <compare>
 #include <cstdint>
 #include <limits>
-#include <stdexcept>
-#include <string>
 #include <ostream>
+#include <string>
 
 namespace yosupo {
 
@@ -49,13 +48,28 @@ template <int N> struct UintN {
         }
     }
 
-    UintN(u128 v) {
+    UintN(u128 v)
+        requires(N >= 2)
+    {
         d[0] = (u64)v;
         if constexpr (N > 1) d[1] = v >> 64;
     }
-    UintN(__int128 v) : UintN(static_cast<u128>(v)) {
+    UintN(__int128 v)
+        requires(N >= 2)
+        : UintN(static_cast<u128>(v)) {
         if (N > 2 && v < 0) {
             std::fill(d.begin() + 2, d.end(), -1);
+        }
+    }
+
+    template <int M>
+        requires(M <= N)
+    UintN(const UintN<M>& other) {
+        for (int i = 0; i < M; i++) {
+            d[i] = other.data()[i];
+        }
+        for (int i = M; i < N; i++) {
+            d[i] = 0;
         }
     }
 
@@ -130,83 +144,91 @@ template <int N> struct UintN {
     }
 
     // NOTE: broken
-    std::pair<UintN, UintN> divrem(const UintN& rhs) const {
-        if (rhs == UintN()) throw std::runtime_error("Division by zero");
-        UintN u = *this, v = rhs;
-        UintN q;
-        int n = N;
-        while (n > 0 && v.d[n - 1] == 0) n--;
-        int m = N;
-        while (m > 0 && u.d[m - 1] == 0) m--;
-        if (m < n) return {q, *this};
+    // std::pair<UintN, UintN> divrem(const UintN& rhs) const {
+    //     if (rhs == UintN()) throw std::runtime_error("Division by zero");
+    //     UintN u = *this, v = rhs;
+    //     UintN q;
+    //     int n = N;
+    //     while (n > 0 && v.d[n - 1] == 0) n--;
+    //     int m = N;
+    //     while (m > 0 && u.d[m - 1] == 0) m--;
+    //     if (m < n) return {q, *this};
 
-        int shift = 0;
-        {
-            uint64_t high = v.d[n - 1];
-            while ((high >> 63) == 0) {
-                high <<= 1;
-                shift++;
-            }
-        }
-        u = u << shift;
-        v = v << shift;
+    //     int shift = 0;
+    //     {
+    //         uint64_t high = v.d[n - 1];
+    //         while ((high >> 63) == 0) {
+    //             high <<= 1;
+    //             shift++;
+    //         }
+    //     }
+    //     u = u << shift;
+    //     v = v << shift;
 
-        std::array<u64, N + 1> U = {};
-        for (int i = 0; i < m; i++) U[i] = u.d[i];
-        U[m] = 0;
+    //     UintN<N+1> u2 = v;
 
-        for (int j = m - n; j >= 0; j--) {
-            __uint128_t numerator =
-                ((__uint128_t)U[j + n] << 64) | U[j + n - 1];
-            uint64_t qhat = static_cast<uint64_t>(numerator / v.d[n - 1]);
-            uint64_t rhat = static_cast<uint64_t>(numerator % v.d[n - 1]);
-            while (n > 1 && qhat * v.d[n - 2] >
-                                (((__uint128_t)rhat << 64) + U[j + n - 2])) {
-                qhat--;
-                rhat += v.d[n - 1];
-                if (rhat < v.d[n - 1]) break;
-            }
-            __uint128_t borrow = 0;
-            for (int i = 0; i < n; i++) {
-                __uint128_t prod = (__uint128_t)qhat * v.d[i];
-                __uint128_t sub = U[i + j] - (uint64_t)prod - borrow;
-                U[i + j] = static_cast<uint64_t>(sub);
-                borrow = (prod >> 64) + ((sub >> 64) & 1);
-            }
-            U[j + n] -= (uint64_t)borrow;
-            q.d[j] = qhat;
-            if (U[j + n] > (((uint64_t)1 << 63))) {
-                q.d[j]--;
-                __uint128_t carry = 0;
-                for (int i = 0; i < n; i++) {
-                    __uint128_t sum = (__uint128_t)U[i + j] + v.d[i] + carry;
-                    U[i + j] = static_cast<uint64_t>(sum);
-                    carry = sum >> 64;
-                }
-                U[j + n] += (uint64_t)carry;
-            }
-        }
-        UintN r;
-        uint64_t carry = 0;
-        for (int i = m - 1; i >= 0; i--) {
-            uint64_t current = U[i];
-            r.d[i] = (current >> shift) | (carry << (64 - shift));
-            carry = current & ((1ULL << shift) - 1);
-        }
-        return {q, r};
-    }
+    //     std::array<u64, N + 1> U = {};
+    //     for (int i = 0; i < m; i++) U[i] = u.d[i];
+    //     U[m] = 0;
 
-    UintN operator/(const UintN& rhs) const { return this->divrem(rhs).first; }
-    UintN& operator/=(const UintN& rhs) { return *this = *this / rhs; }
+    //     for (int j = m - n; j >= 0; j--) {
+    //         __uint128_t numerator =
+    //             ((__uint128_t)U[j + n] << 64) | U[j + n - 1];
+    //         uint64_t qhat = static_cast<uint64_t>(numerator / v.d[n - 1]);
+    //         uint64_t rhat = static_cast<uint64_t>(numerator % v.d[n - 1]);
+    //         while (n > 1 && qhat * v.d[n - 2] >
+    //                             (((__uint128_t)rhat << 64) + U[j + n - 2])) {
+    //             qhat--;
+    //             rhat += v.d[n - 1];
+    //             if (rhat < v.d[n - 1]) break;
+    //         }
+    //         __uint128_t borrow = 0;
+    //         for (int i = 0; i < n; i++) {
+    //             __uint128_t prod = (__uint128_t)qhat * v.d[i];
+    //             __uint128_t sub = U[i + j] - (uint64_t)prod - borrow;
+    //             U[i + j] = static_cast<uint64_t>(sub);
+    //             borrow = (prod >> 64) + ((sub >> 64) & 1);
+    //         }
+    //         U[j + n] -= (uint64_t)borrow;
+    //         q.d[j] = qhat;
+    //         if (U[j + n] > (((uint64_t)1 << 63))) {
+    //             q.d[j]--;
+    //             __uint128_t carry = 0;
+    //             for (int i = 0; i < n; i++) {
+    //                 __uint128_t sum = (__uint128_t)U[i + j] + v.d[i] + carry;
+    //                 U[i + j] = static_cast<uint64_t>(sum);
+    //                 carry = sum >> 64;
+    //             }
+    //             U[j + n] += (uint64_t)carry;
+    //         }
+    //     }
+    //     UintN r;
+    //     uint64_t carry = 0;
+    //     for (int i = m - 1; i >= 0; i--) {
+    //         uint64_t current = U[i];
+    //         r.d[i] = (current >> shift) | (carry << (64 - shift));
+    //         carry = current & ((1ULL << shift) - 1);
+    //     }
+    //     return {q, r};
+    // }
+
+    // UintN operator/(const UintN& rhs) const { return this->divrem(rhs).first;
+    // } UintN& operator/=(const UintN& rhs) { return *this = *this / rhs; }
+
+    // UintN operator%(const UintN& rhs) const { return
+    // this->divrem(rhs).second; } UintN& operator%=(const UintN& rhs) { return
+    // *this = *this % rhs; }
 
     template <typename T>
         requires std::is_unsigned_v<T> && (sizeof(T) <= sizeof(uint64_t))
     UintN operator/(T v) const {
         return this->divrem((u64)v).first;
     }
-
-    UintN operator%(const UintN& rhs) const { return this->divrem(rhs).second; }
-    UintN& operator%=(const UintN& rhs) { return *this = *this % rhs; }
+    template <typename T>
+        requires std::is_unsigned_v<T> && (sizeof(T) <= sizeof(uint64_t))
+    UintN operator%(T v) const {
+        return this->divrem((u64)v).second;
+    }
 
     bool operator==(const UintN& rhs) const { return d == rhs.d; }
     bool operator!=(const UintN& rhs) const { return d != rhs.d; }
@@ -267,7 +289,6 @@ template <int N> struct UintN {
         return os << s;
     }
 };
-
 
 template <int N> struct IntN {
   private:

@@ -12,10 +12,16 @@ using BigInt = IntN<10>;
 BigUInt bigu0 = BigUInt("123456789123456789123456789");
 BigUInt bigu1 = BigUInt("999888777666555444333222111");
 
+TEST(UIntNTest, Extend) {
+    UintN<3> a(12345);
+    EXPECT_EQ(BigUInt(a), BigUInt("12345"));
+}
+
 TEST(UIntNTest, ReadStr) {
     EXPECT_EQ(BigUInt("123"), BigUInt(123));
     EXPECT_EQ(BigUInt("123456789123456789123456789"), bigu0);
-    __int128 x = (__int128)(123456789) * ((__int128)1000000000 * 1000000000 + 1000000000 + 1);
+    __int128 x = (__int128)(123456789) *
+                 ((__int128)1000000000 * 1000000000 + 1000000000 + 1);
 
     EXPECT_EQ(BigUInt(x), bigu0);
 }
@@ -45,7 +51,9 @@ TEST(UIntNTest, Sub) {
     EXPECT_EQ(bigu1 - bigu0, BigUInt("876431988543098655209765322"));
 }
 TEST(UIntNTest, Mul) {
-    EXPECT_EQ(bigu0 * bigu1, BigUInt("123443057971290905819138753543557274695709426847861579"));
+    EXPECT_EQ(
+        bigu0 * bigu1,
+        BigUInt("123443057971290905819138753543557274695709426847861579"));
 }
 
 TEST(UIntNTest, DivSmall) {
@@ -64,6 +72,14 @@ TEST(UIntNTest, DivSmall) {
 //     EXPECT_EQ(bigu0 / BigUInt(1), bigu0);
 // }
 
+TEST(UIntNTest, RemSmall) {
+    EXPECT_EQ(BigUInt(1000) % 10U, BigUInt(0));
+    EXPECT_EQ(BigUInt(1099) % 100U, BigUInt(99));
+    EXPECT_EQ(BigUInt(1100) % 100U, BigUInt(0));
+    EXPECT_EQ(bigu0 % 1U, BigUInt(0));
+    EXPECT_EQ(bigu0 % 12345U, BigUInt(4329));
+}
+
 TEST(UIntNTest, LShift) {
     EXPECT_EQ(BigUInt(1) << 1, BigUInt(2));
     EXPECT_EQ(BigUInt(1) << 100, BigUInt("1267650600228229401496703205376"));
@@ -80,6 +96,11 @@ TEST(UIntNTest, LShift) {
               BigUInt("23384026197294446689991306723232298912998217482240"));
 }
 
+TEST(UIntNTest, ToBool) {
+    EXPECT_TRUE((bool)(BigUInt(1000)));
+    EXPECT_FALSE((bool)(BigUInt(0)));
+}
+
 TEST(UIntNTest, RShift) {
     EXPECT_EQ(BigUInt(1) >> 0, BigUInt(1));
     EXPECT_EQ(BigUInt(1) >> 1, BigUInt(0));
@@ -88,9 +109,7 @@ TEST(UIntNTest, RShift) {
 }
 
 TEST(UIntNTest, BitWidth) {
-    EXPECT_EQ(
-        BigUInt(0).bit_width(),
-        0);
+    EXPECT_EQ(BigUInt(0).bit_width(), 0);
     EXPECT_EQ(BigUInt(1).bit_width(), 1);
     EXPECT_EQ((BigUInt(1) << 100).bit_width(), 101);
     EXPECT_EQ((BigUInt(1) << 639).bit_width(), 640);
