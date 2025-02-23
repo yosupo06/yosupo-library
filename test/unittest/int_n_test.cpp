@@ -1,4 +1,8 @@
+#include "yosupo/bit.hpp"
+#include "yosupo/math.hpp"
+
 #include "yosupo/int_n.hpp"
+
 #include <gtest/gtest.h>
 #include <cstdint>
 #include <limits>
@@ -83,15 +87,24 @@ TEST(UIntNTest, AddCarry) {
     EXPECT_EQ(b + BigUInt(std::numeric_limits<uint64_t>::max()),
               BigUInt("18446744073709551616"));
 }
+
 TEST(UIntNTest, Sub) {
     EXPECT_EQ(bigu0 - bigu1, -BigUInt("876431988543098655209765322"));
     EXPECT_EQ(bigu1 - bigu0, BigUInt("876431988543098655209765322"));
 }
+
 TEST(UIntNTest, Mul) {
     EXPECT_EQ(
         bigu0 * bigu1,
         BigUInt("123443057971290905819138753543557274695709426847861579"));
 }
+TEST(IntNTest, Mul) {
+    EXPECT_EQ(BigInt(123) * BigInt(234), BigInt(28782));
+    EXPECT_EQ(BigInt(-123) * BigInt(234), BigInt(-28782));
+    EXPECT_EQ(BigInt(123) * BigInt(-234), BigInt(-28782));
+    EXPECT_EQ(BigInt(-123) * BigInt(-234), BigInt(28782));
+}
+
 TEST(UIntNTest, DivSmall) {
     EXPECT_EQ(BigUInt(1000) / 10U, BigUInt(100));
     EXPECT_EQ(BigUInt(1099) / 100U, BigUInt(10));
@@ -167,6 +180,15 @@ TEST(UIntNTest, BitWidth) {
     EXPECT_EQ((BigUInt(1) << 639).bit_width(), 640);
 }
 
+TEST(UIntNTest, CountrZero) {
+    EXPECT_EQ(BigUInt(0).countr_zero(), 640);
+    EXPECT_EQ(BigUInt(1).countr_zero(), 0);
+    EXPECT_EQ(BigUInt(10).countr_zero(), 1);
+    EXPECT_EQ((BigUInt(1) << 100).countr_zero(), 100);
+    EXPECT_EQ((BigUInt(1) << 639).countr_zero(), 639);
+    EXPECT_EQ(countr_zero(BigUInt(10)), 1);
+}
+
 TEST(IntNTest, IsNeg) {
     EXPECT_TRUE(BigInt(-123).is_negative());
     EXPECT_FALSE(BigInt(0).is_negative());
@@ -177,12 +199,18 @@ TEST(IntNTest, Abs) {
     BigInt a(-123), b(123);
     EXPECT_EQ(a.abs(), b);
     EXPECT_EQ(b.abs(), b);
+    EXPECT_EQ(abs(a), b);
 }
-TEST(IntNTest, Mul) {
-    EXPECT_EQ(BigInt(123) * BigInt(234), BigInt(28782));
-    EXPECT_EQ(BigInt(-123) * BigInt(234), BigInt(-28782));
-    EXPECT_EQ(BigInt(123) * BigInt(-234), BigInt(-28782));
-    EXPECT_EQ(BigInt(-123) * BigInt(-234), BigInt(28782));
+
+TEST(UIntNTest, GCD) {
+    BigUInt a(400), b(600);
+    EXPECT_EQ(BigUInt::gcd(a, b), 200);
+    EXPECT_EQ(gcd(a, b), 200);
+}
+TEST(IntNTest, GCD) {
+    BigInt a(400), b(-600);
+    EXPECT_EQ(BigInt::gcd(a, b), 200);
+    EXPECT_EQ(gcd(a, b), 200);
 }
 
 TEST(UIntNTest, Ostream) {

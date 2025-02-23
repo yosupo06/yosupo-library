@@ -252,6 +252,33 @@ template <int N> struct UintN {
         return 0;
     }
 
+    int countr_zero() const {
+        for (int i = 0; i < N; i++) {
+            if (d[i] == 0) continue;
+            return (int)std::countr_zero(d[i]) + i * 64;
+        }
+        return 64 * N;
+    }
+
+    static UintN gcd(UintN a, UintN b) {
+        if (a == 0) return b;
+        if (b == 0) return a;
+        int shift;
+        {
+            int a_bsf = a.countr_zero();
+            a >>= a_bsf;
+            int b_bsf = b.countr_zero();
+            b >>= b_bsf;
+            shift = std::min(a_bsf, b_bsf);
+        }
+        while (a != b) {
+            if (a > b) std::swap(a, b);
+            b -= a;
+            b >>= b.countr_zero();
+        }
+        return (a << shift);
+    }
+
     friend std::ostream& operator<<(std::ostream& os, UintN x) {
         if (!x) {
             os << "0";
@@ -341,6 +368,10 @@ template <int N> struct IntN {
 
     bool is_negative() const { return data()[N - 1] >> 63; }
     IntN abs() const { return is_negative() ? -*this : *this; }
+
+    static IntN gcd(IntN a, IntN b) {
+        return IntN(UintN<N>::gcd(a.abs(), b.abs()));
+    }
 
     friend std::ostream& operator<<(std::ostream& os, IntN x) {
         if (x.is_negative()) {
