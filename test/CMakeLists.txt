@@ -31,8 +31,9 @@ add_executable(unittest
   unittest/bit_test.cpp
   unittest/comb_test.cpp  
   unittest/fastio_test.cpp  
-  unittest/fastset_test.cpp
+  unittest/fastset_test.cpp  
   unittest/flattenvector_test.cpp
+  unittest/fraction_test.cpp
   unittest/random_test.cpp
   unittest/hash_test.cpp
   unittest/hashmap_test.cpp
