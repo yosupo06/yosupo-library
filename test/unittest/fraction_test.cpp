@@ -33,6 +33,7 @@ inline std::ostream& operator<<(std::ostream& os, __uint128_t x) {
 
 #include "yosupo/fraction.hpp"
 #include "yosupo/int_n.hpp"
+#include "yosupo/math.hpp"
 
 #include "gtest/gtest.h"
 
@@ -99,4 +100,15 @@ TEST(FracTest, ToString) {
         oss << f;
         EXPECT_EQ(oss.str(), "3/5");
     }
+}
+
+TEST(FracTest, Abs) {
+    EXPECT_EQ(abs(FracI(3, 5)), FracI(3, 5));
+    EXPECT_EQ(abs(FracI(-3, 5)), FracI(3, 5));
+
+    EXPECT_EQ(abs(Frac128(3, 5)), Frac128(3, 5));
+    EXPECT_EQ(abs(Frac128(-3, 5)), Frac128(3, 5));
+
+    EXPECT_EQ(abs(FracN(3, 5)), FracN(3, 5));
+    EXPECT_EQ(abs(FracN(-3, 5)), FracN(3, 5));
 }
