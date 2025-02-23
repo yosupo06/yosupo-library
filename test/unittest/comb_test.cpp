@@ -1,8 +1,6 @@
 #include "yosupo/modint.hpp"
 #include "yosupo/comb.hpp"
 
-#include <numeric>
-
 #include "gtest/gtest.h"
 
 using namespace yosupo;

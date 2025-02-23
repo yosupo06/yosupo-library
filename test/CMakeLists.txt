@@ -28,6 +28,7 @@ FetchContent_MakeAvailable(googletest)
 add_executable(unittest
   unittest/algebra_test.cpp
   unittest/binaryheap_test.cpp
+  unittest/bit_test.cpp
   unittest/comb_test.cpp  
   unittest/fastio_test.cpp  
   unittest/fastset_test.cpp
