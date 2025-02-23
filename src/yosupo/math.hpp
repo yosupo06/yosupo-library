@@ -1,50 +1,62 @@
 #pragma once
 
-#include <algorithm>
-#include <bit>
+#include <cmath>
 #include <initializer_list>
 #include <limits>
+#include <numeric>
 #include <vector>
+
+#include "yosupo/bit.hpp"
 
 namespace yosupo {
 
-// binary gcd
-inline unsigned long long gcd(unsigned long long a, unsigned long long b) {
+// abs
+using std::abs;
+inline __int128 abs(__int128 x) { return x < 0 ? -x : x; }
+template <class T>
+    requires requires(T x) {
+        { x.abs() } -> std::same_as<T>;
+    }
+T abs(T x) {
+    return x.abs();
+}
+
+// gcd
+using std::gcd;
+inline unsigned __int128 gcd(unsigned __int128 a, unsigned __int128 b) {
     if (a == 0) return b;
     if (b == 0) return a;
     int shift;
     {
-        int a_bsf = std::countr_zero(a);
+        int a_bsf = countr_zero(a);
         a >>= a_bsf;
-        int b_bsf = std::countr_zero(b);
+        int b_bsf = countr_zero(b);
         b >>= b_bsf;
         shift = std::min(a_bsf, b_bsf);
     }
     while (a != b) {
         if (a > b) std::swap(a, b);
         b -= a;
-        b >>= std::countr_zero(b);
+        b >>= countr_zero(b);
     }
     return (a << shift);
 }
-inline long long gcd(long long a, long long b) {
-    unsigned long long _a = a, _b = b;
-    if ((unsigned long long)std::numeric_limits<long long>::max() < _a)
-        _a = -_a;
-    if ((unsigned long long)std::numeric_limits<long long>::max() < _b)
-        _b = -_b;
-    return gcd(_a, _b);
+inline __int128 gcd(__int128 a, __int128 b) {
+    return gcd((unsigned __int128)abs(a), (unsigned __int128)abs(b));
 }
-inline unsigned int gcd(unsigned int a, unsigned int b) {
-    return (unsigned int)gcd((unsigned long long)a, (unsigned long long)b);
+template <class T>
+    requires requires(T x) {
+        { T::gcd(x, x) } -> std::same_as<T>;
+    }
+T gcd(T x, T y) {
+    return T::gcd(x, y);
 }
-inline int gcd(int a, int b) { return (int)gcd((long long)a, (long long)b); }
 
 // @param m `1 <= m`
 // @return x ** n % m
 inline unsigned long long pow_mod_u64(unsigned long long x,
-                               unsigned long long n,
-                               unsigned long long m) {
+                                      unsigned long long n,
+                                      unsigned long long m) {
     if (m == 1) return 0;
     unsigned long long r = 1;
     unsigned long long y = x % m;

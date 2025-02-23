@@ -1,33 +1,44 @@
 #include "yosupo/math.hpp"
-
-#include <algorithm>
-#include <numeric>
-
 #include "gtest/gtest.h"
 
-bool naive_is_prime(int x) {
-    if (x <= 1) return false;
-    for (int i = 2; i * i <= x; i++) {
-        if (x % i == 0) return false;
-    }
-    return true;
-}
-
-long long gcd(long long a, long long b) {
-    if (b == 0) return a;
-    return gcd(b, a % b);
+TEST(MathTest, Abs) {
+    EXPECT_EQ(yosupo::abs(-123), 123);
+    EXPECT_EQ(yosupo::abs((__int128)-123), 123);
 }
 
 TEST(MathTest, Prime) {
-    for (int i = 0; i < 10000; i++) {        
-        ASSERT_EQ(naive_is_prime(i), yosupo::is_prime(i));
+    auto is_prime = [&](int x) {
+        if (x <= 1) return false;
+        for (int i = 2; i * i <= x; i++) {
+            if (x % i == 0) return false;
+        }
+        return true;
+    };
+    for (int i = 0; i < 10000; i++) {
+        ASSERT_EQ(yosupo::is_prime(i), is_prime(i));
     }
 }
 
-TEST(MathTest, GCD) {
-    for (int a = -100; a < 100; a++) {
-        for (int b = -100; b < 100; b++) {
-            ASSERT_EQ(gcd(std::abs(a), std::abs(b)), yosupo::gcd(a, b));
+TEST(MathTest, Gcd) {
+    __int128 x = 1;
+    x <<= 100;
+    EXPECT_EQ(yosupo::gcd(x, x), x);
+}
+
+TEST(MathTest, GcdStress) {
+    auto gcd = [&](__int128 a, __int128 b){
+        if (a < 0) a = -a;
+        if (b < 0) b = -b;
+        while (b) {
+            a %= b;
+            std::swap(a, b);
+        }
+        return a;
+    };
+
+    for (int a = -100; a <= 100; a++) {
+        for (int b = -100; b <= 100; b++) {
+            ASSERT_EQ(yosupo::gcd(a, b), gcd(a, b));
         }
     }
 }
