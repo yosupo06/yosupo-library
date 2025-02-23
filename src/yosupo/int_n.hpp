@@ -15,6 +15,9 @@
 namespace yosupo {
 
 template <int N> struct UintN {
+    using u64 = uint64_t;
+    using u128 = unsigned __int128;
+
     const std::array<uint64_t, N>& data() const { return d; }
 
     // Constructor
@@ -287,9 +290,6 @@ template <int N> struct UintN {
     }
 
   private:
-    using u64 = uint64_t;
-    using u128 = unsigned __int128;
-
     std::array<uint64_t, N> d = {{}};
 
     static std::pair<u64, u64> div128(u128 a, u64 b) {
