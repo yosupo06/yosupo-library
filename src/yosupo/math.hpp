@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <initializer_list>
 #include <limits>
 #include <numeric>
@@ -11,9 +12,7 @@ namespace yosupo {
 
 // abs
 using std::abs;
-inline __int128 abs(__int128 x) {
-    return x < 0 ? -x : x;
-}
+inline __int128 abs(__int128 x) { return x < 0 ? -x : x; }
 template <class T>
     requires requires(T x) {
         { x.abs() } -> std::same_as<T>;
