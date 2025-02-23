@@ -1,35 +1,36 @@
 {
-	"image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04",
-	"features": {
-		"ghcr.io/devcontainers/features/common-utils:2": {},
-		"ghcr.io/devcontainers-community/features/llvm:3": {
-			"version": 18
-		},
-		"ghcr.io/devcontainers/features/python:1": {}
-	},
-	"postCreateCommand": "./.devcontainer/postCreateCommand.sh",
-	"customizations": {
-		"vscode": {
-			"settings": {
-				"cmake.sourceDirectory": "/workspaces/yosupo-library/test",
-				"C_Cpp.intelliSenseEngine": "disabled",
-				"[cpp]": {
-					"editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
-				},
-				"cmake.debugConfig": {
-					"type": "lldb",
-					"request": "launch",
-					"program": "${command:cmake.launchTargetPath}",
-					"args": [],
-					"cwd": "${workspaceFolder}"
-				}
-			},
-			"extensions": [
-				"llvm-vs-code-extensions.vscode-clangd",
-				"vadimcn.vscode-lldb",
-				"ms-vscode.cmake-tools",
-				"github.vscode-github-actions"
-			]
-		}
-	}
+    "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {},
+        "ghcr.io/devcontainers-community/features/llvm:3": {
+            "version": 18
+        },
+        "ghcr.io/devcontainers/features/python:1": {}
+    },
+    "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "cmake.sourceDirectory": "/workspaces/yosupo-library/test",
+                "C_Cpp.intelliSenseEngine": "disabled",
+                "[cpp]": {
+                    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+                },
+                "cmake.debugConfig": {
+                    "type": "lldb",
+                    "request": "launch",
+                    "program": "${command:cmake.launchTargetPath}",
+                    "args": [],
+                    "cwd": "${workspaceFolder}"
+                }
+            },
+            "extensions": [
+                "llvm-vs-code-extensions.vscode-clangd",
+                "vadimcn.vscode-lldb",
+                "ms-vscode.cmake-tools",
+                "github.vscode-github-actions",
+                "redhat.vscode-yaml"
+            ]
+        }
+    }
 }
