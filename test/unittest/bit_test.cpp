@@ -1,4 +1,4 @@
-#include "yosupo/int128.hpp"
+#include "yosupo/bit.hpp"
 
 #include "gtest/gtest.h"
 
