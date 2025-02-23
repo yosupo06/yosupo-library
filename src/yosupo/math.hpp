@@ -52,6 +52,21 @@ T gcd(T x, T y) {
     return T::gcd(x, y);
 }
 
+template <class T> T floor_div(T x, T y) { 
+    auto d = x / y;
+    auto r = x % y;
+    if (r == 0) return d;
+    if ((r > 0) == (y > 0)) return d;
+    return d - 1;
+}
+template <class T> T ceil_div(T x, T y) {
+    auto d = x / y;
+    auto r = x % y;
+    if (r == 0) return d;
+    if ((r > 0) == (y > 0)) return d + 1;
+    return d;
+}
+
 // @param m `1 <= m`
 // @return x ** n % m
 inline unsigned long long pow_mod_u64(unsigned long long x,
