@@ -38,7 +38,9 @@ template <class T> struct Fraction {
     bool operator!=(const Fraction& r) const { return !(*this == r); }
     std::strong_ordering operator<=>(const Fraction& rhs) const {
         return a * rhs.b <=> b * rhs.a;
-    }    
+    }
+
+    Fraction abs() const { return (a < 0) ? -*this : *this; }
 
     friend std::ostream& operator<<(std::ostream& os, Fraction x)
         requires Printable<T>
