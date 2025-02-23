@@ -9,10 +9,7 @@ namespace yosupo {
 template <class T>
 concept Printable = requires(std::ostream& os, const T& t) { os << t; };
 
-template <class T>
-struct Fraction {
-    T a, b;
-
+template <class T> struct Fraction {
     Fraction() : a(T(0)), b(T(1)) {}
     Fraction(T x) : a(x), b(T(1)) {}
 
@@ -22,8 +19,13 @@ struct Fraction {
         a = _a / g;
         b = _b / g;
     }
-    Fraction operator-() const { return {-a, b};}
-    Fraction operator+(const Fraction& r) const { return {r.b * a + b * r.a, b * r.b}; }
+    T numer() const { return a; }
+    T denom() const { return b; }
+
+    Fraction operator-() const { return {-a, b}; }
+    Fraction operator+(const Fraction& r) const {
+        return {r.b * a + b * r.a, b * r.b};
+    }
     Fraction operator-(const Fraction& r) const { return *this + (-r); }
     Fraction operator*(const Fraction& r) const { return {a * r.a, b * r.b}; }
     Fraction operator/(const Fraction& r) const { return {a * r.b, b * r.a}; }
@@ -36,11 +38,15 @@ struct Fraction {
     bool operator!=(const Fraction& r) const { return !(*this == r); }
     std::strong_ordering operator<=>(const Fraction& rhs) const {
         return a * rhs.b <=> b * rhs.a;
-    }
+    }    
 
     friend std::ostream& operator<<(std::ostream& os, Fraction x)
-    requires Printable<T> {
+        requires Printable<T>
+    {
         return os << x.a << "/" << x.b;
     }
+
+  private:
+    T a, b;
 };
-}
+}  // namespace yosupo
