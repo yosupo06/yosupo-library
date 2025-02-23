@@ -8,8 +8,7 @@
 
 namespace yosupo {
 
-template <class K, class H = UniversalHash32<K>>
-struct IncrementalHashSet {
+template <class K, class H = UniversalHash32<K>> struct IncrementalHashSet {
   private:
     struct Iterator {
       public:
@@ -21,7 +20,8 @@ struct IncrementalHashSet {
 
         IncrementalHashSet& _mp;
         unsigned int _pos;
-        Iterator(IncrementalHashSet& mp, unsigned int pos) : _mp(mp), _pos(pos) {}
+        Iterator(IncrementalHashSet& mp, unsigned int pos)
+            : _mp(mp), _pos(pos) {}
 
         K operator*() const { return _mp.keys[_pos]; }
 
@@ -40,7 +40,8 @@ struct IncrementalHashSet {
     };
 
   public:
-    IncrementalHashSet(size_t s) : mask((1 << s) - 1), filled(0), used(mask + 1), keys(mask + 1) {}
+    IncrementalHashSet(size_t s)
+        : mask((1 << s) - 1), filled(0), used(mask + 1), keys(mask + 1) {}
     IncrementalHashSet() : IncrementalHashSet(2) {}
 
     Iterator begin() { return Iterator(*this, next_bucket(0)); }

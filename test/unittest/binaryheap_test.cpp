@@ -14,7 +14,7 @@ TEST(BinaryHeapTest, Ssize) {
     MeldableBinaryHeapManager<int> manager;
 
     auto h = manager.build({1, 2, 3});
-    
+
     ASSERT_EQ(3, h.size());
     ASSERT_EQ(3, std::ssize(h));
 }

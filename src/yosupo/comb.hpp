@@ -7,8 +7,7 @@ namespace yosupo {
 
 namespace internal {
 
-template <class T>
-struct CombState {
+template <class T> struct CombState {
     int size = 1;
     std::vector<T> fact = {T(1)};
     std::vector<T> inv_fact = {T(1)};
@@ -40,7 +39,7 @@ template <class T> CombState<T>& get_comb_state(int n) {
     return state;
 }
 
-}
+}  // namespace internal
 
 template <class T> T fact(int x) {
     assert(0 <= x);
@@ -61,11 +60,11 @@ namespace internal {
 template <class T> T comb(int n, int k) {
     return fact<T>(n) * inv_fact<T>(k) * inv_fact<T>(n - k);
 }
-}
+}  // namespace internal
 
 template <class T> T comb(int n, int k) {
     assert(0 <= k);
-    if (0 <= n && n < k) return 0;    
+    if (0 <= n && n < k) return 0;
 
     if (n >= 0) {
         return internal::comb<T>(n, k);
@@ -75,4 +74,4 @@ template <class T> T comb(int n, int k) {
     return x;
 }
 
-}
+}  // namespace yosupo

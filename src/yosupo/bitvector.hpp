@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cassert>
-#include <vector>
 #include <algorithm>
 #include <bit>
+#include <cassert>
+#include <vector>
 
 namespace yosupo {
 
@@ -59,9 +59,7 @@ struct BitVec {
         if (n % B) d.back() &= ~(-1ULL << (n % B));
         return *this;
     }
-    BitVec& flip(size_t i) {
-        return set(i, !test(i));
-    }
+    BitVec& flip(size_t i) { return set(i, !test(i)); }
 
     // operators
     BitVec& operator~() const { return BitVec(*this).flip(); }
@@ -138,7 +136,8 @@ struct BitVec {
         size_t i = 0;
         while (i < le) {
             size_t u = std::min({le - i, B - i % B, B - (st + i) % B});
-            unsigned long long z = pat.d[i / B] >> (i % B) ^ d[(st + i) / B] >> ((st + i) % B);
+            unsigned long long z =
+                pat.d[i / B] >> (i % B) ^ d[(st + i) / B] >> ((st + i) % B);
             if (z << (B - u)) return false;
             i += u;
         }

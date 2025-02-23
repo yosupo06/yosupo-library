@@ -1,15 +1,16 @@
 #pragma once
 
-#include <vector>
-#include <utility>
 #include <ranges>
+#include <utility>
+#include <vector>
 
 namespace yosupo {
 
 template <class T> struct FlattenVector {
     std::vector<T> v;
     std::vector<int> start;
-    FlattenVector(int n, const std::vector<std::pair<int, T>>& _v) : start(n + 1) {
+    FlattenVector(int n, const std::vector<std::pair<int, T>>& _v)
+        : start(n + 1) {
         for (const auto& x : _v) {
             start[x.first + 1]++;
         }
@@ -26,8 +27,9 @@ template <class T> struct FlattenVector {
     }
 
     auto at(int i) {
-        return v | std::ranges::views::take(start[i + 1]) | std::ranges::views::drop(start[i]);
+        return v | std::ranges::views::take(start[i + 1]) |
+               std::ranges::views::drop(start[i]);
     }
 };
 
-}
+}  // namespace yosupo

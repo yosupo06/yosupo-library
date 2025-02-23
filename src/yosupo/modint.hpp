@@ -87,7 +87,7 @@ struct modint61 {
         return *this;
     }
     mint& operator*=(const mint& rhs) {
-        __uint128_t t = (__uint128_t) _v * rhs._v;
+        __uint128_t t = (__uint128_t)_v * rhs._v;
 
         _v = (unsigned long long)((t >> 61) + (t & umod()));
         _v = (_v >= umod()) ? _v - umod() : _v;

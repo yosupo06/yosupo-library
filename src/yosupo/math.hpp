@@ -52,7 +52,7 @@ T gcd(T x, T y) {
     return T::gcd(x, y);
 }
 
-template <class T> T floor_div(T x, T y) { 
+template <class T> T floor_div(T x, T y) {
     auto d = x / y;
     auto r = x % y;
     if (r == 0) return d;

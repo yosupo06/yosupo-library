@@ -150,8 +150,6 @@ template <class G> inline double open_closed_01(G& gen) {
     } u = {0xbff0000000000000 | (gen() >> 12)};
     return 2.0 + u.f;
 }
-inline double open_closed_01() {
-    return open_closed_01(global_gen());
-}
+inline double open_closed_01() { return open_closed_01(global_gen()); }
 
 }  // namespace yosupo

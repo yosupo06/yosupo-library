@@ -24,12 +24,8 @@ template <class Cap> struct MFWithLowerCapGraph {
         return m;
     }
 
-    edge get_edge(int i) {
-        return _edges[i];
-    }
-    std::vector<edge> edges() {
-        return _edges;
-    }
+    edge get_edge(int i) { return _edges[i]; }
+    std::vector<edge> edges() { return _edges; }
 
     Cap max_flow(int s, int t) {
         assert(0 <= s && s < _n);
