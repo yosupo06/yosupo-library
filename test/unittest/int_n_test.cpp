@@ -34,6 +34,17 @@ TEST(UIntNTest, ReadStr) {
     EXPECT_EQ(BigUInt(x), bigu0);
 }
 
+TEST(UIntNTest, ToInt) {
+    BigUInt a(-123), b(123);
+    EXPECT_EQ(int(a), -123);
+    EXPECT_EQ(int(b), 123);
+}
+TEST(IntNTest, ToInt) {
+    BigInt a(-123), b(123);
+    EXPECT_EQ(int(a), -123);
+    EXPECT_EQ(int(b), 123);
+}
+
 TEST(UIntNTest, Comp) {
     BigUInt a(-123), b(-12), c(23), d(234);
     EXPECT_LT(c, d);

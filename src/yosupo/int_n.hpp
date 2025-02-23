@@ -5,33 +5,20 @@
 #include <cassert>
 #include <cctype>
 #include <compare>
+#include <concepts>
 #include <cstdint>
 #include <limits>
 #include <ostream>
 #include <string>
+#include <type_traits>
 
 namespace yosupo {
 
 template <int N> struct UintN {
-  private:
     using u64 = uint64_t;
     using u128 = unsigned __int128;
 
-    std::array<uint64_t, N> d = {{}};
-
-    static std::pair<u64, u64> div128(u128 a, u64 b) {
-        u128 q = a / b;
-        if (q > std::numeric_limits<u64>::max()) {
-            __builtin_unreachable();
-        }
-        u64 r = a % b;
-        return {(u64)q, r};
-    }
-
-  public:
     const std::array<uint64_t, N>& data() const { return d; }
-
-  public:
 
     // Constructor
 
@@ -65,7 +52,8 @@ template <int N> struct UintN {
         }
     }
 
-    template <int M> requires(M <= N)
+    template <int M>
+        requires(M <= N)
     UintN(const UintN<M>& other) {
         for (int i = 0; i < M; i++) {
             d[i] = other.data()[i];
@@ -74,7 +62,8 @@ template <int N> struct UintN {
             d[i] = 0;
         }
     }
-    template <int M> requires(M > N)
+    template <int M>
+        requires(M > N)
     explicit UintN(const UintN<M>& other) {
         for (int i = 0; i < N; i++) {
             d[i] = other.data()[i];
@@ -104,6 +93,10 @@ template <int N> struct UintN {
         return std::strong_ordering::equal;
     }
     explicit operator bool() const { return *this != UintN(0); }
+
+    template <std::integral T> explicit operator T() const {
+        return T(data()[0]);
+    }
 
     // Arithmetic
 
@@ -172,7 +165,6 @@ template <int N> struct UintN {
         int block = width / 64;
         int shift = 63 - width % 64;
 
-
         UintN<N + 1> l = *this, r = rhs;
         if (shift) {
             l = l << shift;
@@ -183,8 +175,11 @@ template <int N> struct UintN {
         UintN<N> q;
         r <<= (N - 1 - block) * 64;
         for (int i = N - 1 - block; i >= 0; i--) {
-            const u128 l_top = (u128)l.data()[i + block + 1] << 64 | l.data()[i + block];
-            u64 rough = (r_top == std::numeric_limits<u64>::max()) ? (l_top >> 64) : div128(l_top, r_top+1).first;
+            const u128 l_top =
+                (u128)l.data()[i + block + 1] << 64 | l.data()[i + block];
+            u64 rough = (r_top == std::numeric_limits<u64>::max())
+                            ? (l_top >> 64)
+                            : div128(l_top, r_top + 1).first;
             q.d[i] = rough;
             l -= r * rough;
             while (l >= r) {
@@ -293,13 +288,21 @@ template <int N> struct UintN {
         std::reverse(s.begin(), s.end());
         return os << s;
     }
+
+  private:
+    std::array<uint64_t, N> d = {{}};
+
+    static std::pair<u64, u64> div128(u128 a, u64 b) {
+        u128 q = a / b;
+        if (q > std::numeric_limits<u64>::max()) {
+            __builtin_unreachable();
+        }
+        u64 r = a % b;
+        return {(u64)q, r};
+    }
 };
 
 template <int N> struct IntN {
-  private:
-    UintN<N> d;
-
-  public:
     const std::array<uint64_t, N>& data() const { return d.data(); }
 
     IntN() = default;
@@ -311,6 +314,7 @@ template <int N> struct IntN {
 
     explicit IntN(const std::string& s) : d(s) {}
     operator UintN<N>() const { return d; }
+    template <std::integral T> explicit operator T() const { return T(d); }
 
     bool operator==(const IntN& rhs) const { return d == rhs.d; }
     bool operator!=(const IntN& rhs) const { return d != rhs.d; }
@@ -380,6 +384,9 @@ template <int N> struct IntN {
         }
         return os << static_cast<UintN<N>>(x);
     }
+
+  private:
+    UintN<N> d;
 };
 
 }  // namespace yosupo
