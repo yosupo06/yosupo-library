@@ -1,5 +1,5 @@
-#include "yosupo/modint.hpp"
 #include "yosupo/comb.hpp"
+#include "yosupo/modint.hpp"
 
 #include "gtest/gtest.h"
 
@@ -30,7 +30,7 @@ TEST(CombTest, Comb) {
 }
 
 TEST(CombTest, NegComb) {
-    using mint = modint998244353;    
+    using mint = modint998244353;
     for (int n = -100; n < 100; n++) {
         for (int k = 0; k <= n; k++) {
             mint expect = inv_fact<mint>(k);
@@ -38,9 +38,7 @@ TEST(CombTest, NegComb) {
                 expect *= mint(n - i);
             }
 
-            ASSERT_EQ(
-                expect,
-                comb<mint>(n, k));
+            ASSERT_EQ(expect, comb<mint>(n, k));
         }
     }
 }

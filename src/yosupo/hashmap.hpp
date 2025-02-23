@@ -79,9 +79,7 @@ struct IncrementalHashMap {
         return Iterator(*this, i);
     }
 
-    size_t count(const K& k) {
-        return find(k) == end() ? 0 : 1;
-    }
+    size_t count(const K& k) { return find(k) == end() ? 0 : 1; }
 
     size_t size() const { return filled; }
 

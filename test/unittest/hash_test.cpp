@@ -36,7 +36,7 @@ TEST(HashTest, Usage) {
     using V = std::vector<int>;
     ASSERT_EQ(UniversalHash32<V>()(V{1, 2, 3}),
               UniversalHash32<V>()(V{1, 2, 3}));
-    
+
     using A = std::array<int, 2>;
     UniversalHash32<A>()(A{1, 2});
 

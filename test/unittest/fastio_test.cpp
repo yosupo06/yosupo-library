@@ -227,8 +227,7 @@ TEST(FastIOTest, PrinterUnsignedInt) {
     auto tmpf = tmpfile();
     std::vector<unsigned int> v;
     for (int i = 0; i < 1000; i++) {
-        v.push_back(
-            uniform(0U, std::numeric_limits<unsigned int>::max()));
+        v.push_back(uniform(0U, std::numeric_limits<unsigned int>::max()));
     }
     for (int i = 0; i < 100; i++) {
         v.push_back(i);

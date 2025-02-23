@@ -20,7 +20,8 @@ bool is_primitive_root(int m, int g) {
     assert(1 <= g && g < m);
     auto prs = factors(m - 1);
     for (int x : factors(m - 1)) {
-        if (atcoder::internal::pow_mod_constexpr(g, (m - 1) / x, m) == 1) return false;
+        if (atcoder::internal::pow_mod_constexpr(g, (m - 1) / x, m) == 1)
+            return false;
     }
     return true;
 }

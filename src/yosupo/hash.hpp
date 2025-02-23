@@ -2,14 +2,14 @@
 
 #include <array>
 #include <cstdint>
+#include <map>
+#include <set>
 #include <tuple>
 #include <vector>
-#include <set>
-#include <map>
 
+#include "yosupo/bitvector.hpp"
 #include "yosupo/internal_type_traits.hpp"
 #include "yosupo/random.hpp"
-#include "yosupo/bitvector.hpp"
 
 namespace yosupo {
 
@@ -107,10 +107,7 @@ auto update(const H& h, const T& x) {
 }
 
 // array
-template <int I = 0,
-          class H,
-          class T,
-          int N>
+template <int I = 0, class H, class T, int N>
 auto update(const H& h, const std::array<T, N>& x) {
     return I == N ? h : update<I + 1>(update(h, x[I]), x);
 }
@@ -134,7 +131,8 @@ template <class H, class T> auto update(const H& h, const std::set<T>& s) {
 }
 
 // map
-template <class H, class T, class U> auto update(const H& h, const std::map<T, U>& m) {
+template <class H, class T, class U>
+auto update(const H& h, const std::map<T, U>& m) {
     auto h2 = update(h, m.size()).to_dyn();
     for (const auto& x : m) {
         h2 = update(h2, x);

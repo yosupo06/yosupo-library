@@ -1,8 +1,8 @@
 #pragma once
 
 #include <algorithm>
-#include <vector>
 #include <cassert>
+#include <vector>
 
 #include "yosupo/flattenvector.hpp"
 
@@ -87,9 +87,7 @@ struct HLEulerTour {
         }
         return b;
     }
-    int lca(int u, int v) const {
-        return rord[_lca(ord[u], ord[v])];
-    }
+    int lca(int u, int v) const { return rord[_lca(ord[u], ord[v])]; }
 
     int subtree_size(int u) const { return _size[ord[u]]; }
 

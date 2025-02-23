@@ -13,7 +13,7 @@ TEST(MathTest, Gcd) {
 }
 
 TEST(MathTest, GcdStress) {
-    auto gcd = [&](__int128 a, __int128 b){
+    auto gcd = [&](__int128 a, __int128 b) {
         if (a < 0) a = -a;
         if (b < 0) b = -b;
         while (b) {
