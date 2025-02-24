@@ -15,7 +15,7 @@ template <class T> struct Fraction {
 
     Fraction(T _a, T _b) {
         T g = yosupo::gcd(_a, _b);
-        if (_b < 0) g = -g;
+        if (yosupo::sgn(_b) < 0) g = -g;
         a = _a / g;
         b = _b / g;
     }
@@ -40,7 +40,8 @@ template <class T> struct Fraction {
         return a * rhs.b <=> b * rhs.a;
     }
 
-    Fraction abs() const { return (a < 0) ? -*this : *this; }
+    int sgn() const { return yosupo::sgn(a); }
+    Fraction abs() const { return (yosupo::sgn(a) < 0) ? -*this : *this; }
 
     friend std::ostream& operator<<(std::ostream& os, Fraction x)
         requires Printable<T>

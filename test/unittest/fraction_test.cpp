@@ -102,6 +102,20 @@ TEST(FracTest, ToString) {
     }
 }
 
+TEST(FracTest, Sign) {
+    EXPECT_EQ(FracI(-3, 5).sgn(), -1);
+    EXPECT_EQ(FracI(0, 5).sgn(), 0);
+    EXPECT_EQ(FracI(3, 5).sgn(), 1);
+
+    EXPECT_EQ(Frac128(-3, 5).sgn(), -1);
+    EXPECT_EQ(Frac128(0, 5).sgn(), 0);
+    EXPECT_EQ(Frac128(3, 5).sgn(), 1);
+
+    EXPECT_EQ(FracN(-3, 5).sgn(), -1);
+    EXPECT_EQ(FracN(0, 5).sgn(), 0);
+    EXPECT_EQ(FracN(3, 5).sgn(), 1);
+}
+
 TEST(FracTest, Abs) {
     EXPECT_EQ(abs(FracI(3, 5)), FracI(3, 5));
     EXPECT_EQ(abs(FracI(-3, 5)), FracI(3, 5));

@@ -206,6 +206,16 @@ TEST(IntNTest, IsNeg) {
     EXPECT_FALSE(BigInt(234).is_negative());
 }
 
+TEST(IntNTest, Sign) {
+    BigInt a(-123), b(0), c(123);
+    EXPECT_EQ(a.sgn(), -1);
+    EXPECT_EQ(b.sgn(), 0);
+    EXPECT_EQ(c.sgn(), 1);
+    EXPECT_EQ(sgn(a), -1);
+    EXPECT_EQ(sgn(b), 0);
+    EXPECT_EQ(sgn(c), 1);
+}
+
 TEST(IntNTest, Abs) {
     BigInt a(-123), b(123);
     EXPECT_EQ(a.abs(), b);
