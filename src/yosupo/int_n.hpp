@@ -178,7 +178,7 @@ template <int N> struct UintN {
             const u128 l_top =
                 (u128)l.data()[i + block + 1] << 64 | l.data()[i + block];
             u64 rough = (r_top == std::numeric_limits<u64>::max())
-                            ? (l_top >> 64)
+                            ? (u64)(l_top >> 64)
                             : div128(l_top, r_top + 1).first;
             q.d[i] = rough;
             l -= r * rough;
@@ -306,7 +306,7 @@ template <int N> struct IntN {
     const std::array<uint64_t, N>& data() const { return d.data(); }
 
     IntN() = default;
-    IntN(UintN<N> d) : d(d) {}
+    IntN(UintN<N> _d) : d(_d) {}
 
     template <typename T>
         requires std::is_integral_v<T>
