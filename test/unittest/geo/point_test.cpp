@@ -4,13 +4,8 @@
 #include "gtest/gtest.h"
 
 using namespace yosupo;
-using ll = long long;
-using ull = unsigned long long;
 
-using Pi = Point<int>;
-using Pn = Point<IntN<10>>;
-
-typedef ::testing::Types<Point<int>, Point<IntN<10>>> PointTypes;
+using PointTypes = ::testing::Types<Point<int>, Point<IntN<10>>>;
 
 template <typename T> class GeoPointTest : public ::testing::Test {};
 
