@@ -34,21 +34,21 @@ add_executable(unittest
   unittest/fastio_test.cpp  
   unittest/fastset_test.cpp  
   unittest/flattenvector_test.cpp
+  # unittest/fps_test.cpp
   unittest/fraction_test.cpp
-  unittest/random_test.cpp
   unittest/hash_test.cpp
   unittest/hashmap_test.cpp
+  unittest/hl_test.cpp
+  unittest/int_n_test.cpp
   unittest/math_test.cpp
   unittest/maxflow_test.cpp
   unittest/modint61_test.cpp
   unittest/random_test.cpp
-  unittest/splaytree_test.cpp
-  unittest/sparsetable_test.cpp
-  unittest/util_test.cpp
   unittest/mst_test.cpp
   unittest/networksimplex_test.cpp
-  unittest/hl_test.cpp
-  unittest/int_n_test.cpp
+  unittest/sparsetable_test.cpp
+  unittest/splaytree_test.cpp
+  unittest/util_test.cpp
 
   unittest/geo/point_test.cpp
   )
