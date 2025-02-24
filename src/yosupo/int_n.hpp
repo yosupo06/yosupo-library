@@ -371,6 +371,8 @@ template <int N> struct IntN {
     IntN operator<<(int shift) const { return IntN(d << shift); }
 
     bool is_negative() const { return data()[N - 1] >> 63; }
+    int sgn() const { return is_negative() ? -1 : (*this ? 1 : 0); }
+
     IntN abs() const { return is_negative() ? -*this : *this; }
 
     static IntN gcd(IntN a, IntN b) {
