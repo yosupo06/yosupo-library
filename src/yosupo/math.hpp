@@ -10,6 +10,26 @@
 
 namespace yosupo {
 
+// sign
+template <class T>
+    requires std::is_integral_v<T>
+int sgn(T x) {
+    if (x == 0) return 0;
+    return x > 0 ? 1 : -1;
+}
+inline int sgn(__int128 x) {
+    if (x == 0) return 0;
+    return x > 0 ? 1 : -1;
+}
+// for custom class
+template <class T>
+    requires requires(T x) {
+        { x.sgn() } -> std::same_as<int>;
+    }
+int sgn(T x) {
+    return x.sgn();
+}
+
 // abs
 using std::abs;
 inline __int128 abs(__int128 x) { return x < 0 ? -x : x; }

@@ -30,6 +30,15 @@ TEST(MathTest, GcdStress) {
     }
 }
 
+TEST(MathTest, Sgn) {
+    EXPECT_EQ(yosupo::sgn(-123), -1);
+    EXPECT_EQ(yosupo::sgn(0), 0);
+    EXPECT_EQ(yosupo::sgn(123), 1);
+    EXPECT_EQ(yosupo::sgn((__int128)-123), -1);
+    EXPECT_EQ(yosupo::sgn((__int128)0), 0);
+    EXPECT_EQ(yosupo::sgn((__int128)123), 1);
+}
+
 TEST(MathTest, FloorDiv) {
     EXPECT_EQ(yosupo::floor_div(11, 5), 2);
     EXPECT_EQ(yosupo::floor_div(10, 5), 2);
