@@ -42,7 +42,7 @@ template <int N> struct UintN {
         requires(N >= 2)
     {
         d[0] = (u64)v;
-        if constexpr (N > 1) d[1] = v >> 64;
+        if constexpr (N > 1) d[1] = (u64)(v >> 64);
     }
     UintN(__int128 v)
         requires(N >= 2)
