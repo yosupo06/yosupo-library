@@ -3,10 +3,13 @@
 #include <compare>
 #include <iostream>
 
+#include "yosupo/math.hpp"
+
 namespace yosupo {
 
 template <class T> struct Point {
     T x, y;
+    Point() : x(T()), y(T()) {}
     Point(T _x, T _y) : x(_x), y(_y) {}
 
     Point operator-() const { return {-x, -y}; }
@@ -44,6 +47,17 @@ template <class T> T crs(Point<T> a, Point<T> b) {
 }
 template <class T> T dot(Point<T> a, Point<T> b) {
     return a.x * b.x + a.y * b.y;
+}
+
+// -2, -1, 0, 1, 2 : front, clock, on, cclock, back
+template <class T> int ccw(Point<T> src, Point<T> trg) {
+    int s = sgn(crs(src, trg));
+    if (s) return s;
+
+    if (trg == Point<T>() || src == trg) return 0;
+    if (sgn(dot(src, trg)) < 0) return 2;
+    if (sgn(dot(-src, trg - src)) < 0) return -2;
+    return 0;
 }
 
 }  // namespace yosupo
