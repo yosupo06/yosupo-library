@@ -297,7 +297,7 @@ template <int N> struct UintN {
         if (q > std::numeric_limits<u64>::max()) {
             __builtin_unreachable();
         }
-        u64 r = a % b;
+        u64 r = (u64)(a % b);
         return {(u64)q, r};
     }
 };
