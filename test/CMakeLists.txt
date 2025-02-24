@@ -19,6 +19,7 @@ include_directories(./util)
 include(FetchContent)
 FetchContent_Declare(
   googletest
+  DOWNLOAD_EXTRACT_TIMESTAMP ON
   # Specify the commit you depend on and update it regularly.
   URL https://github.com/google/googletest/archive/f8d7d77c06936315286eb55f8de22cd23c188571.zip
 )
