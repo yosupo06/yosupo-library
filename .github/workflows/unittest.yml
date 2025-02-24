@@ -1,11 +1,17 @@
 name: Unittest
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
-  unittest:    
+  unittest:
     runs-on: ubuntu-24.04
-
+    strategy:
+      matrix:
+        compiler: [g++, clang++]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -14,9 +20,8 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ../test -DCMAKE_BUILD_TYPE=Debug
+          cmake ../test -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
           make
           ./unittest
         env:
-          CXX: "clang++"
           GTEST_COLOR: "1"

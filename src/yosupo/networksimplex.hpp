@@ -143,11 +143,11 @@ template <class Cap, class Cost> struct NetworkSimplexGraph {
                 };
 
                 if (depth[u] >= depth[v]) {
-                    for (int _ : std::views::iota(0, depth[u] - depth[v])) {
+                    for (int i = 0; i < depth[u] - depth[v]; i++) {
                         up_u();
                     }
                 } else {
-                    for (int _ : std::views::iota(0, depth[v] - depth[u])) {
+                    for (int i = 0; i < depth[v] - depth[u]; i++) {
                         up_v();
                     }
                 }
