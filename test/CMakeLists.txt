@@ -48,6 +48,8 @@ add_executable(unittest
   unittest/networksimplex_test.cpp
   unittest/hl_test.cpp
   unittest/int_n_test.cpp
+
+  unittest/geo/point_test.cpp
   )
 target_link_libraries(unittest gtest_main)
 add_test(NAME test COMMAND unittest)
