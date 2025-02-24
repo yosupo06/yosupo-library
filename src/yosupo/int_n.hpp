@@ -53,7 +53,7 @@ template <int N> struct UintN {
     }
 
     template <int M>
-        requires(M <= N)
+        requires(!(M > N))
     UintN(const UintN<M>& other) {
         for (int i = 0; i < M; i++) {
             d[i] = other.data()[i];
