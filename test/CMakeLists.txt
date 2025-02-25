@@ -51,8 +51,9 @@ add_executable(unittest
   unittest/util_test.cpp
 
   unittest/geo/point_test.cpp
-  unittest/geo/convex_test.cpp
   unittest/geo/line_test.cpp
+  unittest/geo/polygon_test.cpp
+  unittest/geo/convex_test.cpp
   )
 target_link_libraries(unittest gtest_main)
 add_test(NAME test COMMAND unittest)
