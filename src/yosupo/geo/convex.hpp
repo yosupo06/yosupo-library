@@ -4,11 +4,10 @@
 #include <cassert>
 
 #include "yosupo/geo/point.hpp"
+#include "yosupo/geo/polygon.hpp"
 #include "yosupo/util.hpp"
 
 namespace yosupo {
-
-template <class T> using Polygon = std::vector<Point<T>>;
 
 template <class T>
 Polygon<T> convex_down(const std::vector<Point<T>>& sorted_ps) {
