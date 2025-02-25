@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   setup:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -28,9 +28,7 @@ jobs:
         with:
           output-path: verify_files.json
           # Specify patterns
-          # include: your-own-include/
-          # exclude: your-own-exclude/
-          # If you have config.toml
+          include: test/oj/
           config: .verify-helper/config.toml
       - name: parse-doxygen
         uses: competitive-verifier/actions/parse-doxygen@v2
@@ -55,7 +53,7 @@ jobs:
           retention-days: 1
 
   verify:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     needs: [setup]
     env:
       SPLIT_SIZE: "1"
@@ -67,7 +65,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
+          fetch-depth: 2147483647
+
+      - name: Restore cached results
+        uses: actions/cache/restore@v4
+        id: restore-cached-results
+        with:
+          path: ${{github.workspace}}/merged-result.json
+          key: ${{ runner.os }}-verify-result-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-verify-result-
 
       - name: Download verify_files.json
         uses: competitive-verifier/actions/download-verify-artifact@v2
@@ -84,6 +91,7 @@ jobs:
           split-size: ${{ env.SPLIT_SIZE }}
           split-index: ${{ matrix.index }}
           timeout: 1800
+          prev-result: ${{ steps.restore-cached-results.outputs.cache-hit && 'merged-result.json' || ''}}
 
       - name: Upload result artifact
         uses: actions/upload-artifact@v4
@@ -93,9 +101,8 @@ jobs:
           retention-days: 1
 
   docs-and-check:
-    if: (success() || failure()) && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
-    needs: [verify]    
+    runs-on: ubuntu-latest
+    needs: [verify]
     outputs:
       upload-pages: ${{steps.upload-pages.outcome == 'success'}}
     steps:
@@ -128,12 +135,22 @@ jobs:
         with:
           cache-pip: true
 
+      - name: Merge results
+        uses: competitive-verifier/actions/merge-result@v2
+        with:
+          result-files: ${{ steps.all-artifacts.outputs.artifacts-root }}/Result-*/result.json
+          output-path: ${{github.workspace}}/merged-result.json
       - name: Docs
         uses: competitive-verifier/actions/docs@v2
         with:
-          verify-result: ${{ steps.all-artifacts.outputs.artifacts-root }}/Result-*/result.json
+          verify-result: ${{github.workspace}}/merged-result.json
           destination: _jekyll
           write-summary: true
+      - name: Save result
+        uses: actions/cache/save@v4
+        with:
+          path: ${{github.workspace}}/merged-result.json
+          key: ${{ runner.os }}-verify-result-${{ github.sha }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -154,15 +171,12 @@ jobs:
           verify-result: ${{ steps.all-artifacts.outputs.artifacts-root }}/Result-*/result.json
   deploy:
     if: (success() || failure()) && github.ref == 'refs/heads/main' && needs.docs-and-check.outputs.upload-pages == 'true'
-    needs: [docs-and-check]
-    concurrency:
-      group: "pages"
-      cancel-in-progress: true
+    needs: docs-and-check
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v3
