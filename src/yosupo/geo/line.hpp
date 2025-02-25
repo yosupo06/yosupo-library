@@ -63,7 +63,7 @@ std::vector<Line<T>> halfplane_intersection(std::vector<Line<T>> lines) {
         if (err) return {};
     }
     if (st.size() == 2 && !sgn(crs(st[0].vec(), st[1].vec())) &&
-        sgn(crs(st[0].vec(), st[1].s - st[0].s) <= 0))
+        sgn(crs(st[0].vec(), st[1].s - st[0].s)) < 0)
         return {};
 
     return {st.begin(), st.end()};

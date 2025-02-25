@@ -1,6 +1,8 @@
 #include "yosupo/geo/line.hpp"
 #include "yosupo/fraction.hpp"
 
+#include <algorithm>
+
 #include "gtest/gtest.h"
 
 using namespace yosupo;
@@ -30,8 +32,67 @@ TEST(LineTest, CrossLLCollinear) {
     ASSERT_EQ(res3.first, -1);
 }
 
-TEST(LineTest, HalfplaneIntersectsEmpty) {
+bool equal_rotate(std::vector<L> src, const std::vector<L>& trg) {
+    if (src.size() != src.size()) return false;
+    if (trg.empty()) return true;
+    const size_t n = src.size();
+    for (size_t shift = 0; shift < n; ++shift) {
+        bool ok = true;
+        for (size_t i = 0; i < n; ++i) {
+            if (src[i].s != trg[i].s || src[i].t != trg[i].t) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return true;
+        std::rotate(src.begin(), src.begin() + 1, src.end());
+    }
+    return false;
+}
+
+TEST(LineTest, HalfplaneIntersectionEmpty) {
     std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{10, -1}, {0, -1}}};
     auto res = halfplane_intersection(lines);
     ASSERT_TRUE(res.empty());
+}
+
+TEST(LineTest, HalfplaneIntersectionLine) {
+    std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{10, 0}, {0, 0}}};
+    auto res = halfplane_intersection(lines);
+
+    ASSERT_TRUE(equal_rotate(res, lines));
+}
+
+TEST(LineTest, HalfplaneIntersectionTriangle) {
+    std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{10, 0}, {5, 10}},
+                            L{{5, 10}, {0, 0}}};
+    auto res = halfplane_intersection(lines);
+    ASSERT_TRUE(equal_rotate(res, lines));
+}
+
+TEST(LineTest, HalfplaneIntersectionSameArg) {
+    std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{3, 1}, {5, 1}}};
+    auto res = halfplane_intersection(lines);
+    ASSERT_TRUE(equal_rotate(res, {L{{0, 0}, {10, 0}}}));
+}
+
+TEST(LineTest, HalfplaneIntersectionOpen) {
+    std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{5, 0}, {10, 5}},
+                            L{{10, 0}, {10, 10}}};
+    auto res = halfplane_intersection(lines);
+    ASSERT_TRUE(equal_rotate(res, lines));
+}
+
+TEST(LineTest, HalfplaneIntersectionRemove) {
+    std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{10, 0}, {15, 5}},
+                            L{{5, 0}, {5, 10}}};
+    auto res = halfplane_intersection(lines);
+    ASSERT_TRUE(equal_rotate(res, {L{{0, 0}, {10, 0}}, L{{5, 0}, {5, 10}}}));
+}
+
+TEST(LineTest, HalfplaneIntersectionRemoveEdge) {
+    std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{10, 0}, {15, 5}},
+                            L{{10, 0}, {10, 10}}};
+    auto res = halfplane_intersection(lines);
+    ASSERT_TRUE(equal_rotate(res, {L{{0, 0}, {10, 0}}, L{{10, 0}, {10, 10}}}));
 }
