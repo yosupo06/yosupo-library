@@ -115,3 +115,11 @@ TYPED_TEST(GeoPointTest, CCW) {
     EXPECT_EQ(ccw(TypeParam(0, 0), TypeParam(1, 0), TypeParam(0, 1)), 1);
     EXPECT_EQ(ccw(TypeParam(1, 1), TypeParam(2, 1), TypeParam(1, 2)), 1);
 }
+
+TYPED_TEST(GeoPointTest, CmpArg) {
+    EXPECT_TRUE(cmp_arg(TypeParam(0, 0), TypeParam(1, 0)) == 0);
+    EXPECT_TRUE(cmp_arg(TypeParam(-1, 0), TypeParam(0, 0)) > 0);
+    EXPECT_TRUE(cmp_arg(TypeParam(-1, 1), TypeParam(1, 1)) > 0);
+    EXPECT_TRUE(cmp_arg(TypeParam(1, 1), TypeParam(1, -1)) > 0);
+    EXPECT_TRUE(cmp_arg(TypeParam(1, -1), TypeParam(-1, -1)) > 0);
+}
