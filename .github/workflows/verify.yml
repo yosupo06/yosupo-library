@@ -36,7 +36,9 @@ jobs:
         with:
           output-path: verify_files.json
           # Specify patterns
-          include: test/oj/
+          include: |
+            src/yosupo/
+            test/oj/            
           config: .verify-helper/config.toml
       - name: parse-doxygen
         uses: competitive-verifier/actions/parse-doxygen@v2
