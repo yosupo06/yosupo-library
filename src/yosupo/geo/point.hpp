@@ -30,6 +30,11 @@ template <class T> struct Point {
     }
     Point& operator*=(const T& r) { return *this = *this * r; }
 
+    friend Point operator/(const Point& l, const T& r) {
+        return {l.x / r, l.y / r};
+    }
+    Point& operator/=(const T& r) { return *this = *this / r; }
+
     bool operator==(const Point& r) const { return x == r.x && y == r.y; }
     bool operator!=(const Point& r) const { return !(*this == r); }
     std::strong_ordering operator<=>(const Point& r) const {

@@ -42,6 +42,13 @@ TYPED_TEST(GeoPointTest, MultiplyScalar) {
     EXPECT_EQ(p, TypeParam(3, 6));
 }
 
+TYPED_TEST(GeoPointTest, DivideScalar) {
+    EXPECT_EQ(TypeParam(3, 6) / 3, TypeParam(1, 2));
+    TypeParam p = TypeParam(3, 6);
+    p /= 3;
+    EXPECT_EQ(p, TypeParam(1, 2));
+}
+
 TYPED_TEST(GeoPointTest, Subtract) {
     EXPECT_EQ(TypeParam(1, 2) - TypeParam(3, 4), TypeParam(-2, -2));
     TypeParam p = TypeParam(1, 2);
