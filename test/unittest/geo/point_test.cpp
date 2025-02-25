@@ -100,4 +100,8 @@ TYPED_TEST(GeoPointTest, CCW) {
 
     // clock
     EXPECT_EQ(ccw(TypeParam(4, 6), TypeParam(5, 6)), -1);
+
+    // three points
+    EXPECT_EQ(ccw(TypeParam(0, 0), TypeParam(1, 0), TypeParam(0, 1)), 1);
+    EXPECT_EQ(ccw(TypeParam(1, 1), TypeParam(2, 1), TypeParam(1, 2)), 1);
 }
