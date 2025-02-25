@@ -1,3 +1,5 @@
+#include "../../utils/int128.hpp"  // IWYU pragma: keep
+
 #include "yosupo/geo/point.hpp"
 #include "yosupo/int_n.hpp"
 
@@ -5,7 +7,8 @@
 
 using namespace yosupo;
 
-using PointTypes = ::testing::Types<Point<int>, Point<IntN<10>>>;
+using PointTypes =
+    ::testing::Types<Point<int>, Point<__int128>, Point<IntN<10>>>;
 
 template <typename T> class GeoPointTest : public ::testing::Test {};
 
