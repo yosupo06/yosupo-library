@@ -65,6 +65,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          submodules: recursive
           fetch-depth: 2147483647
 
       - name: Restore cached results
