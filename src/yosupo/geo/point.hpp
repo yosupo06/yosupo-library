@@ -50,7 +50,7 @@ template <class T> T dot(Point<T> a, Point<T> b) {
 }
 
 // -2, -1, 0, 1, 2 : front, clock, on, cclock, back
-template <class T> int ccw(Point<T> src, Point<T> trg) {
+template <class T> int ccw(const Point<T>& src, const Point<T>& trg) {
     int s = sgn(crs(src, trg));
     if (s) return s;
 
@@ -58,6 +58,10 @@ template <class T> int ccw(Point<T> src, Point<T> trg) {
     if (sgn(dot(src, trg)) < 0) return 2;
     if (sgn(dot(-src, trg - src)) < 0) return -2;
     return 0;
+}
+template <class T>
+int ccw(const Point<T>& orig, const Point<T>& src, const Point<T>& trg) {
+    return ccw(src - orig, trg - orig);
 }
 
 }  // namespace yosupo
