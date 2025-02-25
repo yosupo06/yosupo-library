@@ -1,0 +1,10 @@
+# ルール
+
+- unittest周りを修正した後はきちんと実行して試してください
+
+## Unittestの実行方法
+
+```
+mkdir -p .cline-work/build
+cd .cline-work/build && cmake ../../test -DCMAKE_BUILD_TYPE=Debug && make && ./unittest
+```
