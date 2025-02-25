@@ -16,7 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 2147483647
 
+      - name: Create symlink for bundler
+        run: |
+          ln -s src/yosupo yosupo
+          ln -s ac-library/atcoder atcoder
+          
       - name: Set up competitive-verifier
         uses: competitive-verifier/actions/setup@v2
         with:
