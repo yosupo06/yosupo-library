@@ -1,35 +1,4 @@
-#include <algorithm>
-#include <iostream>
-#include <string>
-
-inline std::ostream& operator<<(std::ostream& os, __int128_t x) {
-    if (x < 0) {
-        os << "-";
-        x *= -1;
-    }
-    if (x == 0) {
-        return os << "0";
-    }
-    std::string s;
-    while (x) {
-        s += char(x % 10 + '0');
-        x /= 10;
-    }
-    std::ranges::reverse(s);
-    return os << s;
-}
-inline std::ostream& operator<<(std::ostream& os, __uint128_t x) {
-    if (x == 0) {
-        return os << "0";
-    }
-    std::string s;
-    while (x) {
-        s += char(x % 10 + '0');
-        x /= 10;
-    }
-    std::ranges::reverse(s);
-    return os << s;
-}
+#include "../utils/int128.hpp"  // IWYU pragma: keep
 
 #include "yosupo/fraction.hpp"
 #include "yosupo/int_n.hpp"
