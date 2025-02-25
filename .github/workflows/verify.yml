@@ -179,6 +179,9 @@ jobs:
         with:
           verify-result: ${{ steps.all-artifacts.outputs.artifacts-root }}/Result-*/result.json
   deploy:
+    concurrency:
+      group: "pages"
+      cancel-in-progress: true
     if: (success() || failure()) && github.ref == 'refs/heads/main' && needs.docs-and-check.outputs.upload-pages == 'true'
     needs: docs-and-check
     environment:
@@ -188,4 +191,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
