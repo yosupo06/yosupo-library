@@ -143,11 +143,13 @@ template <class Cap, class Cost> struct NetworkSimplexGraph {
                 };
 
                 if (depth[u] >= depth[v]) {
-                    for (int i = 0; i < depth[u] - depth[v]; i++) {
+                    int cnt = depth[u] - depth[v];
+                    for (int i = 0; i < cnt; i++) {
                         up_u();
                     }
                 } else {
-                    for (int i = 0; i < depth[v] - depth[u]; i++) {
+                    int cnt = depth[v] - depth[u];
+                    for (int i = 0; i < cnt; i++) {
                         up_v();
                     }
                 }
