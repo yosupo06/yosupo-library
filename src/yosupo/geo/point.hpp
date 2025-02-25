@@ -69,4 +69,23 @@ int ccw(const Point<T>& orig, const Point<T>& src, const Point<T>& trg) {
     return ccw(src - orig, trg - orig);
 }
 
+/*
+    arg(l) <=> arg(r)を返す
+    - arg(p)は(-PI, PI]の範囲に収まる
+    - arg(P(-1, 0)) = PI,
+    - arg(P(0, 0)) = 0
+    - arg(P(1, 0)) = 0
+*/
+template <class T> std::strong_ordering cmp_arg(Point<T> l, Point<T> r) {
+    auto psgn = [&](Point<T> p) {
+        if (int u = sgn(p.y)) return u;
+        if (sgn(p.x) == -1) return 2;
+        return 0;
+    };
+    int lsgn = psgn(l), rsgn = psgn(r);
+    if (lsgn < rsgn) return std::strong_ordering::less;
+    if (lsgn > rsgn) return std::strong_ordering::greater;
+    return sgn(crs(r, l)) <=> 0;
+}
+
 }  // namespace yosupo
