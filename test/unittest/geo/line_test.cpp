@@ -56,6 +56,13 @@ TEST(LineTest, HalfplaneIntersectionEmpty) {
     ASSERT_TRUE(res.empty());
 }
 
+TEST(LineTest, HalfplaneIntersectionEmpty3) {
+    std::vector<L> lines = {L{{0, 0}, {0, 5}}, L{{0, 5}, {5, 0}},
+                            L{{5, 0}, {0, 0}}};
+    auto res = halfplane_intersection(lines);
+    ASSERT_TRUE(res.empty());
+}
+
 TEST(LineTest, HalfplaneIntersectionLine) {
     std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{10, 0}, {0, 0}}};
     auto res = halfplane_intersection(lines);
@@ -90,9 +97,72 @@ TEST(LineTest, HalfplaneIntersectionRemove) {
     ASSERT_TRUE(equal_rotate(res, {L{{0, 0}, {10, 0}}, L{{5, 0}, {5, 10}}}));
 }
 
-TEST(LineTest, HalfplaneIntersectionRemoveEdge) {
+TEST(LineTest, HalfplaneIntersectionNotRemove) {
     std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{10, 0}, {15, 5}},
                             L{{10, 0}, {10, 10}}};
     auto res = halfplane_intersection(lines);
+    ASSERT_TRUE(equal_rotate(
+        res, {L{{0, 0}, {10, 0}}, L{{10, 0}, {15, 5}}, L{{10, 0}, {10, 10}}}));
+}
+
+TEST(LineTest, HalfplaneIntersectionRemoveEdge) {
+    std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{11, 0}, {15, 5}},
+                            L{{10, 0}, {10, 10}}};
+    auto res = halfplane_intersection(lines);
     ASSERT_TRUE(equal_rotate(res, {L{{0, 0}, {10, 0}}, L{{10, 0}, {10, 10}}}));
+}
+
+TEST(LineTest, HalfplaneIntersectionPoint) {
+    std::vector<L> lines = {L{{0, 0}, {10, 0}}, L{{0, 0}, {-5, 10}},
+                            L{{0, 0}, {-5, -5}}};
+    auto res = halfplane_intersection(lines);
+    ASSERT_TRUE(equal_rotate(res, lines));
+}
+
+TEST(LineTest, HalfplaneIntersectionPoint4) {
+    std::vector<L> lines = {L{{0, 0}, {5, 0}}, L{{0, 0}, {0, 5}},
+                            L{{0, 0}, {-5, 0}}, L{{0, 0}, {0, -5}}};
+    auto res = halfplane_intersection(lines);
+    ASSERT_TRUE(equal_rotate(res, lines));
+}
+
+TEST(LineTest, HalfplaneIntersection3) {
+    EXPECT_FALSE(internal::halfplane_intersection3(
+        L({0, 5}, {5, 0}), L({0, 0}, {10, 0}), L({-5, 0}, {0, 5})));
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 5}, {5, 0}), L({0, 10}, {10, 10}), L({-5, 0}, {0, 5})));
+
+    EXPECT_FALSE(internal::halfplane_intersection3(
+        L({0, 5}, {-5, 0}), L({0, 0}, {10, 0}), L({-5, 4}, {10, 6})));
+
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 0}, {-5, 5}), L({0, -1}, {10, -1}), L({0, 0}, {5, 5})));
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 0}, {-5, 5}), L({0, 0}, {10, 0}), L({0, 0}, {5, 5})));
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 0}, {-5, 5}), L({0, 1}, {10, 1}), L({0, 0}, {5, 5})));
+
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 0}, {5, -5}), L({0, -1}, {10, -1}), L({0, 0}, {-5, -5})));
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 0}, {5, -5}), L({0, 0}, {10, 0}), L({0, 0}, {-5, -5})));
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 0}, {5, -5}), L({0, 1}, {10, 1}), L({0, 0}, {-5, -5})));
+
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 0}, {-5, -5}), L({0, -1}, {10, -1}), L({0, 0}, {-5, 5})));
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 0}, {-5, -5}), L({0, 0}, {10, 0}), L({0, 0}, {-5, 5})));
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 0}, {-5, -5}), L({0, 1}, {10, 1}), L({0, 0}, {-5, 5})));
+
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 0}, {10, 0}), L({0, 0}, {-5, 10}), L({0, 0}, {-5, -5})));
+
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 5}, {0, 0}), L({0, 0}, {5, 0}), L({5, 0}, {5, 5})));
+    EXPECT_FALSE(internal::halfplane_intersection3(
+        L({5, 5}, {5, 0}), L({0, 0}, {5, 0}), L({0, 0}, {0, 5})));
+    EXPECT_TRUE(internal::halfplane_intersection3(
+        L({0, 5}, {0, 0}), L({0, 0}, {5, 0}), L({0, 0}, {0, 5})));
 }

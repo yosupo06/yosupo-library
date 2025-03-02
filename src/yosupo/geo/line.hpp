@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <deque>
 #include <iostream>
 
@@ -27,8 +28,26 @@ std::pair<int, Point<T>> cross_ll(const Line<T>& l, const Line<T>& r) {
     return {1, r.s + r.vec() * cr2 / cr1};
 }
 
-// 半平面の共通部分を求める、半平面はLine lによってccw(l.s, l.t, x) !=
-// -1となる点の集合
+namespace internal {
+
+// bが必要かどうか、つまりhalfplane_intersection({a, b, c}) !=
+// halfplane_intersection({a, c})を返す
+template <class T>
+bool halfplane_intersection3(const Line<T>& a,
+                             const Line<T>& b,
+                             const Line<T>& c) {
+    if (sgn(crs(a.vec(), c.vec())) < 0) return true;
+    T ab_dw = crs(a.vec(), b.vec()), ab_up = crs(a.vec(), a.t - b.s);
+    T bc_dw = crs(b.vec(), c.vec()), bc_up = crs(c.t - b.s, c.vec());
+    bool f = bc_up * ab_dw >= bc_dw * ab_up;
+    return f;
+};
+
+}  // namespace internal
+
+// 半平面の共通部分を求める
+// 半平面はLine lによってccw(l.s, l.t, x) != -1となる点の集合
+// division free
 template <class T>
 std::vector<Line<T>> halfplane_intersection(std::vector<Line<T>> lines) {
     std::ranges::sort(lines, [&](const auto& a, const auto& b) {
@@ -45,27 +64,23 @@ std::vector<Line<T>> halfplane_intersection(std::vector<Line<T>> lines) {
 
     std::deque<Line<T>> st;
     for (const auto& l : lines) {
-        bool err = false;
-        auto is_need = [&](const Line<T>& a, const Line<T>& b,
-                           const Line<T>& c) {
-            T ab_dw = crs(a.vec(), b.vec()), ab_up = crs(a.vec(), a.t - b.s);
-            T bc_dw = crs(b.vec(), c.vec()), bc_up = crs(c.t - b.s, c.vec());
-            if (sgn(ab_dw) <= 0 || sgn(bc_dw) <= 0) return true;
-            bool f = bc_up * ab_dw > bc_dw * ab_up;
-            if (!f && sgn(crs(a.vec(), c.vec())) < 0) err = true;
-            return f;
-        };
-        while (st.size() >= 2 && !is_need(l, st[0], st[1])) st.pop_front();
         while (st.size() >= 2 &&
-               !is_need(st[st.size() - 2], st[st.size() - 1], l))
+               !internal::halfplane_intersection3(l, st[0], st[1]))
+            st.pop_front();
+        while (st.size() >= 2 && !internal::halfplane_intersection3(
+                                     st[st.size() - 2], st[st.size() - 1], l))
             st.pop_back();
-        if (st.size() < 2 || is_need(st.back(), l, st.front())) st.push_back(l);
-        if (err) return {};
+        if (st.size() < 2 ||
+            internal::halfplane_intersection3(st.back(), l, st.front()))
+            st.push_back(l);
     }
     if (st.size() == 2 && !sgn(crs(st[0].vec(), st[1].vec())) &&
         sgn(crs(st[0].vec(), st[1].s - st[0].s)) < 0)
         return {};
-
+    if (st.size() == 3 &&
+        !internal::halfplane_intersection3(st[2], {st[1].t, st[1].s}, st[0])) {
+        return {};
+    }
     return {st.begin(), st.end()};
 }
 
