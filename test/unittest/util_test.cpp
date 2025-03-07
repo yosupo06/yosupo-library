@@ -24,4 +24,8 @@ TEST(UtilTest, Dedup) {
     std::vector<int> v4 = {1, 1, 1, 1};
     yosupo::dedup(v4);
     ASSERT_EQ(std::vector<int>({1}), v4);
+
+    std::vector<int> v5 = {1, 4, 2, 8, 5, 7};
+    yosupo::dedup(v5, [](int a, int b) { return (a % 3) == (b % 3); });
+    ASSERT_EQ(std::vector<int>({1, 2, 7}), v5);
 }
