@@ -1,7 +1,7 @@
 # ルール
 
-- unittest周りを修正した後はきちんと実行して試してください
+- unittest周りを修正した後はきちんと実行して試してください。`test/run_unittest.sh`で実行できます。
 
-## スクリプト
+## コーディングポリシー
 
-- `test/run_unittest.sh` : unittestの実行
+- インクルードガードには `#pragma once` を使用します
