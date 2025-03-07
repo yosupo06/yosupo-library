@@ -10,7 +10,7 @@ struct Coord {
     int r, c;
 
     Coord() : r(0), c(0) {}
-    Coord(int r, int c) : r(r), c(c) {}
+    Coord(int _r, int _c) : r(_r), c(_c) {}
     Coord(const std::pair<int, int>& p) : r(p.first), c(p.second) {}
 
     Coord& operator+=(const Coord& other) {
