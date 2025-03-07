@@ -50,6 +50,7 @@ add_executable(unittest
   unittest/sparsetable_test.cpp
   unittest/splaytree_test.cpp
   unittest/util_test.cpp
+  unittest/vector2d_test.cpp
 
   unittest/geo/point_test.cpp
   unittest/geo/line_test.cpp
