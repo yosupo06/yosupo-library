@@ -11,4 +11,4 @@ set -e
 mkdir -p .work/build
 cmake -S test -B .work/build -DCMAKE_BUILD_TYPE=Debug
 cmake --build .work/build
-.cline-work/build/unittest
+.work/build/unittest

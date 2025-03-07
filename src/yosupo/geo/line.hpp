@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "yosupo/geo/point.hpp"
+#include "yosupo/util.hpp"
 
 namespace yosupo {
 
@@ -56,11 +57,9 @@ std::vector<Line<T>> halfplane_intersection(std::vector<Line<T>> lines) {
         // 角度が同じ場合は半平面が大きい方を前に
         return ccw(a.s, a.t, b.s) == 1;
     });
-    lines.erase(unique(lines.begin(), lines.end(),
-                       [&](const auto& a, const auto& b) {
-                           return cmp_arg(a.vec(), b.vec()) == 0;
-                       }),
-                lines.end());
+    dedup(lines, [&](const auto& a, const auto& b) {
+        return cmp_arg(a.vec(), b.vec()) == 0;
+    });
 
     std::deque<Line<T>> st;
     for (const auto& l : lines) {
