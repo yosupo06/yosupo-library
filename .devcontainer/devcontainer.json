@@ -5,7 +5,9 @@
         "ghcr.io/devcontainers-community/features/llvm:3": {
             "version": 18
         },
-        "ghcr.io/devcontainers-extra/features/cmake:1": {},
+        "ghcr.io/devcontainers-extra/features/cmake:1": {
+            "version": "3.31.4"
+        },
         "ghcr.io/devcontainers/features/python:1": {}
     },
     "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
