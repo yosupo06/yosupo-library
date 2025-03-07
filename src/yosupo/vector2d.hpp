@@ -51,16 +51,27 @@ template <class T> struct Vector2D {
     friend Vector2D operator*(const Vector2D& lhs, const Vector2D& rhs) {
         assert(lhs.w == rhs.h);
         Vector2D res(lhs.h, rhs.w);
+        Vector2D rhs_t = rhs.transpose();
         for (int i = 0; i < lhs.h; i++) {
             for (int j = 0; j < rhs.w; j++) {
                 for (int k = 0; k < lhs.w; k++) {
-                    res[{i, j}] += lhs[{i, k}] * rhs[{k, j}];
+                    res[{i, j}] += lhs[{i, k}] * rhs_t[{j, k}];
                 }
             }
         }
         return res;
     }
     Vector2D& operator*=(const Vector2D& r) { return *this = *this * r; }
+
+    Vector2D transpose() const {
+        Vector2D res(w, h);
+        for (int i = 0; i < h; i++) {
+            for (int j = 0; j < w; j++) {
+                res[{j, i}] = (*this)[{i, j}];
+            }
+        }
+        return res;
+    }
 
     Vector2D pow(long long n) const {
         assert(h == w);
