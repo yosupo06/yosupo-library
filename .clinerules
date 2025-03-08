@@ -1,6 +1,9 @@
 # ルール
 
-- unittest周りを修正した後はきちんと実行して試してください。`test/run_unittest.sh`で実行できます。
+## ユニットテスト
+
+- unittest周りを修正した後はきちんと実行して試してください。`test/run_unittest.sh`で実行できます
+- 新しくテストファイルを追加した場合は、`test/CMakeLists.txt`に追記する必要があります
 
 ## コーディングポリシー
 
