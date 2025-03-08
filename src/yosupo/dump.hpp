@@ -3,11 +3,8 @@
 #include <algorithm>
 #include <array>
 #include <concepts>
-#include <iomanip>
-#include <sstream>
 #include <string>
 #include <tuple>
-#include <type_traits>
 #include <vector>
 
 namespace yosupo {
@@ -15,6 +12,12 @@ namespace yosupo {
 template <class T> std::string dump(const T&);
 
 template <> inline std::string dump(const std::string& t) { return t; }
+
+template <class T>
+    requires requires(const T& t) { t.val(); }
+std::string dump(const T& t) {
+    return dump(t.val());
+}
 
 template <std::integral T> std::string dump(const T& t) {
     return std::to_string(t);
