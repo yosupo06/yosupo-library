@@ -43,12 +43,21 @@ std::string dump(const T& t) {
 }
 
 template <class T>
+    requires requires(const T& t) { t.dump(); }
+std::string dump(const T& t);
+template <class T>
     requires requires(const T& t) { t.val(); }
 std::string dump(const T& t);
 template <class T, std::size_t N> std::string dump(const std::array<T, N>&);
 template <class T> std::string dump(const std::vector<T>&);
 template <class T1, class T2> std::string dump(const std::pair<T1, T2>&);
 template <class... Ts> std::string dump(const std::tuple<Ts...>& t);
+
+template <class T>
+    requires requires(const T& t) { t.dump(); }
+std::string dump(const T& t) {
+    return dump(t.dump());
+}
 
 template <class T>
     requires requires(const T& t) { t.val(); }

@@ -80,18 +80,7 @@ TYPED_TEST(GeoPointTest, DotProduct) {
     EXPECT_EQ(dot(TypeParam(3, 4), TypeParam(1, 2)), 11);
 }
 
-TYPED_TEST(GeoPointTest, ToString) {
-    {
-        std::ostringstream oss;
-        oss << TypeParam(1, 2);
-        EXPECT_EQ(oss.str(), "P(1, 2)");
-    }
-    {
-        std::ostringstream oss;
-        oss << TypeParam(3, 4);
-        EXPECT_EQ(oss.str(), "P(3, 4)");
-    }
-}
+TYPED_TEST(GeoPointTest, Dump) { EXPECT_EQ(TypeParam(1, 2).dump(), "(1, 2)"); }
 
 TYPED_TEST(GeoPointTest, CCW) {
     // on
