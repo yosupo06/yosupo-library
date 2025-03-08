@@ -8,84 +8,43 @@ using namespace yosupo;
 using ll = long long;
 using ull = unsigned long long;
 
-using FracI = Fraction<int>;
-using Frac128 = Fraction<__int128>;
-using FracN = Fraction<IntN<10>>;
+using ValueTypes = ::testing::Types<int, __int128, IntN<10>>;
 
-TEST(FracTest, Constructor) {
-    EXPECT_EQ(FracI(), FracI(0, 1));
-    EXPECT_EQ(FracI(3), FracI(3, 1));
-    EXPECT_EQ(FracI(12, 20), FracI(3, 5));
+template <typename T> class FractionTest : public ::testing::Test {};
 
-    EXPECT_EQ(Frac128(12, 20), Frac128(3, 5));
-    EXPECT_EQ(FracN(12, 20), FracN(3, 5));
+TYPED_TEST_SUITE(FractionTest, ValueTypes);
+
+TYPED_TEST(FractionTest, Constructor) {
+    EXPECT_EQ(Fraction<TypeParam>(), Fraction<TypeParam>(0, 1));
+    EXPECT_EQ(Fraction<TypeParam>(3), Fraction<TypeParam>(3, 1));
+    EXPECT_EQ(Fraction<TypeParam>(12, 20), Fraction<TypeParam>(3, 5));
 }
 
-TEST(FracTest, Add) {
-    {
-        FracI f(3, 5);
-        FracI g(2, 3);
-        EXPECT_EQ(f + g, FracI(19, 15));
-    }
-    {
-        Frac128 f(3, 5);
-        Frac128 g(2, 3);
-        EXPECT_EQ(f + g, Frac128(19, 15));
-    }
-    {
-        FracN f(3, 5);
-        FracN g(2, 3);
-        EXPECT_EQ(f + g, FracN(19, 15));
-    }
+TYPED_TEST(FractionTest, Add) {
+    Fraction<TypeParam> f(3, 5);
+    Fraction<TypeParam> g(2, 3);
+    EXPECT_EQ(f + g, Fraction<TypeParam>(19, 15));
 }
 
-TEST(FracTest, Comp) {
-    EXPECT_LT(FracI(-1, 3), FracI(-1, 5));
-    EXPECT_LT(FracI(1, 5), FracI(1, 3));
-    EXPECT_LT(Frac128(-1, 3), Frac128(-1, 5));
-    EXPECT_LT(Frac128(1, 5), Frac128(1, 3));
-    EXPECT_LT(FracN(-1, 3), FracN(-1, 5));
-    EXPECT_LT(FracN(1, 5), FracN(1, 3));
+TYPED_TEST(FractionTest, Comp) {
+    EXPECT_LT(Fraction<TypeParam>(-1, 3), Fraction<TypeParam>(-1, 5));
+    EXPECT_LT(Fraction<TypeParam>(1, 5), Fraction<TypeParam>(1, 3));
 }
 
-TEST(FracTest, Dump) {
-    {
-        FracI f(3, 5);
-        EXPECT_EQ(f.dump(), "3/5");
-        FracI f2(3, 1);
-        EXPECT_EQ(f2.dump(), "3");
-    }
-    {
-        Frac128 f(3, 5);
-        EXPECT_EQ(f.dump(), "3/5");
-    }
-    {
-        FracN f(3, 5);
-        EXPECT_EQ(f.dump(), "3/5");
-    }
+TYPED_TEST(FractionTest, Dump) {
+    Fraction<TypeParam> f(3, 5);
+    EXPECT_EQ(f.dump(), "3/5");
+    Fraction<TypeParam> f2(3, 1);
+    EXPECT_EQ(f2.dump(), "3");
 }
 
-TEST(FracTest, Sign) {
-    EXPECT_EQ(FracI(-3, 5).sgn(), -1);
-    EXPECT_EQ(FracI(0, 5).sgn(), 0);
-    EXPECT_EQ(FracI(3, 5).sgn(), 1);
-
-    EXPECT_EQ(Frac128(-3, 5).sgn(), -1);
-    EXPECT_EQ(Frac128(0, 5).sgn(), 0);
-    EXPECT_EQ(Frac128(3, 5).sgn(), 1);
-
-    EXPECT_EQ(FracN(-3, 5).sgn(), -1);
-    EXPECT_EQ(FracN(0, 5).sgn(), 0);
-    EXPECT_EQ(FracN(3, 5).sgn(), 1);
+TYPED_TEST(FractionTest, Sign) {
+    EXPECT_EQ(Fraction<TypeParam>(-3, 5).sgn(), -1);
+    EXPECT_EQ(Fraction<TypeParam>(0, 5).sgn(), 0);
+    EXPECT_EQ(Fraction<TypeParam>(3, 5).sgn(), 1);
 }
 
-TEST(FracTest, Abs) {
-    EXPECT_EQ(abs(FracI(3, 5)), FracI(3, 5));
-    EXPECT_EQ(abs(FracI(-3, 5)), FracI(3, 5));
-
-    EXPECT_EQ(abs(Frac128(3, 5)), Frac128(3, 5));
-    EXPECT_EQ(abs(Frac128(-3, 5)), Frac128(3, 5));
-
-    EXPECT_EQ(abs(FracN(3, 5)), FracN(3, 5));
-    EXPECT_EQ(abs(FracN(-3, 5)), FracN(3, 5));
+TYPED_TEST(FractionTest, Abs) {
+    EXPECT_EQ(abs(Fraction<TypeParam>(3, 5)), Fraction<TypeParam>(3, 5));
+    EXPECT_EQ(abs(Fraction<TypeParam>(-3, 5)), Fraction<TypeParam>(3, 5));
 }
