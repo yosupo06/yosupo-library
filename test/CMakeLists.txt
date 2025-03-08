@@ -44,6 +44,7 @@ add_executable(unittest
   unittest/int_n_test.cpp
   unittest/math_test.cpp
   unittest/maxflow_test.cpp
+  unittest/modint_test.cpp
   unittest/modint61_test.cpp
   unittest/random_test.cpp
   unittest/mst_test.cpp
