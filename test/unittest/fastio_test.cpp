@@ -1,6 +1,7 @@
 #include "yosupo/fastio.hpp"
 
 #include "yosupo/random.hpp"
+#include "yosupo/types.hpp"
 
 #include <cstdint>
 #include <string>
@@ -158,18 +159,18 @@ TEST(FastIOTest, ScannerIntMin) {
         fputs("-2147483648", tmpf);
         rewind(tmpf);
         Scanner sc(tmpf);
-        int32_t x;
+        i32 x;
         sc.read(x);
-        ASSERT_EQ(std::numeric_limits<int32_t>::min(), x);
+        ASSERT_EQ(std::numeric_limits<i32>::min(), x);
     }
     {
         auto tmpf = tmpfile();
         fputs("-9223372036854775808", tmpf);
         rewind(tmpf);
         Scanner sc(tmpf);
-        int64_t x;
+        i64 x;
         sc.read(x);
-        ASSERT_EQ(std::numeric_limits<int64_t>::min(), x);
+        ASSERT_EQ(std::numeric_limits<i64>::min(), x);
     }
 }
 
@@ -177,7 +178,7 @@ TEST(FastIOTest, PrinterIntMin) {
     {
         auto tmpf = tmpfile();
         Printer pr(tmpf);
-        pr.writeln(std::numeric_limits<int32_t>::min());
+        pr.writeln(std::numeric_limits<i32>::min());
         pr.flush();
 
         rewind(tmpf);
@@ -188,7 +189,7 @@ TEST(FastIOTest, PrinterIntMin) {
     {
         auto tmpf = tmpfile();
         Printer pr(tmpf);
-        pr.writeln(std::numeric_limits<int64_t>::min());
+        pr.writeln(std::numeric_limits<i64>::min());
         pr.flush();
 
         rewind(tmpf);
