@@ -8,10 +8,8 @@
 #include <concepts>
 #include <cstdint>
 #include <limits>
-#include <ostream>
 #include <string>
 #include <type_traits>
-#include "yosupo/dump.hpp"
 
 namespace yosupo {
 

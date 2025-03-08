@@ -1,141 +1,112 @@
 #pragma once
 
-#include "atcoder/modint.hpp"
-
+#include <cstdint>
+#include <cstdlib>
 #include <iostream>
-
-namespace atcoder {
-
-template <int MOD>
-std::ostream& operator<<(std::ostream& os, const static_modint<MOD>& x) {
-    return os << x.val();
-}
-
-template <int ID>
-std::ostream& operator<<(std::ostream& os, const dynamic_modint<ID>& x) {
-    return os << x.val();
-}
-
-}  // namespace atcoder
 
 namespace yosupo {
 
-template <int MOD> using static_modint = atcoder::static_modint<MOD>;
-
-template <int ID> using dynamic_modint = atcoder::dynamic_modint<ID>;
-
-using modint998244353 = atcoder::modint998244353;
-using modint1000000007 = atcoder::modint1000000007;
-using modint = atcoder::modint;
-
-// modint of 2^61 - 1
-struct modint61 {
-    using mint = modint61;
-
-  public:
-    static constexpr long long mod() { return (1ULL << 61) - 1; }
-    static mint raw(long long v) {
-        mint x;
-        x._v = v;
-        return x;
+// x * inv_u32(x) = 1 (mod 2^32)
+constexpr uint32_t inv_u32(const uint32_t x) {
+    uint32_t inv = 1;
+    for (int i = 0; i < 5; i++) {
+        inv *= 2u - inv * x;
     }
+    return inv;
+}
 
-    modint61() : _v(0) {}
+template <uint32_t MOD> struct ModInt {
+    static_assert(MOD % 2 && MOD <= (1U << 30) - 1,
+                  "mod must be odd and at most 2^30 - 1");
 
-    template <class T, atcoder::internal::is_signed_int_t<T>* = nullptr>
-    modint61(T v) {
-        long long x = (long long)(v % (long long)(umod()));
-        if (x < 0) x += umod();
-        _v = (unsigned long long)(x);
+    static constexpr uint32_t mod() { return MOD; }
+
+    constexpr ModInt() : x(0) {}
+    constexpr explicit ModInt(uint32_t _x) : x(mulreduce(_x, B2)) {}
+
+    constexpr ModInt(std::signed_integral auto _x)
+        : ModInt((uint32_t)(_x % (int32_t)MOD + MOD)) {}
+    constexpr ModInt(std::unsigned_integral auto _x)
+        : ModInt((uint32_t)(_x % MOD)) {}
+
+    constexpr uint32_t val() const {
+        uint32_t y = mulreduce(x, 1);
+        return y < MOD ? y : y - MOD;
     }
-    template <class T, atcoder::internal::is_unsigned_int_t<T>* = nullptr>
-    modint61(T v) {
-        _v = (unsigned long long)(v % umod());
-    }
+    constexpr uint32_t internal_val() const { return x; }
 
-    unsigned long long val() const { return _v; }
+    constexpr ModInt operator+() const { return *this; }
+    constexpr ModInt operator-() const { return ModInt() -= *this; }
 
-    mint& operator++() {
-        _v++;
-        if (_v == umod()) _v = 0;
+    constexpr ModInt& operator+=(const ModInt& rhs) {
+        x += rhs.x;
+        x = std::min(x, x - 2 * MOD);
         return *this;
     }
-    mint& operator--() {
-        if (_v == 0) _v = umod();
-        _v--;
+    constexpr friend ModInt operator+(const ModInt& lhs, const ModInt& rhs) {
+        return ModInt(lhs) += rhs;
+    }
+
+    constexpr ModInt& operator-=(const ModInt& rhs) {
+        x += 2 * MOD - rhs.x;
+        x = std::min(x, x - 2 * MOD);
         return *this;
     }
-    mint operator++(int) {
-        mint result = *this;
-        ++*this;
-        return result;
-    }
-    mint operator--(int) {
-        mint result = *this;
-        --*this;
-        return result;
+    constexpr friend ModInt operator-(const ModInt& lhs, const ModInt& rhs) {
+        return ModInt(lhs) -= rhs;
     }
 
-    mint& operator+=(const mint& rhs) {
-        _v += rhs._v;
-        if (_v >= umod()) _v -= umod();
+    constexpr ModInt& operator*=(const ModInt& rhs) {
+        x = mulreduce(x, rhs.x);
         return *this;
     }
-    mint& operator-=(const mint& rhs) {
-        _v -= rhs._v;
-        if (_v >= umod()) _v += umod();
-        return *this;
+    constexpr friend ModInt operator*(const ModInt& lhs, const ModInt& rhs) {
+        return ModInt(lhs) *= rhs;
     }
-    mint& operator*=(const mint& rhs) {
-        __uint128_t t = (__uint128_t)_v * rhs._v;
 
-        _v = (unsigned long long)((t >> 61) + (t & umod()));
-        _v = (_v >= umod()) ? _v - umod() : _v;
-
-        return *this;
+    friend bool operator==(const ModInt& lhs, const ModInt& rhs) {
+        auto lx = lhs.x;
+        if (lx >= MOD) lx -= MOD;
+        auto rx = rhs.x;
+        if (rx >= MOD) rx -= MOD;
+        return lx == rx;
     }
-    mint& operator/=(const mint& rhs) { return *this = *this * rhs.inv(); }
 
-    mint operator+() const { return *this; }
-    mint operator-() const { return mint() - *this; }
-
-    mint pow(long long n) const {
-        assert(0 <= n);
-        mint x = *this, r = 1;
+    constexpr ModInt pow(uint64_t n) const {
+        ModInt v = *this, r = 1;
         while (n) {
-            if (n & 1) r *= x;
-            x *= x;
+            if (n & 1) r *= v;
+            v *= v;
             n >>= 1;
         }
         return r;
     }
-    mint inv() const {
-        assert(_v);
-        return pow(umod() - 2);
+    constexpr ModInt inv() const {
+        // TODO: for non-prime
+        return pow(MOD - 2);
     }
 
-    friend mint operator+(const mint& lhs, const mint& rhs) {
-        return mint(lhs) += rhs;
-    }
-    friend mint operator-(const mint& lhs, const mint& rhs) {
-        return mint(lhs) -= rhs;
-    }
-    friend mint operator*(const mint& lhs, const mint& rhs) {
-        return mint(lhs) *= rhs;
-    }
-    friend mint operator/(const mint& lhs, const mint& rhs) {
-        return mint(lhs) /= rhs;
-    }
-    friend bool operator==(const mint& lhs, const mint& rhs) {
-        return lhs._v == rhs._v;
-    }
-    friend bool operator!=(const mint& lhs, const mint& rhs) {
-        return lhs._v != rhs._v;
+    friend std::ostream& operator<<(std::ostream& os, const ModInt& v) {
+        return os << v.val();
     }
 
   private:
-    unsigned long long _v;
-    static constexpr unsigned long long umod() { return mod(); }
+    uint32_t x;
+
+    static constexpr uint32_t B = ((uint64_t(1) << 32)) % MOD;
+    static constexpr uint32_t B2 = uint64_t(1) * B * B % MOD;
+    static constexpr uint32_t INV = -inv_u32(MOD);
+
+    // Input: (l * r) must be no more than (2^32 * MOD)
+    // Output: ((l * r) / 2^32) % MOD
+    static constexpr uint32_t mulreduce(uint32_t l, uint32_t r) {
+        uint64_t x = uint64_t(1) * l * r;
+        x += uint64_t(uint32_t(x) * INV) * MOD;
+        return uint32_t(x >> 32);
+    }
 };
+
+using ModInt998244353 = ModInt<998244353>;
+using ModInt1000000007 = ModInt<1000000007>;
 
 }  // namespace yosupo

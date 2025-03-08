@@ -6,16 +6,15 @@
 using namespace yosupo;
 using ll = long long;
 using ull = unsigned long long;
+using mint = ModInt998244353;
 
 TEST(CombTest, Fact) {
-    using mint = modint998244353;
     for (int i = 0; i < 100; i++) {
         ASSERT_EQ(mint(1), (fact<mint>(i) * inv_fact<mint>(i)));
     }
 }
 
 TEST(CombTest, Comb) {
-    using mint = modint998244353;
     for (int n = 0; n < 100; n++) {
         for (int k = 0; k <= n; k++) {
             ASSERT_EQ(
@@ -30,7 +29,6 @@ TEST(CombTest, Comb) {
 }
 
 TEST(CombTest, NegComb) {
-    using mint = modint998244353;
     for (int n = -100; n < 100; n++) {
         for (int k = 0; k <= n; k++) {
             mint expect = inv_fact<mint>(k);
@@ -44,7 +42,6 @@ TEST(CombTest, NegComb) {
 }
 
 TEST(CombTest, Inv) {
-    using mint = modint998244353;
     for (int i = 1; i < 100; i++) {
         ASSERT_EQ(mint(1), (mint(i) * inv<mint>(i)));
     }

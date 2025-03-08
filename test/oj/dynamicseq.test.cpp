@@ -13,7 +13,7 @@ using namespace yosupo;
 
 Scanner sc(stdin);
 Printer pr(stdout);
-using mint = modint998244353;
+using mint = ModInt998244353;
 
 struct RangeAffineRangeSum {
     using S = pair<mint, mint>;
