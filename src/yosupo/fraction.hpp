@@ -41,7 +41,10 @@ template <class T> struct Fraction {
     int sgn() const { return yosupo::sgn(a); }
     Fraction abs() const { return (yosupo::sgn(a) < 0) ? -*this : *this; }
 
-    std::string dump() const { return yosupo::dump(a) + "/" + yosupo::dump(b); }
+    std::string dump() const {
+        if (b == T(1)) return yosupo::dump(a);
+        return yosupo::dump(a) + "/" + yosupo::dump(b);
+    }
 
   private:
     T a, b;

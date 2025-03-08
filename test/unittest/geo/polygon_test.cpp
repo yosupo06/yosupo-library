@@ -1,7 +1,5 @@
-#include "../../utils/int128.hpp"  // IWYU pragma: keep
-
-#include "yosupo/geo/point.hpp"
 #include "yosupo/geo/polygon.hpp"
+#include "yosupo/geo/point.hpp"
 #include "yosupo/int_n.hpp"
 
 #include <gtest/gtest.h>
