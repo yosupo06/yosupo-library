@@ -51,9 +51,8 @@ struct Coord {
 
     operator std::pair<int, int>() const { return std::make_pair(r, c); }
 
-    friend std::ostream& operator<<(std::ostream& os, const Coord& coord) {
-        os << "(" << coord.r << ", " << coord.c << ")";
-        return os;
+    std::string dump() const {
+        return "(" + std::to_string(r) + ", " + std::to_string(c) + ")";
     }
 };
 
