@@ -50,24 +50,18 @@ TEST(FracTest, Comp) {
     EXPECT_LT(FracN(1, 5), FracN(1, 3));
 }
 
-TEST(FracTest, ToString) {
+TEST(FracTest, Dump) {
     {
         FracI f(3, 5);
-        std::ostringstream oss;
-        oss << f;
-        EXPECT_EQ(oss.str(), "3/5");
+        EXPECT_EQ(f.dump(), "3/5");
     }
     {
         Frac128 f(3, 5);
-        std::ostringstream oss;
-        oss << f;
-        EXPECT_EQ(oss.str(), "3/5");
+        EXPECT_EQ(f.dump(), "3/5");
     }
     {
         FracN f(3, 5);
-        std::ostringstream oss;
-        oss << f;
-        EXPECT_EQ(oss.str(), "3/5");
+        EXPECT_EQ(f.dump(), "3/5");
     }
 }
 

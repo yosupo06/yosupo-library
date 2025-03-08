@@ -234,52 +234,38 @@ TEST(IntNTest, GCD) {
     EXPECT_EQ(gcd(a, b), 200);
 }
 
-TEST(UIntNTest, Ostream) {
+TEST(UIntNTest, Dump) {
     {
         BigUInt a("123456789123456789123456789");
-        std::stringstream ss;
-        ss << a;
-        EXPECT_EQ(ss.str(), "123456789123456789123456789");
+        EXPECT_EQ(a.dump(), "123456789123456789123456789");
     }
     {
         BigUInt zero(0);
-        std::stringstream ss;
-        ss << zero;
-        EXPECT_EQ(ss.str(), "0");
+        EXPECT_EQ(zero.dump(), "0");
     }
     {
         BigUInt large = BigUInt(1) << 100;
-        std::stringstream ss;
-        ss << large;
-        EXPECT_EQ(ss.str(), "1267650600228229401496703205376");
+        EXPECT_EQ(large.dump(), "1267650600228229401496703205376");
     }
 }
 
 TEST(IntNTest, Ostream) {
     {
         BigInt a("123456789123456789123456789");
-        std::stringstream ss;
-        ss << a;
-        EXPECT_EQ(ss.str(), "123456789123456789123456789");
+        EXPECT_EQ(a.dump(), "123456789123456789123456789");
     }
     {
         BigInt zero(0);
-        std::stringstream ss;
-        ss << zero;
-        EXPECT_EQ(ss.str(), "0");
+        EXPECT_EQ(zero.dump(), "0");
     }
     {
         BigInt neg("-123456789123456789123456789");
-        std::stringstream ss;
-        ss << neg;
-        EXPECT_EQ(ss.str(), "-123456789123456789123456789");
+        EXPECT_EQ(neg.dump(), "-123456789123456789123456789");
     }
     {
         BigInt max_neg = BigInt(1) << 639;
-        std::stringstream ss;
-        ss << max_neg;
         EXPECT_EQ(
-            ss.str(),
+            max_neg.dump(),
             "-22812203088110976093205858028501456624466142536242799652895962589"
             "496375836043386932529564056586856998893211547867972036553443523606"
             "87718999126330659861107094125997337180132475041437096123301888");

@@ -1,13 +1,11 @@
 #pragma once
 
-#include <iostream>
+#include <string>
 
+#include "yosupo/dump.hpp"
 #include "yosupo/math.hpp"
 
 namespace yosupo {
-
-template <class T>
-concept Printable = requires(std::ostream& os, const T& t) { os << t; };
 
 template <class T> struct Fraction {
     Fraction() : a(T(0)), b(T(1)) {}
@@ -43,11 +41,7 @@ template <class T> struct Fraction {
     int sgn() const { return yosupo::sgn(a); }
     Fraction abs() const { return (yosupo::sgn(a) < 0) ? -*this : *this; }
 
-    friend std::ostream& operator<<(std::ostream& os, Fraction x)
-        requires Printable<T>
-    {
-        return os << x.a << "/" << x.b;
-    }
+    std::string dump() const { return yosupo::dump(a) + "/" + yosupo::dump(b); }
 
   private:
     T a, b;

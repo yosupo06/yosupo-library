@@ -3,6 +3,7 @@
 #include <compare>
 #include <iostream>
 
+#include "yosupo/dump.hpp"
 #include "yosupo/math.hpp"
 
 namespace yosupo {
@@ -42,8 +43,8 @@ template <class T> struct Point {
         return cmp == 0 ? y <=> r.y : cmp;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const Point& p) {
-        return os << "P(" << p.x << ", " << p.y << ")";
+    std::string dump() const {
+        return "(" + yosupo::dump(x) + ", " + yosupo::dump(y) + ")";
     }
 };
 

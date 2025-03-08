@@ -11,6 +11,7 @@
 #include <ostream>
 #include <string>
 #include <type_traits>
+#include "yosupo/dump.hpp"
 
 namespace yosupo {
 
@@ -274,10 +275,10 @@ template <int N> struct UintN {
         return (a << shift);
     }
 
-    friend std::ostream& operator<<(std::ostream& os, UintN x) {
+    std::string dump() const {
+        auto x = *this;
         if (!x) {
-            os << "0";
-            return os;
+            return "0";
         }
         std::string s;
         while (x) {
@@ -286,7 +287,7 @@ template <int N> struct UintN {
             s.push_back(char('0' + r));
         }
         std::reverse(s.begin(), s.end());
-        return os << s;
+        return s;
     }
 
   private:
@@ -379,12 +380,11 @@ template <int N> struct IntN {
         return IntN(UintN<N>::gcd(a.abs(), b.abs()));
     }
 
-    friend std::ostream& operator<<(std::ostream& os, IntN x) {
-        if (x.is_negative()) {
-            os << "-";
-            x = -x;
+    std::string dump() const {
+        if (is_negative()) {
+            return "-" + static_cast<UintN<N>>(-*this).dump();
         }
-        return os << static_cast<UintN<N>>(x);
+        return static_cast<UintN<N>>(*this).dump();
     }
 
   private:
