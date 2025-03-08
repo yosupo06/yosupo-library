@@ -80,9 +80,7 @@ TEST(CoordTest, PairConversion) {
     ASSERT_EQ(p.second, 2);
 }
 
-TEST(CoordTest, OutputStreamOperator) {
+TEST(CoordTest, Dump) {
     Coord c(1, 2);
-    std::stringstream ss;
-    ss << c;
-    ASSERT_EQ(ss.str(), "(1, 2)");
+    ASSERT_EQ(c.dump(), "(1, 2)");
 }
