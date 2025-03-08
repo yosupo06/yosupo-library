@@ -4,16 +4,10 @@
 #include <cstdlib>
 #include <iostream>
 
-namespace yosupo {
+#include "yosupo/math.hpp"
+#include "yosupo/types.hpp"
 
-// x * inv_u32(x) = 1 (mod 2^32)
-constexpr uint32_t inv_u32(const uint32_t x) {
-    uint32_t inv = 1;
-    for (int i = 0; i < 5; i++) {
-        inv *= 2u - inv * x;
-    }
-    return inv;
-}
+namespace yosupo {
 
 template <uint32_t MOD> struct ModInt {
     static_assert(MOD % 2 && MOD <= (1U << 30) - 1,
