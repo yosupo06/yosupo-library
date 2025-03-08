@@ -1,5 +1,3 @@
-#include "../utils/int128.hpp"  // IWYU pragma: keep
-
 #include "yosupo/fraction.hpp"
 #include "yosupo/int_n.hpp"
 #include "yosupo/math.hpp"
@@ -54,6 +52,8 @@ TEST(FracTest, Dump) {
     {
         FracI f(3, 5);
         EXPECT_EQ(f.dump(), "3/5");
+        FracI f2(3, 1);
+        EXPECT_EQ(f2.dump(), "3");
     }
     {
         Frac128 f(3, 5);

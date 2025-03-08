@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cassert>
 #include <deque>
-#include <iostream>
 
 #include "yosupo/geo/point.hpp"
 #include "yosupo/util.hpp"
@@ -13,10 +12,6 @@ namespace yosupo {
 template <class T> struct Line {
     Point<T> s, t;
     Point<T> vec() const { return t - s; }
-
-    friend std::ostream& operator<<(std::ostream& os, const Line& l) {
-        return os << "L(" << l.s << ", " << l.t << ")";
-    }
 };
 
 template <class T>

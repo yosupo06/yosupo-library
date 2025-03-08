@@ -1,5 +1,3 @@
-#include "../../utils/int128.hpp"  // IWYU pragma: keep
-
 #include "yosupo/geo/convex.hpp"
 #include "yosupo/geo/point.hpp"
 #include "yosupo/int_n.hpp"
