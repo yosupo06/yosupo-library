@@ -1,8 +1,7 @@
 #include "yosupo/fastset.hpp"
+#include "yosupo/random.hpp"
 
 #include "gtest/gtest.h"
-
-#include "../utils/random.hpp"
 
 using namespace yosupo;
 using ll = long long;
@@ -35,8 +34,8 @@ TEST(FastSetTest, Stress) {
         st.insert(-1);
         st.insert(n);
         for (int ph = 0; ph <= 1000; ph++) {
-            int ty = randint(0, 2);
-            int p = randint(0, n - 1);
+            int ty = uniform(0, 2);
+            int p = uniform(0, n - 1);
 
             ASSERT_EQ(st.count(p), f[p]);
 
