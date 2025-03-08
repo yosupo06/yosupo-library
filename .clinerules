@@ -8,4 +8,5 @@
 ## コーディングポリシー
 
 - インクルードガードには `pragma once` を使用します
-- 基本的には `EXPECT_EQ` を `ASSERT_EQ` より好みます
+- `EXPECT_EQ` を `ASSERT_EQ` より好みます
+- `++i` より `i++` を好みます
