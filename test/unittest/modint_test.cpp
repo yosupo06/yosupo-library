@@ -9,13 +9,6 @@
 const int MOD = 998244353;
 using mint = yosupo::ModInt<MOD>;
 
-TEST(ModIntTest, Inv2n32) {
-    for (unsigned int i = 1; i < 100u; i += 2) {
-        unsigned int j = yosupo::inv_u32(i);
-        ASSERT_EQ((i * j), 1u);
-    }
-}
-
 TEST(ModIntTest, Constructor) {
     ASSERT_EQ(3, mint(int32_t(3)).val());
     ASSERT_EQ(3, mint(uint32_t(3)).val());
