@@ -62,3 +62,8 @@ TEST(ModIntTest, Inv) {
         ASSERT_EQ(mint(1), mint(i) * mint(i).inv());
     }
 }
+
+TEST(ModIntTest, Dump) {
+    ASSERT_EQ("123", mint(123).dump());
+    ASSERT_EQ("998244352", mint(MOD - 1).dump());
+}

@@ -2,7 +2,9 @@
 
 #include <immintrin.h>
 #include <span>
+#include <string>
 
+#include "yosupo/dump.hpp"
 #include "yosupo/math.hpp"
 #include "yosupo/modint.hpp"
 #include "yosupo/types.hpp"
@@ -131,6 +133,10 @@ template <i32 MOD> struct ModInt8 {
             _mm256_cmpeq_epi32(_mm256_loadu_si256((const m256i_u*)idx.data()),
                                _mm256_setzero_si256()));
         return v;
+    }
+
+    __attribute__((target("avx2"))) std::string dump() const {
+        return yosupo::dump(val());
     }
 
   private:

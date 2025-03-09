@@ -93,5 +93,12 @@ TEST(ModInt8Test, BlendVar) {
 TEST(ModInt8Test, Neg) {
     modint8 a(1, 2, 3, 4, 5, 6, 7, 8);
 
+    ASSERT_EQ(modint8(1, 2, 3, 4, 5, 6, 7, 8), a);
+
     ASSERT_EQ(modint8(-1, -2, -3, -4, -5, -6, -7, -8), -a);
+}
+
+TEST(ModInt8Test, Dump) {
+    ASSERT_EQ("[1, 2, 3, 4, 5, 6, 7, 8]",
+              modint8(1, 2, 3, 4, 5, 6, 7, 8).dump());
 }

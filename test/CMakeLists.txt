@@ -6,7 +6,8 @@ project(YosupoLibrary)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wno-sign-conversion -Werror)
+# TODO: remove mavx2
+add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wno-sign-conversion -Werror -mavx2)
 
 # sanitizer
 add_compile_options("$<$<CONFIG:DEBUG>:-fsanitize=undefined,address;-fno-sanitize-recover=all>")

@@ -81,36 +81,36 @@ template <i32 MOD> struct FFTInfo {
         }
         return v;
     }();
-    std::array<modint8, ord2 + 1> rot16i = []() {
-        std::array<modint8, std::max(0, ord2 + 1)> v;
+    std::array<std::array<modint, 8>, ord2 + 1> rot16i = []() {
+        std::array<std::array<modint, 8>, ord2 + 1> v;
         for (int i = 4; i <= ord2; i++) {
             std::array<modint, 8> buf;
             buf[0] = 1;
             for (int j = 1; j < 8; j++) {
                 buf[j] = buf[j - 1] * rot4[i];
             }
-            v[i] = modint8(buf);
+            v[i] = buf;
         }
         return v;
     }();
-    std::array<modint8, ord2 + 1> irot16i = []() {
-        std::array<modint8, std::max(0, ord2 + 1)> v;
+    std::array<std::array<modint, 8>, ord2 + 1> irot16i = []() {
+        std::array<std::array<modint, 8>, ord2 + 1> v;
         for (int i = 4; i <= ord2; i++) {
             std::array<modint, 8> buf;
             buf[0] = 1;
             for (int j = 1; j < 8; j++) {
                 buf[j] = buf[j - 1] * irot4[i];
             }
-            v[i] = modint8(buf);
+            v[i] = buf;
         }
         return v;
     }();
     // rot[i * j] * rot_shift16i(i)[j] = rot[(i + 8) * j]
-    modint8 rot_shift16i(u32 i) const {
-        return rot16i[std::countr_one(i >> 4) + 4];
+    __attribute__((target("avx2"))) modint8 rot_shift16i(u32 i) const {
+        return modint8(rot16i[std::countr_one(i >> 4) + 4]);
     }
-    modint8 irot_shift16i(u32 i) const {
-        return irot16i[std::countr_one(i >> 4) + 4];
+    __attribute__((target("avx2"))) modint8 irot_shift16i(u32 i) const {
+        return modint8(irot16i[std::countr_one(i >> 4) + 4]);
     }
 };
 template <i32 MOD> const FFTInfo<MOD> fft_info = FFTInfo<MOD>();
@@ -122,7 +122,7 @@ __attribute__((target("avx2"))) void fft(std::vector<ModInt<MOD>>& a) {
     assert(n == (1 << lg));
 
     using modint8 = ModInt8<MOD>;
-    static const FFTInfo<MOD>& info = fft_info<MOD>;
+    const FFTInfo<MOD>& info = fft_info<MOD>;
 
     if (n == 1) {
         return;
@@ -210,7 +210,7 @@ __attribute__((target("avx2"))) void fft(std::vector<ModInt<MOD>>& a) {
                  x.permutevar({1, 0, 3, 2, 5, 4, 7, 6}));
             std::copy_n(x.to_array().data(), 8, a.data() + i);
 
-            rotxi *= info.rot_shift16i(2 * i);
+            if (i + 8 < n) rotxi *= info.rot_shift16i(2 * i);
         }
     }
 }
@@ -222,7 +222,7 @@ __attribute__((target("avx2"))) void ifft(std::vector<ModInt<MOD>>& a) {
     assert(n == (1 << lg));
 
     using modint8 = ModInt8<MOD>;
-    static const FFTInfo<MOD>& info = fft_info<MOD>;
+    const FFTInfo<MOD>& info = fft_info<MOD>;
 
     if (n == 1) {
         return;
@@ -266,7 +266,8 @@ __attribute__((target("avx2"))) void ifft(std::vector<ModInt<MOD>>& a) {
                  x.permutevar({4, 5, 6, 7, 0, 1, 2, 3}));
 
             std::copy_n((x * irotxi).to_array().data(), 8, a.data() + i);
-            irotxi *= info.irot_shift16i(2 * i);
+
+            if (i + 8 < n) irotxi *= info.irot_shift16i(2 * i);
         }
     }
 

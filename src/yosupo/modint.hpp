@@ -1,8 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <cstdlib>
-#include <iostream>
+#include <string>
 
 #include "yosupo/math.hpp"
 #include "yosupo/types.hpp"
@@ -76,6 +75,8 @@ template <i32 MOD> struct ModInt {
         // TODO: for non-prime
         return pow(MOD - 2);
     }
+
+    std::string dump() const { return std::to_string(val()); }
 
   private:
     u32 x;  // [0, 2 * MOD)
