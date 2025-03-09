@@ -95,8 +95,6 @@ inline constexpr u32 inv_u32(const u32 x) {
     return inv;
 }
 
-// @param m `1 <= m`
-// @return x ** n % m
 inline constexpr u64 pow_mod_u64(u64 x, u64 n, u64 m) {
     if (m == 1) return 0;
     u64 r = 1;
@@ -107,6 +105,35 @@ inline constexpr u64 pow_mod_u64(u64 x, u64 n, u64 m) {
         n >>= 1;
     }
     return r;
+}
+
+inline constexpr u32 smallest_primitive_root(u32 m) {
+    if (m == 2) return 1;
+
+    u32 divs[20] = {};
+    int cnt = 0;
+    u32 x = (m - 1) / 2;
+    for (int i = 2; (u64)(i)*i <= x; i += 2) {
+        if (x % i == 0) {
+            divs[cnt++] = i;
+            while (x % i == 0) {
+                x /= i;
+            }
+        }
+    }
+    if (x > 1) {
+        divs[cnt++] = x;
+    }
+    for (u32 g = 2;; g++) {
+        bool ok = true;
+        for (int i = 0; i < cnt; i++) {
+            if (pow_mod_u64(g, (m - 1) / divs[i], m) == 1) {
+                ok = false;
+                break;
+            }
+        }
+        if (ok) return g;
+    }
 }
 
 inline bool is_prime(u32 n) {

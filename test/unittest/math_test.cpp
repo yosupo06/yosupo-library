@@ -69,3 +69,14 @@ TEST(MathTest, Prime) {
         ASSERT_EQ(yosupo::is_prime(i), is_prime(i));
     }
 }
+
+TEST(MathTest, InvU32) {
+    for (unsigned int i = 1; i < 100u; i += 2) {
+        unsigned int j = yosupo::inv_u32(i);
+        ASSERT_EQ((i * j), 1u);
+    }
+}
+
+TEST(MathTest, SmallestPrimitiveRoot) {
+    ASSERT_EQ(yosupo::smallest_primitive_root(998244353), 3);
+}
