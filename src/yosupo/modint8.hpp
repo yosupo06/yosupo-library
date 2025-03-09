@@ -37,7 +37,7 @@ template <i32 MOD> struct ModInt8 {
 
     __attribute__((target("avx2"))) static ModInt8 set1(modint x) {
         ModInt8 v;
-        v.x = _mm256_set1_epi32(x.internal_val());
+        v.x = _mm256_set1_epi32(*((int*)&x));
         return v;
     }
 
@@ -81,7 +81,9 @@ template <i32 MOD> struct ModInt8 {
         return ModInt8(lhs) *= rhs;
     }
 
-    ModInt8 operator-() const { return ModInt8() - *this; }
+    __attribute__((target("avx2"))) ModInt8 operator-() const {
+        return ModInt8() - *this;
+    }
 
     __attribute__((target("avx2"))) friend bool operator==(const ModInt8& lhs,
                                                            const ModInt8& rhs) {

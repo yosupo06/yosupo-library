@@ -10,12 +10,12 @@
 
 namespace yosupo {
 
-template <u32 MOD> struct FFTInfo {
+template <i32 MOD> struct FFTInfo {
     using modint = ModInt<MOD>;
     using modint8 = ModInt8<MOD>;
 
     static constexpr u32 g = smallest_primitive_root(MOD);
-    static constexpr int ord2 = std::countr_zero(MOD - 1);
+    static constexpr int ord2 = std::countr_zero((u32)(MOD - 1));
 
     // w[i]^(2^i) == 1 : w[i] is the fft omega of n=2^i
     static constexpr std::array<modint, ord2 + 1> w = []() {
@@ -113,9 +113,9 @@ template <u32 MOD> struct FFTInfo {
         return irot16i[std::countr_one(i >> 4) + 4];
     }
 };
-template <u32 MOD> const FFTInfo<MOD> fft_info = FFTInfo<MOD>();
+template <i32 MOD> const FFTInfo<MOD> fft_info = FFTInfo<MOD>();
 
-template <u32 MOD> ModInt8<MOD> fft_single(ModInt8<MOD> x) {
+template <i32 MOD> ModInt8<MOD> fft_single(ModInt8<MOD> x) {
     static const FFTInfo<MOD>& info = fft_info<MOD>;
     static const ModInt<MOD> w4 = info.w[2], w8 = info.w[3];
     static const auto step4 = ModInt8<MOD>(1, 1, 1, w4, 1, 1, 1, w4);
@@ -130,7 +130,7 @@ template <u32 MOD> ModInt8<MOD> fft_single(ModInt8<MOD> x) {
     return x;
 }
 
-template <u32 MOD> ModInt8<MOD> ifft_single(ModInt8<MOD> x) {
+template <i32 MOD> ModInt8<MOD> ifft_single(ModInt8<MOD> x) {
     static const FFTInfo<MOD>& info = fft_info<MOD>;
     static const ModInt<MOD> iw4 = info.iw[2], iw8 = info.iw[3];
     static const auto step4 = ModInt8<MOD>(1, 1, 1, iw4, 1, 1, 1, iw4);
@@ -146,7 +146,7 @@ template <u32 MOD> ModInt8<MOD> ifft_single(ModInt8<MOD> x) {
     return x;
 }
 
-template <u32 MOD> void fft(std::vector<ModInt8<MOD>>& a) {
+template <i32 MOD> void fft(std::vector<ModInt8<MOD>>& a) {
     using modint8 = ModInt8<MOD>;
     static const FFTInfo<MOD>& info = fft_info<MOD>;
 
@@ -202,7 +202,7 @@ template <u32 MOD> void fft(std::vector<ModInt8<MOD>>& a) {
     }
 }
 
-template <u32 MOD> void fft(std::vector<ModInt<MOD>>& a) {
+template <i32 MOD> void fft(std::vector<ModInt<MOD>>& a) {
     int n = int(a.size());
     static const FFTInfo<MOD>& info = fft_info<MOD>;
 
@@ -235,7 +235,7 @@ template <u32 MOD> void fft(std::vector<ModInt<MOD>>& a) {
     }
 }
 
-template <u32 MOD> void ifft(std::vector<ModInt8<MOD>>& a) {
+template <i32 MOD> void ifft(std::vector<ModInt8<MOD>>& a) {
     using modint8 = ModInt8<MOD>;
     static const FFTInfo<MOD>& info = fft_info<MOD>;
 
@@ -296,7 +296,7 @@ template <u32 MOD> void ifft(std::vector<ModInt8<MOD>>& a) {
     }
 }
 
-template <u32 MOD> void ifft(std::vector<ModInt<MOD>>& a) {
+template <i32 MOD> void ifft(std::vector<ModInt<MOD>>& a) {
     static const FFTInfo<MOD>& info = fft_info<MOD>;
 
     int n = int(a.size());
@@ -332,7 +332,7 @@ template <u32 MOD> void ifft(std::vector<ModInt<MOD>>& a) {
     }
 }
 
-template <u32 MOD>
+template <i32 MOD>
 std::vector<ModInt<MOD>> convolution(std::vector<ModInt<MOD>> a,
                                      std::vector<ModInt<MOD>> b) {
     int n = int(a.size()), m = int(b.size());

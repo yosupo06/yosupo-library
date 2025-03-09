@@ -18,6 +18,9 @@ TEST(ModInt8Test, Val) {
               modint8(0, 0, 1, 1, 2, 2, 3, 3).val());
     ASSERT_EQ((std::array<u32, 8>({0, 1, 2, 3, 4, 5, 6, 7})),
               modint8(0, 1, 2, 3, 4, 5, 6, 7).val());
+
+    ASSERT_EQ((std::array<u32, 8>({3, 3, 3, 3, 3, 3, 3, 3})),
+              modint8::set1(3).val());
 }
 
 TEST(ModInt8Test, Add) {
