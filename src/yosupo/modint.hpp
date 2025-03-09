@@ -9,25 +9,24 @@
 
 namespace yosupo {
 
-template <uint32_t MOD> struct ModInt {
-    static_assert(MOD % 2 && MOD <= (1U << 30) - 1,
+template <i32 MOD> struct ModInt {
+    static_assert(MOD % 2 && 1 <= MOD && MOD <= (1 << 30) - 1,
                   "mod must be odd and at most 2^30 - 1");
 
-    static constexpr uint32_t mod() { return MOD; }
+    static constexpr i32 mod() { return MOD; }
 
     constexpr ModInt() : x(0) {}
-    constexpr explicit ModInt(uint32_t _x) : x(mulreduce(_x, B2)) {}
 
+    constexpr explicit ModInt(u32 _x) : x(reduce_mul(_x, B2)) {}
     constexpr ModInt(std::signed_integral auto _x)
-        : ModInt((uint32_t)(_x % (int32_t)MOD + MOD)) {}
+        : ModInt((u32)(_x % MOD + MOD)) {}
     constexpr ModInt(std::unsigned_integral auto _x)
-        : ModInt((uint32_t)(_x % MOD)) {}
+        : ModInt((u32)(_x % MOD)) {}
 
-    constexpr uint32_t val() const {
-        uint32_t y = mulreduce(x, 1);
+    constexpr i32 val() const {
+        u32 y = reduce_mul(x, 1);
         return y < MOD ? y : y - MOD;
     }
-    constexpr uint32_t internal_val() const { return x; }
 
     constexpr ModInt operator+() const { return *this; }
     constexpr ModInt operator-() const { return ModInt() -= *this; }
@@ -51,7 +50,7 @@ template <uint32_t MOD> struct ModInt {
     }
 
     constexpr ModInt& operator*=(const ModInt& rhs) {
-        x = mulreduce(x, rhs.x);
+        x = reduce_mul(x, rhs.x);
         return *this;
     }
     constexpr friend ModInt operator*(const ModInt& lhs, const ModInt& rhs) {
@@ -66,7 +65,7 @@ template <uint32_t MOD> struct ModInt {
         return lx == rx;
     }
 
-    constexpr ModInt pow(uint64_t n) const {
+    constexpr ModInt pow(u64 n) const {
         ModInt v = *this, r = 1;
         while (n) {
             if (n & 1) r *= v;
@@ -80,23 +79,19 @@ template <uint32_t MOD> struct ModInt {
         return pow(MOD - 2);
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const ModInt& v) {
-        return os << v.val();
-    }
-
   private:
-    uint32_t x;
+    u32 x;
 
-    static constexpr uint32_t B = ((uint64_t(1) << 32)) % MOD;
-    static constexpr uint32_t B2 = uint64_t(1) * B * B % MOD;
-    static constexpr uint32_t INV = -inv_u32(MOD);
+    static constexpr u32 B = ((u64(1) << 32)) % MOD;
+    static constexpr u32 B2 = u64(1) * B * B % MOD;
+    static constexpr u32 INV = -inv_u32(MOD);
 
     // Input: (l * r) must be no more than (2^32 * MOD)
     // Output: ((l * r) / 2^32) % MOD
-    static constexpr uint32_t mulreduce(uint32_t l, uint32_t r) {
-        uint64_t x = uint64_t(1) * l * r;
-        x += uint64_t(uint32_t(x) * INV) * MOD;
-        return uint32_t(x >> 32);
+    static constexpr u32 reduce_mul(u32 l, u32 r) {
+        u64 x = u64(1) * l * r;
+        x += u64(u32(x) * INV) * MOD;
+        return u32(x >> 32);
     }
 };
 
