@@ -17,7 +17,9 @@ template <i32 MOD> struct ModInt {
 
     constexpr ModInt() : x(0) {}
 
-    constexpr explicit ModInt(u32 _x) : x(reduce_mul(_x, B2)) {}
+    // It's OK because _x * B2 < 2**32 * MOD
+    constexpr ModInt(u32 _x) : x(reduce_mul(_x, B2)) {}
+
     constexpr ModInt(std::signed_integral auto _x)
         : ModInt((u32)(_x % MOD + MOD)) {}
     constexpr ModInt(std::unsigned_integral auto _x)
@@ -58,11 +60,7 @@ template <i32 MOD> struct ModInt {
     }
 
     friend bool operator==(const ModInt& lhs, const ModInt& rhs) {
-        auto lx = lhs.x;
-        if (lx >= MOD) lx -= MOD;
-        auto rx = rhs.x;
-        if (rx >= MOD) rx -= MOD;
-        return lx == rx;
+        return std::min(lhs.x, lhs.x - MOD) == std::min(rhs.x, rhs.x - MOD);
     }
 
     constexpr ModInt pow(u64 n) const {
@@ -80,7 +78,7 @@ template <i32 MOD> struct ModInt {
     }
 
   private:
-    u32 x;
+    u32 x;  // [0, 2 * MOD)
 
     static constexpr u32 B = ((u64(1) << 32)) % MOD;
     static constexpr u32 B2 = u64(1) * B * B % MOD;

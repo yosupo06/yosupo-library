@@ -115,95 +115,13 @@ template <i32 MOD> struct FFTInfo {
 };
 template <i32 MOD> const FFTInfo<MOD> fft_info = FFTInfo<MOD>();
 
-template <i32 MOD> ModInt8<MOD> fft_single(ModInt8<MOD> x) {
-    static const FFTInfo<MOD>& info = fft_info<MOD>;
-    static const ModInt<MOD> w4 = info.w[2], w8 = info.w[3];
-    static const auto step4 = ModInt8<MOD>(1, 1, 1, w4, 1, 1, 1, w4);
-    static const auto step8 =
-        ModInt8<MOD>(1, 1, 1, 1, 1, w8, w8 * w8, w8 * w8 * w8);
-
-    x = (blend<0b11110000>(x, -x) + x.permutevar({4, 5, 6, 7, 0, 1, 2, 3})) *
-        step8;
-    x = (blend<0b11001100>(x, -x) + x.permutevar({2, 3, 0, 1, 6, 7, 4, 5})) *
-        step4;
-    x = (blend<0b10101010>(x, -x) + x.permutevar({1, 0, 3, 2, 5, 4, 7, 6}));
-    return x;
-}
-
-template <i32 MOD> ModInt8<MOD> ifft_single(ModInt8<MOD> x) {
-    static const FFTInfo<MOD>& info = fft_info<MOD>;
-    static const ModInt<MOD> iw4 = info.iw[2], iw8 = info.iw[3];
-    static const auto step4 = ModInt8<MOD>(1, 1, 1, iw4, 1, 1, 1, iw4);
-    static const auto step8 =
-        ModInt8<MOD>(1, 1, 1, 1, 1, iw8, iw8 * iw8, iw8 * iw8 * iw8);
-
-    x = (blend<0b10101010>(x, -x) + x.permutevar({1, 0, 3, 2, 5, 4, 7, 6})) *
-        step4;
-    x = (blend<0b11001100>(x, -x) + x.permutevar({2, 3, 0, 1, 6, 7, 4, 5})) *
-        step8;
-    x = (blend<0b11110000>(x, -x) + x.permutevar({4, 5, 6, 7, 0, 1, 2, 3}));
-
-    return x;
-}
-
-template <i32 MOD> void fft(std::vector<ModInt8<MOD>>& a) {
-    using modint8 = ModInt8<MOD>;
-    static const FFTInfo<MOD>& info = fft_info<MOD>;
-
+template <i32 MOD>
+__attribute__((target("avx2"))) void fft(std::vector<ModInt<MOD>>& a) {
     const int n = int(a.size());
     const int lg = std::countr_zero((u32)n);
+    assert(n == (1 << lg));
 
-    int h = lg;
-    if (h % 2) {
-        // 2-base
-        int len = n / 2;
-        for (int i = 0; i < len; i++) {
-            auto l = a[0 * len + i];
-            auto r = a[1 * len + i];
-            a[0 * len + i] = l + r;
-            a[1 * len + i] = l - r;
-        }
-        h--;
-    }
-    while (h >= 2) {
-        // 4-base
-        static const modint8 w2 = modint8::set1(info.w[2]);
-
-        modint8 rotx = modint8::set1(1);
-        for (int start = 0; start < n; start += (1 << h)) {
-            const modint8 rot2x = rotx * rotx;
-            const modint8 rot3x = rot2x * rotx;
-
-            int len = 1 << (h - 2);
-            for (int i = 0; i < len; i++) {
-                auto a0 = a[start + 0 * len + i];
-                auto a1 = a[start + 1 * len + i] * rotx;
-                auto a2 = a[start + 2 * len + i] * rot2x;
-                auto a3 = a[start + 3 * len + i] * rot3x;
-
-                auto x = (a1 - a3) * w2;
-                a[start + 0 * len + i] = (a0 + a2) + (a1 + a3);
-                a[start + 1 * len + i] = (a0 + a2) - (a1 + a3);
-                a[start + 2 * len + i] = (a0 - a2) + x;
-                a[start + 3 * len + i] = (a0 - a2) - x;
-            }
-            rotx *= modint8::set1(info.rot_shift8(8 * (start >> h)));
-        }
-        h -= 2;
-    }
-
-    {
-        // fft each element
-        modint8 rotxi = modint8::set1(1);
-        for (int i = 0; i < n; i++) {
-            a[i] = fft_single(a[i] * rotxi);
-            rotxi *= info.rot_shift16i(16 * i);
-        }
-    }
-}
-
-template <i32 MOD> void fft(std::vector<ModInt<MOD>>& a) {
-    int n = int(a.size());
+    using modint8 = ModInt8<MOD>;
     static const FFTInfo<MOD>& info = fft_info<MOD>;
 
     if (n == 1) {
@@ -225,81 +143,87 @@ template <i32 MOD> void fft(std::vector<ModInt<MOD>>& a) {
         a[3] = (a0 - a2) - x;
         return;
     }
-    std::vector<ModInt8<MOD>> b(a.size() / 8);
-    for (int i = 0; i < (int)a.size(); i += 8) {
-        b[i / 8] = ModInt8<MOD>(a.data() + i);
-    }
-    fft(b);
-    for (int i = 0; i < (int)a.size(); i += 8) {
-        std::copy_n(b[i / 8].val().data(), 8, a.data() + i);
-    }
-}
 
-template <i32 MOD> void ifft(std::vector<ModInt8<MOD>>& a) {
-    using modint8 = ModInt8<MOD>;
-    static const FFTInfo<MOD>& info = fft_info<MOD>;
+    int h = lg;
+    if (h % 2 == 0) {
+        // 2-base
+        int len = n / 2;
+        for (int i = 0; i < len; i += 8) {
+            auto l = modint8(a.data() + 0 * len + i);
+            auto r = modint8(a.data() + 1 * len + i);
 
-    const int n = int(a.size());
-    const int lg = std::countr_zero((u32)n);
-
-    {
-        // 8-base
-        modint8 irotxi = modint8::set1(1);
-        for (int i = 0; i < n; i++) {
-            a[i] = ifft_single(a[i]) * irotxi;
-            irotxi *= info.irot_shift16i(16 * i);
+            std::copy_n((l + r).to_array().data(), 8, a.data() + 0 * len + i);
+            std::copy_n((l - r).to_array().data(), 8, a.data() + 1 * len + i);
         }
+        h--;
     }
 
-    int h = 0;
-    while (h + 2 <= lg) {
-        h += 2;
-
+    while (h >= 5) {
         // 4-base
-        static const modint8 w2 = modint8::set1(info.iw[2]);
+        const modint8 w2x = modint8::set1(info.w[2]);
 
         modint8 rotx = modint8::set1(1);
         for (int start = 0; start < n; start += (1 << h)) {
-            const auto rot2x = rotx * rotx;
-            const auto rot3x = rot2x * rotx;
+            const modint8 rot2x = rotx * rotx;
+            const modint8 rot3x = rot2x * rotx;
+
             int len = 1 << (h - 2);
-            for (int i = 0; i < len; i++) {
-                auto a0 = a[start + 0 * len + i];
-                auto a1 = a[start + 1 * len + i];
-                auto a2 = a[start + 2 * len + i];
-                auto a3 = a[start + 3 * len + i];
+            for (int i = 0; i < len; i += 8) {
+                auto a0 = modint8(a.data() + start + 0 * len + i);
+                auto a1 = modint8(a.data() + start + 1 * len + i) * rotx;
+                auto a2 = modint8(a.data() + start + 2 * len + i) * rot2x;
+                auto a3 = modint8(a.data() + start + 3 * len + i) * rot3x;
 
-                auto x0 = a0 + a1;
-                auto x1 = a0 - a1;
-                auto x2 = a2 + a3;
-                auto x3 = (a2 - a3) * w2;
+                auto x = (a1 - a3) * w2x;
 
-                a[start + 0 * len + i] = x0 + x2;
-                a[start + 1 * len + i] = (x1 + x3) * rotx;
-                a[start + 2 * len + i] = (x0 - x2) * rot2x;
-                a[start + 3 * len + i] = (x1 - x3) * rot3x;
+                std::copy_n((a0 + a2 + a1 + a3).to_array().data(), 8,
+                            a.data() + start + 0 * len + i);
+                std::copy_n((a0 + a2 - a1 - a3).to_array().data(), 8,
+                            a.data() + start + 1 * len + i);
+                std::copy_n((a0 - a2 + x).to_array().data(), 8,
+                            a.data() + start + 2 * len + i);
+                std::copy_n((a0 - a2 - x).to_array().data(), 8,
+                            a.data() + start + 3 * len + i);
             }
-            rotx *= modint8::set1(info.irot_shift8(8 * (start >> h)));
+            rotx *= modint8::set1(info.rot_shift8(8 * (start >> h)));
         }
+        h -= 2;
     }
 
-    if (h + 1 == lg) {
-        // 2-base
-        int len = n / 2;
-        for (int i = 0; i < len; i++) {
-            auto l = a[0 * len + i];
-            auto r = a[1 * len + i];
-            a[0 * len + i] = l + r;
-            a[1 * len + i] = l - r;
+    {
+        // fft each element
+        const ModInt<MOD> w4 = info.w[2], w8 = info.w[3];
+        const auto step4 = ModInt8<MOD>(1, 1, 1, w4, 1, 1, 1, w4);
+        const auto step8 =
+            ModInt8<MOD>(1, 1, 1, 1, 1, w8, w8 * w8, w8 * w8 * w8);
+
+        modint8 rotxi = modint8::set1(1);
+        for (int i = 0; i < n; i += 8) {
+            auto x = modint8(a.data() + i) * rotxi;
+            x = (blend<0b11110000>(x, -x) +
+                 x.permutevar({4, 5, 6, 7, 0, 1, 2, 3})) *
+                step8;
+            x = (blend<0b11001100>(x, -x) +
+                 x.permutevar({2, 3, 0, 1, 6, 7, 4, 5})) *
+                step4;
+            x = (blend<0b10101010>(x, -x) +
+                 x.permutevar({1, 0, 3, 2, 5, 4, 7, 6}));
+            std::copy_n(x.to_array().data(), 8, a.data() + i);
+
+            rotxi *= info.rot_shift16i(2 * i);
         }
-        h++;
     }
 }
 
-template <i32 MOD> void ifft(std::vector<ModInt<MOD>>& a) {
+template <i32 MOD>
+__attribute__((target("avx2"))) void ifft(std::vector<ModInt<MOD>>& a) {
+    const int n = int(a.size());
+    const int lg = std::countr_zero((u32)n);
+    assert(n == (1 << lg));
+
+    using modint8 = ModInt8<MOD>;
     static const FFTInfo<MOD>& info = fft_info<MOD>;
 
-    int n = int(a.size());
     if (n == 1) {
         return;
     }
@@ -322,13 +246,76 @@ template <i32 MOD> void ifft(std::vector<ModInt<MOD>>& a) {
         a[3] = x1 - x3;
         return;
     }
-    std::vector<ModInt8<MOD>> b(a.size() / 8);
-    for (int i = 0; i < (int)a.size(); i += 8) {
-        b[i / 8] = ModInt8<MOD>(a.data() + i);
+
+    {
+        // ifft each element
+        const ModInt<MOD> iw4 = info.iw[2], iw8 = info.iw[3];
+        const auto step4 = ModInt8<MOD>(1, 1, 1, iw4, 1, 1, 1, iw4);
+        const auto step8 =
+            ModInt8<MOD>(1, 1, 1, 1, 1, iw8, iw8 * iw8, iw8 * iw8 * iw8);
+        modint8 irotxi = modint8::set1(1);
+        for (int i = 0; i < n; i += 8) {
+            auto x = modint8(a.data() + i);
+            x = (blend<0b10101010>(x, -x) +
+                 x.permutevar({1, 0, 3, 2, 5, 4, 7, 6})) *
+                step4;
+            x = (blend<0b11001100>(x, -x) +
+                 x.permutevar({2, 3, 0, 1, 6, 7, 4, 5})) *
+                step8;
+            x = (blend<0b11110000>(x, -x) +
+                 x.permutevar({4, 5, 6, 7, 0, 1, 2, 3}));
+
+            std::copy_n((x * irotxi).to_array().data(), 8, a.data() + i);
+            irotxi *= info.irot_shift16i(2 * i);
+        }
     }
-    ifft(b);
-    for (int i = 0; i < (int)a.size(); i += 8) {
-        std::copy_n(b[i / 8].val().data(), 8, a.data() + i);
+
+    int h = 3;
+    while (h + 2 <= lg) {
+        h += 2;
+
+        // 4-base
+        const modint8 w2 = modint8::set1(info.iw[2]);
+
+        modint8 rotx = modint8::set1(1);
+        for (int start = 0; start < n; start += (1 << h)) {
+            const auto rot2x = rotx * rotx;
+            const auto rot3x = rot2x * rotx;
+            int len = 1 << (h - 2);
+            for (int i = 0; i < len; i += 8) {
+                auto a0 = modint8(a.data() + start + 0 * len + i);
+                auto a1 = modint8(a.data() + start + 1 * len + i);
+                auto a2 = modint8(a.data() + start + 2 * len + i);
+                auto a3 = modint8(a.data() + start + 3 * len + i);
+
+                auto x0 = a0 + a1;
+                auto x1 = a0 - a1;
+                auto x2 = a2 + a3;
+                auto x3 = (a2 - a3) * w2;
+
+                std::copy_n((x0 + x2).to_array().data(), 8,
+                            a.data() + start + 0 * len + i);
+                std::copy_n(((x1 + x3) * rotx).to_array().data(), 8,
+                            a.data() + start + 1 * len + i);
+                std::copy_n(((x0 - x2) * rot2x).to_array().data(), 8,
+                            a.data() + start + 2 * len + i);
+                std::copy_n(((x1 - x3) * rot3x).to_array().data(), 8,
+                            a.data() + start + 3 * len + i);
+            }
+            rotx *= modint8::set1(info.irot_shift8(8 * (start >> h)));
+        }
+    }
+
+    if (h + 1 == lg) {
+        // 2-base
+        int len = n / 2;
+        for (int i = 0; i < len; i += 8) {
+            auto l = modint8(a.data() + 0 * len + i);
+            auto r = modint8(a.data() + 1 * len + i);
+            std::copy_n((l + r).to_array().data(), 8, a.data() + 0 * len + i);
+            std::copy_n((l - r).to_array().data(), 8, a.data() + 1 * len + i);
+        }
+        h++;
     }
 }
 

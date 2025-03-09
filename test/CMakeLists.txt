@@ -30,7 +30,8 @@ add_executable(unittest
   unittest/algebra_test.cpp
   unittest/binaryheap_test.cpp
   unittest/bit_test.cpp
-  unittest/comb_test.cpp  
+  unittest/comb_test.cpp 
+  unittest/convolution_test.cpp 
   unittest/coord_test.cpp
   unittest/dump_test.cpp
   unittest/fastio_test.cpp  

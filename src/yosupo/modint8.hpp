@@ -10,12 +10,13 @@
 namespace yosupo {
 
 template <i32 MOD> struct ModInt8 {
+  private:
     using modint = ModInt<MOD>;
     static_assert(sizeof(modint) == 4);
 
     using m256i_u = __m256i_u;
-    static constexpr i32 mod() { return MOD; }
 
+  public:
     __attribute__((target("avx2"))) ModInt8() : x(_mm256_setzero_si256()) {}
 
     __attribute__((target("avx2"))) ModInt8(modint* _x)
@@ -46,6 +47,12 @@ template <i32 MOD> struct ModInt8 {
         alignas(32) std::array<u32, 8> b;
         _mm256_storeu_si256((__m256i_u*)b.data(),
                             min(a, _mm256_sub_epi32(a, MOD_X())));
+        return b;
+    }
+
+    __attribute__((target("avx2"))) std::array<modint, 8> to_array() const {
+        alignas(32) std::array<modint, 8> b;
+        _mm256_storeu_si256((__m256i_u*)b.data(), x);
         return b;
     }
 

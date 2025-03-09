@@ -23,6 +23,11 @@ TEST(ModInt8Test, Val) {
               modint8::set1(3).val());
 }
 
+TEST(ModInt8Test, ToArray) {
+    ASSERT_EQ((std::array<modint, 8>({0, 1, 2, 3, 4, 5, 6, 7})),
+              modint8(0, 1, 2, 3, 4, 5, 6, 7).to_array());
+}
+
 TEST(ModInt8Test, Add) {
     modint8 a(1, 2, 3, 4, 5, 6, 7, 8 + 1000);
     modint8 b(1, 2, 3, 4, 5, 6, 7, 8 + MOD - 1000);
