@@ -29,3 +29,10 @@ TEST(UtilTest, Dedup) {
     yosupo::dedup(v5, [](int a, int b) { return (a % 3) == (b % 3); });
     ASSERT_EQ(std::vector<int>({1, 2, 7}), v5);
 }
+
+TEST(UtilTest, Subspan) {
+    std::vector<int> v = {1, 2, 3, 4, 5, 6, 7, 8};
+
+    auto s = yosupo::subspan<3>(std::span{v}, 2);
+    ASSERT_EQ(std::vector<int>({3, 4, 5}), std::vector(s.begin(), s.end()));
+}

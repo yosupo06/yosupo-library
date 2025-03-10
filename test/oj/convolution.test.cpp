@@ -21,7 +21,16 @@ int main() {
         sc.read(x);
         b[i] = x;
     }
-    auto c = yosupo::convolution(std::move(a), std::move(b));
+    auto c = yosupo::convolution(a, b);
+    c = yosupo::convolution(a, b);
+    c = yosupo::convolution(a, b);
+    c = yosupo::convolution(a, b);
+    c = yosupo::convolution(a, b);
+    c = yosupo::convolution(a, b);
+    c = yosupo::convolution(a, b);
+    c = yosupo::convolution(a, b);
+    c = yosupo::convolution(a, b);
+    c = yosupo::convolution(a, b);
     for (int i = 0; i < n + m - 1; i++) {
         pr.write(c[i].val());
         if (i + 1 < n + m - 1) pr.write(' ');
