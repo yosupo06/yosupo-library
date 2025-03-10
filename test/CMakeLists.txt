@@ -6,7 +6,8 @@ project(YosupoLibrary)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wno-sign-conversion -Werror)
+# TODO: remove mavx2
+add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wno-sign-conversion -Werror -mavx2)
 
 # sanitizer
 add_compile_options("$<$<CONFIG:DEBUG>:-fsanitize=undefined,address;-fno-sanitize-recover=all>")
@@ -30,7 +31,8 @@ add_executable(unittest
   unittest/algebra_test.cpp
   unittest/binaryheap_test.cpp
   unittest/bit_test.cpp
-  unittest/comb_test.cpp  
+  unittest/comb_test.cpp 
+  unittest/convolution_test.cpp 
   unittest/coord_test.cpp
   unittest/dump_test.cpp
   unittest/fastio_test.cpp  
@@ -45,6 +47,7 @@ add_executable(unittest
   unittest/math_test.cpp
   unittest/maxflow_test.cpp
   unittest/modint_test.cpp
+  unittest/modint8_test.cpp
   unittest/modint61_test.cpp
   unittest/random_test.cpp
   unittest/mst_test.cpp

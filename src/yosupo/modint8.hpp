@@ -2,49 +2,45 @@
 
 #include <immintrin.h>
 #include <span>
+#include <string>
 
+#include "yosupo/dump.hpp"
 #include "yosupo/math.hpp"
 #include "yosupo/modint.hpp"
 #include "yosupo/types.hpp"
 
 namespace yosupo {
 
-template <u32 MOD> struct ModInt8 {
+template <i32 MOD> struct ModInt8 {
+  private:
     using modint = ModInt<MOD>;
     static_assert(sizeof(modint) == 4);
+
     using m256i_u = __m256i_u;
 
-    static constexpr u32 mod() { return MOD; }
-
+  public:
     __attribute__((target("avx2"))) ModInt8() : x(_mm256_setzero_si256()) {}
 
-    __attribute__((target("avx2"))) ModInt8(ModInt<MOD>* _x)
+    __attribute__((target("avx2"))) ModInt8(modint* _x)
         : x(_mm256_loadu_si256((m256i_u*)_x)) {}
     __attribute__((target("avx2"))) ModInt8(std::span<const modint, 8> _x)
         : x(_mm256_loadu_si256((m256i_u*)_x.data())) {
         static_assert(sizeof(modint) == 4);
     }
 
-    __attribute__((target("avx2"))) explicit ModInt8(modint x0,
-                                                     modint x1,
-                                                     modint x2,
-                                                     modint x3,
-                                                     modint x4,
-                                                     modint x5,
-                                                     modint x6,
-                                                     modint x7)
-        : x(_mm256_set_epi32(x7.internal_val(),
-                             x6.internal_val(),
-                             x5.internal_val(),
-                             x4.internal_val(),
-                             x3.internal_val(),
-                             x2.internal_val(),
-                             x1.internal_val(),
-                             x0.internal_val())) {}
+    __attribute__((target("avx2"))) ModInt8(modint x0,
+                                            modint x1,
+                                            modint x2,
+                                            modint x3,
+                                            modint x4,
+                                            modint x5,
+                                            modint x6,
+                                            modint x7)
+        : ModInt8(std::array<modint, 8>{x0, x1, x2, x3, x4, x5, x6, x7}) {}
 
     __attribute__((target("avx2"))) static ModInt8 set1(modint x) {
         ModInt8 v;
-        v.x = _mm256_set1_epi32(x.internal_val());
+        v.x = _mm256_set1_epi32(*((int*)&x));
         return v;
     }
 
@@ -53,6 +49,12 @@ template <u32 MOD> struct ModInt8 {
         alignas(32) std::array<u32, 8> b;
         _mm256_storeu_si256((__m256i_u*)b.data(),
                             min(a, _mm256_sub_epi32(a, MOD_X())));
+        return b;
+    }
+
+    __attribute__((target("avx2"))) std::array<modint, 8> to_array() const {
+        alignas(32) std::array<modint, 8> b;
+        _mm256_storeu_si256((__m256i_u*)b.data(), x);
         return b;
     }
 
@@ -88,13 +90,15 @@ template <u32 MOD> struct ModInt8 {
         return ModInt8(lhs) *= rhs;
     }
 
-    ModInt8 operator-() const { return ModInt8() - *this; }
+    __attribute__((target("avx2"))) ModInt8 operator-() const {
+        return ModInt8() - *this;
+    }
 
     __attribute__((target("avx2"))) friend bool operator==(const ModInt8& lhs,
                                                            const ModInt8& rhs) {
         auto lx = lhs.x, rx = rhs.x;
-        lx = min(lx, _mm256_sub_epi32(lx, MOD_X));
-        rx = min(rx, _mm256_sub_epi32(rx, MOD_X));
+        lx = min(lx, _mm256_sub_epi32(lx, MOD_X()));
+        rx = min(rx, _mm256_sub_epi32(rx, MOD_X()));
         auto z = _mm256_xor_si256(lx, rx);
         return _mm256_testz_si256(z, z);
     }
@@ -131,6 +135,10 @@ template <u32 MOD> struct ModInt8 {
         return v;
     }
 
+    __attribute__((target("avx2"))) std::string dump() const {
+        return yosupo::dump(val());
+    }
+
   private:
     m256i_u x;
 
@@ -148,7 +156,6 @@ template <u32 MOD> struct ModInt8 {
     }
 
     static constexpr u32 B2 = pow_mod_u64(2, 64, MOD);
-    inline static const m256i_u B2_X = _mm256_set1_epi32(B2);
 
     // Input: l * r <= 2^32 * MOD
     // Output: l * r >>= 2^32

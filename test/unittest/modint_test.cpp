@@ -1,4 +1,5 @@
 #include "yosupo/modint.hpp"
+#include "yosupo/types.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -6,8 +7,9 @@
 
 #include "gtest/gtest.h"
 
+using namespace yosupo;
 const int MOD = 998244353;
-using mint = yosupo::ModInt<MOD>;
+using mint = ModInt<MOD>;
 
 TEST(ModIntTest, Constructor) {
     ASSERT_EQ(3, mint(int32_t(3)).val());
@@ -21,6 +23,13 @@ TEST(ModIntTest, Val) {
         mint x(i);
         ASSERT_EQ(i, x.val());
     }
+}
+
+TEST(ModIntTest, Assign) {
+    mint x = 123;
+    mint y;
+    y = x;
+    ASSERT_EQ(123, y.val());
 }
 
 TEST(ModIntTest, Add) {
@@ -52,4 +61,9 @@ TEST(ModIntTest, Inv) {
     for (int i = 1; i <= 100; i++) {
         ASSERT_EQ(mint(1), mint(i) * mint(i).inv());
     }
+}
+
+TEST(ModIntTest, Dump) {
+    ASSERT_EQ("123", mint(123).dump());
+    ASSERT_EQ("998244352", mint(MOD - 1).dump());
 }
