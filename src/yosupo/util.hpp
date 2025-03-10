@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <ranges>
+#include <span>
 #include <vector>
 
 namespace yosupo {
@@ -15,6 +16,10 @@ template <class T, class Comp = std::equal_to<>>
 void dedup(std::vector<T>& v, Comp comp = Comp{}) {
     auto it = std::ranges::unique(v, comp);
     v.erase(it.begin(), it.end());
+}
+
+template <size_t N, class T> std::span<T, N> subspan(std::span<T> a, int idx) {
+    return a.subspan(idx).template first<N>();
 }
 
 }  // namespace yosupo

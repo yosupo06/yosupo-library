@@ -3,10 +3,12 @@
 #include <immintrin.h>
 #include <algorithm>
 #include <cassert>
+#include <span>
 
 #include "yosupo/math.hpp"
 #include "yosupo/modint.hpp"
 #include "yosupo/modint8.hpp"
+#include "yosupo/util.hpp"
 
 namespace yosupo {
 
@@ -116,7 +118,7 @@ template <i32 MOD> struct FFTInfo {
 template <i32 MOD> const FFTInfo<MOD> fft_info = FFTInfo<MOD>();
 
 template <i32 MOD>
-__attribute__((target("avx2"))) void fft(std::vector<ModInt<MOD>>& a) {
+__attribute__((target("avx2"))) void butterfly(std::vector<ModInt<MOD>>& a) {
     const int n = int(a.size());
     const int lg = std::countr_zero((u32)n);
     assert(n == (1 << lg));
@@ -149,43 +151,56 @@ __attribute__((target("avx2"))) void fft(std::vector<ModInt<MOD>>& a) {
         // 2-base
         int len = n / 2;
         for (int i = 0; i < len; i += 8) {
-            auto l = modint8(a.data() + 0 * len + i);
-            auto r = modint8(a.data() + 1 * len + i);
+            auto l = modint8(subspan<8>(std::span{a}, 0 * len + i));
+            auto r = modint8(subspan<8>(std::span{a}, 1 * len + i));
 
-            std::copy_n((l + r).to_array().data(), 8, a.data() + 0 * len + i);
-            std::copy_n((l - r).to_array().data(), 8, a.data() + 1 * len + i);
+            std::copy_n((l + r).to_array().data(), 8,
+                        subspan<8>(std::span{a}, 0 * len + i).data());
+            std::copy_n((l - r).to_array().data(), 8,
+                        subspan<8>(std::span{a}, 1 * len + i).data());
         }
         h--;
     }
 
     while (h >= 5) {
         // 4-base
-        const modint8 w2x = modint8::set1(info.w[2]);
+        const modint8 w2x = modint8(info.w[2]);
 
-        modint8 rotx = modint8::set1(1);
+        modint8 rotx = modint8(1);
         for (int start = 0; start < n; start += (1 << h)) {
             const modint8 rot2x = rotx * rotx;
             const modint8 rot3x = rot2x * rotx;
 
             int len = 1 << (h - 2);
             for (int i = 0; i < len; i += 8) {
-                auto a0 = modint8(a.data() + start + 0 * len + i);
-                auto a1 = modint8(a.data() + start + 1 * len + i) * rotx;
-                auto a2 = modint8(a.data() + start + 2 * len + i) * rot2x;
-                auto a3 = modint8(a.data() + start + 3 * len + i) * rot3x;
+                auto a0 =
+                    modint8(subspan<8>(std::span{a}, start + 0 * len + i));
+                auto a1 =
+                    modint8(subspan<8>(std::span{a}, start + 1 * len + i)) *
+                    rotx;
+                auto a2 =
+                    modint8(subspan<8>(std::span{a}, start + 2 * len + i)) *
+                    rot2x;
+                auto a3 =
+                    modint8(subspan<8>(std::span{a}, start + 3 * len + i)) *
+                    rot3x;
 
                 auto x = (a1 - a3) * w2x;
 
-                std::copy_n((a0 + a2 + a1 + a3).to_array().data(), 8,
-                            a.data() + start + 0 * len + i);
-                std::copy_n((a0 + a2 - a1 - a3).to_array().data(), 8,
-                            a.data() + start + 1 * len + i);
-                std::copy_n((a0 - a2 + x).to_array().data(), 8,
-                            a.data() + start + 2 * len + i);
-                std::copy_n((a0 - a2 - x).to_array().data(), 8,
-                            a.data() + start + 3 * len + i);
+                std::copy_n(
+                    (a0 + a2 + a1 + a3).to_array().data(), 8,
+                    subspan<8>(std::span{a}, start + 0 * len + i).data());
+                std::copy_n(
+                    (a0 + a2 - a1 - a3).to_array().data(), 8,
+                    subspan<8>(std::span{a}, start + 1 * len + i).data());
+                std::copy_n(
+                    (a0 - a2 + x).to_array().data(), 8,
+                    subspan<8>(std::span{a}, start + 2 * len + i).data());
+                std::copy_n(
+                    (a0 - a2 - x).to_array().data(), 8,
+                    subspan<8>(std::span{a}, start + 3 * len + i).data());
             }
-            rotx *= modint8::set1(info.rot_shift8(8 * (start >> h)));
+            rotx *= modint8(info.rot_shift8(8 * (start >> h)));
         }
         h -= 2;
     }
@@ -197,9 +212,9 @@ __attribute__((target("avx2"))) void fft(std::vector<ModInt<MOD>>& a) {
         const auto step8 =
             ModInt8<MOD>(1, 1, 1, 1, 1, w8, w8 * w8, w8 * w8 * w8);
 
-        modint8 rotxi = modint8::set1(1);
+        modint8 rotxi = modint8(1);
         for (int i = 0; i < n; i += 8) {
-            auto x = modint8(a.data() + i) * rotxi;
+            auto x = modint8(subspan<8>(std::span{a}, i)) * rotxi;
             x = (blend<0b11110000>(x, -x) +
                  x.permutevar({4, 5, 6, 7, 0, 1, 2, 3})) *
                 step8;
@@ -208,7 +223,8 @@ __attribute__((target("avx2"))) void fft(std::vector<ModInt<MOD>>& a) {
                 step4;
             x = (blend<0b10101010>(x, -x) +
                  x.permutevar({1, 0, 3, 2, 5, 4, 7, 6}));
-            std::copy_n(x.to_array().data(), 8, a.data() + i);
+            std::copy_n(x.to_array().data(), 8,
+                        subspan<8>(std::span{a}, i).data());
 
             if (i + 8 < n) rotxi *= info.rot_shift16i(2 * i);
         }
@@ -216,7 +232,8 @@ __attribute__((target("avx2"))) void fft(std::vector<ModInt<MOD>>& a) {
 }
 
 template <i32 MOD>
-__attribute__((target("avx2"))) void ifft(std::vector<ModInt<MOD>>& a) {
+__attribute__((target("avx2"))) void butterfly_inv(
+    std::vector<ModInt<MOD>>& a) {
     const int n = int(a.size());
     const int lg = std::countr_zero((u32)n);
     assert(n == (1 << lg));
@@ -253,9 +270,9 @@ __attribute__((target("avx2"))) void ifft(std::vector<ModInt<MOD>>& a) {
         const auto step4 = ModInt8<MOD>(1, 1, 1, iw4, 1, 1, 1, iw4);
         const auto step8 =
             ModInt8<MOD>(1, 1, 1, 1, 1, iw8, iw8 * iw8, iw8 * iw8 * iw8);
-        modint8 irotxi = modint8::set1(1);
+        modint8 irotxi = modint8(1);
         for (int i = 0; i < n; i += 8) {
-            auto x = modint8(a.data() + i);
+            auto x = modint8(subspan<8>(std::span{a}, i));
             x = (blend<0b10101010>(x, -x) +
                  x.permutevar({1, 0, 3, 2, 5, 4, 7, 6})) *
                 step4;
@@ -265,7 +282,8 @@ __attribute__((target("avx2"))) void ifft(std::vector<ModInt<MOD>>& a) {
             x = (blend<0b11110000>(x, -x) +
                  x.permutevar({4, 5, 6, 7, 0, 1, 2, 3}));
 
-            std::copy_n((x * irotxi).to_array().data(), 8, a.data() + i);
+            std::copy_n((x * irotxi).to_array().begin(), 8,
+                        subspan<8>(std::span{a}, i).begin());
 
             if (i + 8 < n) irotxi *= info.irot_shift16i(2 * i);
         }
@@ -276,34 +294,42 @@ __attribute__((target("avx2"))) void ifft(std::vector<ModInt<MOD>>& a) {
         h += 2;
 
         // 4-base
-        const modint8 w2 = modint8::set1(info.iw[2]);
+        const modint8 w2 = modint8(info.iw[2]);
 
-        modint8 rotx = modint8::set1(1);
+        modint8 rotx = modint8(1);
         for (int start = 0; start < n; start += (1 << h)) {
             const auto rot2x = rotx * rotx;
             const auto rot3x = rot2x * rotx;
             int len = 1 << (h - 2);
             for (int i = 0; i < len; i += 8) {
-                auto a0 = modint8(a.data() + start + 0 * len + i);
-                auto a1 = modint8(a.data() + start + 1 * len + i);
-                auto a2 = modint8(a.data() + start + 2 * len + i);
-                auto a3 = modint8(a.data() + start + 3 * len + i);
+                auto a0 =
+                    modint8(subspan<8>(std::span{a}, start + 0 * len + i));
+                auto a1 =
+                    modint8(subspan<8>(std::span{a}, start + 1 * len + i));
+                auto a2 =
+                    modint8(subspan<8>(std::span{a}, start + 2 * len + i));
+                auto a3 =
+                    modint8(subspan<8>(std::span{a}, start + 3 * len + i));
 
                 auto x0 = a0 + a1;
                 auto x1 = a0 - a1;
                 auto x2 = a2 + a3;
                 auto x3 = (a2 - a3) * w2;
 
-                std::copy_n((x0 + x2).to_array().data(), 8,
-                            a.data() + start + 0 * len + i);
-                std::copy_n(((x1 + x3) * rotx).to_array().data(), 8,
-                            a.data() + start + 1 * len + i);
-                std::copy_n(((x0 - x2) * rot2x).to_array().data(), 8,
-                            a.data() + start + 2 * len + i);
-                std::copy_n(((x1 - x3) * rot3x).to_array().data(), 8,
-                            a.data() + start + 3 * len + i);
+                std::copy_n(
+                    (x0 + x2).to_array().begin(), 8,
+                    subspan<8>(std::span{a}, start + 0 * len + i).begin());
+                std::copy_n(
+                    ((x1 + x3) * rotx).to_array().begin(), 8,
+                    subspan<8>(std::span{a}, start + 1 * len + i).begin());
+                std::copy_n(
+                    ((x0 - x2) * rot2x).to_array().begin(), 8,
+                    subspan<8>(std::span{a}, start + 2 * len + i).begin());
+                std::copy_n(
+                    ((x1 - x3) * rot3x).to_array().data(), 8,
+                    subspan<8>(std::span{a}, start + 3 * len + i).begin());
             }
-            rotx *= modint8::set1(info.irot_shift8(8 * (start >> h)));
+            rotx *= modint8(info.irot_shift8(8 * (start >> h)));
         }
     }
 
@@ -311,10 +337,13 @@ __attribute__((target("avx2"))) void ifft(std::vector<ModInt<MOD>>& a) {
         // 2-base
         int len = n / 2;
         for (int i = 0; i < len; i += 8) {
-            auto l = modint8(a.data() + 0 * len + i);
-            auto r = modint8(a.data() + 1 * len + i);
-            std::copy_n((l + r).to_array().data(), 8, a.data() + 0 * len + i);
-            std::copy_n((l - r).to_array().data(), 8, a.data() + 1 * len + i);
+            auto l = modint8(subspan<8>(std::span{a}, 0 * len + i));
+            auto r = modint8(subspan<8>(std::span{a}, 1 * len + i));
+
+            std::copy_n((l + r).to_array().begin(), 8,
+                        subspan<8>(std::span{a}, 0 * len + i).begin());
+            std::copy_n((l - r).to_array().begin(), 8,
+                        subspan<8>(std::span{a}, 1 * len + i).begin());
         }
         h++;
     }
@@ -327,13 +356,13 @@ std::vector<ModInt<MOD>> convolution(std::vector<ModInt<MOD>> a,
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
 
     a.resize(z);
-    fft(a);
+    butterfly(a);
     b.resize(z);
-    fft(b);
+    butterfly(b);
     for (int i = 0; i < z; i++) {
         a[i] *= b[i];
     }
-    ifft(a);
+    butterfly_inv(a);
     a.resize(n + m - 1);
     auto iz = ModInt<MOD>(z).inv();
     for (int i = 0; i < n + m - 1; i++) a[i] *= iz;
