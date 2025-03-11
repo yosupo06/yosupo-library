@@ -49,6 +49,7 @@ add_executable(unittest
   unittest/modint_test.cpp
   unittest/modint8_test.cpp
   unittest/modint61_test.cpp
+  unittest/modvec_test.cpp
   unittest/random_test.cpp
   unittest/mst_test.cpp
   unittest/networksimplex_test.cpp
