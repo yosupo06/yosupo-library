@@ -1,21 +1,27 @@
 #include "yosupo/dump.hpp"
+#include "yosupo/modint.hpp"
 
 #include <gtest/gtest.h>
 
-TEST(DebugTest, Integral) {
+TEST(DumpTest, String) {
+    EXPECT_EQ(yosupo::dump("hello"), "hello");
+    EXPECT_EQ(yosupo::dump(std::string("world")), "world");
+}
+
+TEST(DumpTest, Integral) {
     EXPECT_EQ(yosupo::dump(10), "10");
     EXPECT_EQ(yosupo::dump(-5), "-5");
     EXPECT_EQ(yosupo::dump(0), "0");
 }
 
-TEST(DebugTest, Uint128) {
+TEST(DumpTest, Uint128) {
     EXPECT_EQ(yosupo::dump(static_cast<__uint128_t>(10)), "10");
     EXPECT_EQ(yosupo::dump(static_cast<__uint128_t>(1) << 100),
               "1267650600228229401496703205376");
     EXPECT_EQ(yosupo::dump(static_cast<__uint128_t>(0)), "0");
 }
 
-TEST(DebugTest, Int128) {
+TEST(DumpTest, Int128) {
     EXPECT_EQ(yosupo::dump(static_cast<__int128_t>(10)), "10");
     EXPECT_EQ(yosupo::dump(static_cast<__int128_t>(-1) << 100),
               "-1267650600228229401496703205376");
@@ -23,7 +29,12 @@ TEST(DebugTest, Int128) {
     EXPECT_EQ(yosupo::dump(static_cast<__int128_t>(-10)), "-10");
 }
 
-TEST(DebugTest, Array) {
+TEST(DumpTest, FloatingPoint) {
+    EXPECT_EQ(yosupo::dump(3.14), "3.140000");
+    EXPECT_EQ(yosupo::dump(0.0), "0.000000");
+}
+
+TEST(DumpTest, Array) {
     std::array<int, 3> a = {1, 2, 3};
     EXPECT_EQ(yosupo::dump(a), "[1, 2, 3]");
 
@@ -31,7 +42,7 @@ TEST(DebugTest, Array) {
     EXPECT_EQ(yosupo::dump(b), "[hello, world]");
 }
 
-TEST(DebugTest, Vector) {
+TEST(DumpTest, Vector) {
     {
         std::vector<int> v = {1, 2, 3, 4, 5};
         EXPECT_EQ(yosupo::dump(v), "[1, 2, 3, 4, 5]");
@@ -46,7 +57,7 @@ TEST(DebugTest, Vector) {
     }
 }
 
-TEST(DebugTest, Pair) {
+TEST(DumpTest, Pair) {
     std::pair<int, int> p = {1, 2};
     EXPECT_EQ(yosupo::dump(p), "(1, 2)");
 
@@ -54,7 +65,7 @@ TEST(DebugTest, Pair) {
     EXPECT_EQ(yosupo::dump(p2), "(hello, 10)");
 }
 
-TEST(DebugTest, Tuple) {
+TEST(DumpTest, Tuple) {
     std::tuple<int, int, int> t = {1, 2, 3};
     EXPECT_EQ(yosupo::dump(t), "(1, 2, 3)");
 
@@ -63,4 +74,12 @@ TEST(DebugTest, Tuple) {
 
     std::tuple<> t3 = {};
     EXPECT_EQ(yosupo::dump(t3), "()");
+}
+
+TEST(DumpTest, ModInt) {
+    yosupo::ModInt<1000000007> a = 10;
+    EXPECT_EQ(yosupo::dump(a), "10");
+
+    yosupo::ModInt<1000000007> b = -5;
+    EXPECT_EQ(yosupo::dump(b), "1000000002");
 }
