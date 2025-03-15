@@ -9,16 +9,15 @@
 
 namespace yosupo {
 
-template <class T> std::string dump(const T&);
+template <class T> std::string dump(T);
 
-template <> inline std::string dump(const std::string& t) { return t; }
+template <> inline std::string dump(std::string t) { return t; }
+template <> inline std::string dump(const char* t) { return t; }
 
-template <std::integral T> std::string dump(const T& t) {
-    return std::to_string(t);
-}
+template <std::integral T> std::string dump(T t) { return std::to_string(t); }
 template <class T>
     requires std::same_as<T, unsigned __int128>
-std::string dump(const T& t) {
+std::string dump(T t) {
     if (t == 0) {
         return "0";
     }
@@ -34,7 +33,7 @@ std::string dump(const T& t) {
 }
 template <class T>
     requires std::same_as<T, __int128>
-std::string dump(const T& t) {
+std::string dump(T t) {
     if (t < 0) {
         return "-" + dump((unsigned __int128)(-t));
     } else {
@@ -42,26 +41,31 @@ std::string dump(const T& t) {
     }
 }
 
+template <std::floating_point T> std::string dump(T t) {
+    return std::to_string(t);
+}
+
 template <class T>
-    requires requires(const T& t) { t.dump(); }
-std::string dump(const T& t);
+    requires requires(T t) { t.dump(); }
+std::string dump(T t);
 template <class T>
-    requires requires(const T& t) { t.val(); }
-std::string dump(const T& t);
+    requires(!requires(T t) { t.dump(); }) && (requires(T t) { t.val(); })
+std::string dump(T t);
+
 template <class T, std::size_t N> std::string dump(const std::array<T, N>&);
 template <class T> std::string dump(const std::vector<T>&);
 template <class T1, class T2> std::string dump(const std::pair<T1, T2>&);
 template <class... Ts> std::string dump(const std::tuple<Ts...>& t);
 
 template <class T>
-    requires requires(const T& t) { t.dump(); }
-std::string dump(const T& t) {
+    requires requires(T t) { t.dump(); }
+std::string dump(T t) {
     return dump(t.dump());
 }
 
 template <class T>
-    requires requires(const T& t) { t.val(); }
-std::string dump(const T& t) {
+    requires(!requires(T t) { t.dump(); }) && (requires(T t) { t.val(); })
+std::string dump(T t) {
     return dump(t.val());
 }
 
