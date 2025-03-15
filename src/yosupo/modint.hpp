@@ -58,6 +58,13 @@ template <i32 MOD> struct ModInt {
         return ModInt(lhs) *= rhs;
     }
 
+    constexpr ModInt& operator/=(const ModInt& rhs) {
+        return *this *= rhs.inv();
+    }
+    constexpr friend ModInt operator/(const ModInt& lhs, const ModInt& rhs) {
+        return ModInt(lhs) /= rhs;
+    }
+
     friend bool operator==(const ModInt& lhs, const ModInt& rhs) {
         return std::min(lhs.x, lhs.x - MOD) == std::min(rhs.x, rhs.x - MOD);
     }
