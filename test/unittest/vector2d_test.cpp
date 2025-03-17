@@ -2,8 +2,9 @@
 
 #include <gtest/gtest.h>
 
+using namespace yosupo;
+
 TEST(Vector2DTest, Multiply) {
-    using namespace yosupo;
     {
         Vector2D<int> a(2, 3), b(3, 2);
         a[{0, 0}] = 1;
@@ -43,4 +44,15 @@ TEST(Vector2DTest, Multiply) {
             }
         }
     }
+}
+
+TEST(Vector2DTest, Dump) {
+    Vector2D<int> a(2, 3);
+    a[{0, 0}] = 1;
+    a[{0, 1}] = 2;
+    a[{0, 2}] = 3;
+    a[{1, 0}] = 4;
+    a[{1, 1}] = 5;
+    a[{1, 2}] = 6;
+    ASSERT_EQ(a.dump(), "1 2 3\n4 5 6");
 }

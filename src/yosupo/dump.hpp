@@ -7,23 +7,22 @@
 #include <tuple>
 #include <vector>
 
+#include "yosupo/types.hpp"
+
 namespace yosupo {
 
-template <class T> std::string dump(T);
-
-template <> inline std::string dump(std::string t) { return t; }
-template <> inline std::string dump(const char* t) { return t; }
+inline std::string dump(const std::string& t) { return t; }
+inline std::string dump(const char* t) { return t; }
 
 template <std::integral T> std::string dump(T t) { return std::to_string(t); }
-template <class T>
-    requires std::same_as<T, unsigned __int128>
-std::string dump(T t) {
+
+inline std::string dump(const u128& t) {
     if (t == 0) {
         return "0";
     }
 
     std::string s;
-    T x = t;
+    u128 x = t;
     while (x) {
         s += char(x % 10 + '0');
         x /= 10;
@@ -31,13 +30,12 @@ std::string dump(T t) {
     std::ranges::reverse(s);
     return s;
 }
-template <class T>
-    requires std::same_as<T, __int128>
-std::string dump(T t) {
+
+inline std::string dump(const i128& t) {
     if (t < 0) {
-        return "-" + dump((unsigned __int128)(-t));
+        return "-" + dump((u128)(-t));
     } else {
-        return dump((unsigned __int128)(t));
+        return dump((u128)(t));
     }
 }
 
