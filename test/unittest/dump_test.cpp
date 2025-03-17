@@ -1,5 +1,6 @@
 #include "yosupo/dump.hpp"
 #include "yosupo/modint.hpp"
+#include "yosupo/types.hpp"
 
 #include <gtest/gtest.h>
 

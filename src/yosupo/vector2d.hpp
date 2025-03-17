@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "yosupo/coord.hpp"
+#include "yosupo/dump.hpp"
 
 namespace yosupo {
 
@@ -82,6 +83,18 @@ template <class T> struct Vector2D {
             n >>= 1;
         }
         return r;
+    }
+
+    std::string dump() const {
+        std::string res;
+        for (int i = 0; i < h; i++) {
+            if (i) res += "\n";
+            for (int j = 0; j < w; j++) {
+                if (j) res += " ";
+                res += yosupo::dump((*this)[{i, j}]);
+            }
+        }
+        return res;
     }
 };
 
