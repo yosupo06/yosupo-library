@@ -11,10 +11,24 @@ template <class T> struct Vector2D {
     int h, w;
     T* d;
 
-    Vector2D() : h(0), w(0), d(nullptr) {}
+    Vector2D() : h(0), w(0), d(new T[0]()) {}
     Vector2D(int _h, int _w) : h(_h), w(_w), d(new T[h * w]()) {}
     Vector2D(int _h, int _w, const T& val) : h(_h), w(_w), d(new T[h * w]) {
         std::fill_n(d, h * w, val);
+    }
+
+    Vector2D(const Vector2D& other) : h(other.h), w(other.w), d(new T[h * w]) {
+        std::copy_n(other.d, h * w, d);
+    }
+    Vector2D& operator=(const Vector2D& other) {
+        if (this != &other) {
+            delete[] d;
+            h = other.h;
+            w = other.w;
+            d = new T[h * w];
+            std::copy_n(other.d, h * w, d);
+        }
+        return *this;
     }
     ~Vector2D() { delete[] d; }
 
