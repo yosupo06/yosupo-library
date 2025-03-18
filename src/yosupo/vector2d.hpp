@@ -17,6 +17,20 @@ template <class T> struct Vector2D {
         std::fill_n(d, h * w, val);
     }
 
+    Vector2D(std::initializer_list<std::initializer_list<T>> list)
+        : h(static_cast<int>(list.size())), w(0), d(nullptr) {
+        if (h > 0) {
+            w = static_cast<int>(list.begin()->size());
+            d = new T[h * w];
+            int i = 0;
+            for (const auto& inner_list : list) {
+                assert(static_cast<int>(inner_list.size()) == w);
+                std::copy_n(inner_list.begin(), w, d + i * w);
+                i++;
+            }
+        }
+    }
+
     Vector2D(const Vector2D& other) : h(other.h), w(other.w), d(new T[h * w]) {
         std::copy_n(other.d, h * w, d);
     }
