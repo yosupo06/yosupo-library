@@ -123,3 +123,26 @@ TEST(CoordTest, Move8Iter) {
         std::vector({Coord(5, 6), Coord(6, 6), Coord(6, 5), Coord(6, 4),
                      Coord(5, 4), Coord(4, 4), Coord(4, 5), Coord(4, 6)}));
 }
+
+TEST(CoordTest, Contain) {
+    Coord size(5, 7);
+
+    EXPECT_TRUE(size.contain(Coord(0, 0)));
+    EXPECT_TRUE(size.contain(Coord(4, 6)));
+    EXPECT_TRUE(size.contain(Coord(2, 3)));
+
+    EXPECT_FALSE(size.contain(Coord(-1, 0)));
+    EXPECT_FALSE(size.contain(Coord(0, -1)));
+    EXPECT_FALSE(size.contain(Coord(5, 0)));
+    EXPECT_FALSE(size.contain(Coord(0, 7)));
+    EXPECT_FALSE(size.contain(Coord(5, 7)));
+}
+
+TEST(CoordTest, Cells) {
+    Coord size(2, 3);
+
+    std::vector<Coord> expected = {Coord(0, 0), Coord(0, 1), Coord(0, 2),
+                                   Coord(1, 0), Coord(1, 1), Coord(1, 2)};
+
+    EXPECT_EQ(to_vec(size.cells()), expected);
+}
