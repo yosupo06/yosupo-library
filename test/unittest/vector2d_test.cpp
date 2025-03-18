@@ -104,3 +104,18 @@ TEST(Vector2DTest, InitializerList) {
     ASSERT_EQ((c[{1, 0}]), 3);
     ASSERT_EQ((c[{1, 1}]), 4);
 }
+
+TEST(Vector2DTest, UnevenInitializerList) {
+    {
+        auto f = []() { Vector2D<int> a = {{1, 2, 3}, {4, 5}}; };
+        EXPECT_DEATH(f(), ".*");
+    }
+    {
+        auto f = []() { Vector2D<int> b = {{1}, {2, 3, 4}}; };
+        EXPECT_DEATH(f(), ".*");
+    }
+    {
+        auto f = []() { Vector2D<int> c = {{1, 2}, {3, 4, 5}, {6}}; };
+        EXPECT_DEATH(f(), ".*");
+    }
+}
