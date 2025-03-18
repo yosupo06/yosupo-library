@@ -84,3 +84,53 @@ TEST(CoordTest, Dump) {
     Coord c(1, 2);
     ASSERT_EQ(c.dump(), "(1, 2)");
 }
+
+TEST(CoordTest, Move) {
+    Coord c(2, 3);
+
+    // dir=0: 右に移動
+    Coord right = c.move(0);
+    EXPECT_EQ(right.r(), 2);
+    EXPECT_EQ(right.c(), 4);
+
+    // dir=1: 下に移動
+    Coord down = c.move(1);
+    EXPECT_EQ(down.r(), 3);
+    EXPECT_EQ(down.c(), 3);
+
+    // dir=2: 左に移動
+    Coord left = c.move(2);
+    EXPECT_EQ(left.r(), 2);
+    EXPECT_EQ(left.c(), 2);
+
+    // dir=3: 上に移動
+    Coord up = c.move(3);
+    EXPECT_EQ(up.r(), 1);
+    EXPECT_EQ(up.c(), 3);
+}
+
+TEST(CoordTest, Move4) {
+    Coord c(5, 5);
+
+    // move4()を使用して4方向の移動をイテレート
+    std::vector<Coord> neighbors;
+    for (auto np : c.move4()) {
+        neighbors.push_back(np);
+    }
+
+    // 4つの隣接点があることを確認
+    EXPECT_EQ(neighbors.size(), 4);
+
+    // 各方向の移動が正しいことを確認
+    EXPECT_EQ(neighbors[0].r(), 5);
+    EXPECT_EQ(neighbors[0].c(), 6);  // 右
+
+    EXPECT_EQ(neighbors[1].r(), 6);
+    EXPECT_EQ(neighbors[1].c(), 5);  // 下
+
+    EXPECT_EQ(neighbors[2].r(), 5);
+    EXPECT_EQ(neighbors[2].c(), 4);  // 左
+
+    EXPECT_EQ(neighbors[3].r(), 4);
+    EXPECT_EQ(neighbors[3].c(), 5);  // 上
+}
