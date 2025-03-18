@@ -16,6 +16,28 @@ template <class T> struct Vector2D {
     Vector2D(int _h, int _w) : h(_h), w(_w), d(new T[h * w]) {
         for (int i = 0; i < h * w; i++) d[i] = T(0);
     }
+
+    // Copy constructor
+    Vector2D(const Vector2D& other) : h(other.h), w(other.w), d(new T[h * w]) {
+        for (int i = 0; i < h * w; i++) {
+            d[i] = other.d[i];
+        }
+    }
+
+    // Copy assignment operator
+    Vector2D& operator=(const Vector2D& other) {
+        if (this != &other) {
+            delete[] d;
+            h = other.h;
+            w = other.w;
+            d = new T[h * w];
+            for (int i = 0; i < h * w; i++) {
+                d[i] = other.d[i];
+            }
+        }
+        return *this;
+    }
+
     ~Vector2D() { delete[] d; }
 
     T& operator[](const Coord& idx) { return d[idx.r * w + idx.c]; }

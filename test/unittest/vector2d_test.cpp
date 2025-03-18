@@ -4,6 +4,23 @@
 
 using namespace yosupo;
 
+TEST(Vector2DTest, Empty) {
+    Vector2D<int> a;
+    ASSERT_EQ(a.h, 0);
+    ASSERT_EQ(a.w, 0);
+}
+
+TEST(Vector2DTest, Assign) {
+    Vector2D<int> a(1, 2);
+    a[{0, 0}] = 1;
+    a[{0, 1}] = 2;
+    auto b = a;
+    ASSERT_EQ(b.h, 1);
+    ASSERT_EQ(b.w, 2);
+    ASSERT_EQ((b[{0, 0}]), 1);
+    ASSERT_EQ((b[{0, 1}]), 2);
+}
+
 TEST(Vector2DTest, Multiply) {
     Vector2D<int> a(2, 3), b(3, 2);
     a[{0, 0}] = 1;
