@@ -87,6 +87,19 @@ struct Coord {
                });
     }
 
+    bool contain(const Coord& t) const {
+        return 0 <= t.r() && t.r() < r() && 0 <= t.c() && t.c() < c();
+    }
+
+    auto cells() const {
+        return std::views::iota(0, r()) | std::views::transform([this](int i) {
+                   return std::views::iota(0, c()) |
+                          std::views::transform(
+                              [i](int j) { return Coord(i, j); });
+               }) |
+               std::views::join;
+    }
+
   private:
     std::array<int, 2> d;
 };
