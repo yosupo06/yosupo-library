@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include <vector>
 
 #include "yosupo/coord.hpp"
 #include "yosupo/dump.hpp"
@@ -13,8 +12,9 @@ template <class T> struct Vector2D {
     T* d;
 
     Vector2D() : h(0), w(0), d(nullptr) {}
-    Vector2D(int _h, int _w) : h(_h), w(_w), d(new T[h * w]) {
-        for (int i = 0; i < h * w; i++) d[i] = T(0);
+    Vector2D(int _h, int _w) : h(_h), w(_w), d(new T[h * w]()) {}
+    Vector2D(int _h, int _w, const T& val) : h(_h), w(_w), d(new T[h * w]) {
+        std::fill_n(d, h * w, val);
     }
     ~Vector2D() { delete[] d; }
 

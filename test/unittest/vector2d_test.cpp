@@ -4,6 +4,16 @@
 
 using namespace yosupo;
 
+TEST(Vector2DTest, Init) {
+    Vector2D<int> a(2, 3, 7);
+    ASSERT_EQ((a[{0, 0}]), 7);
+    ASSERT_EQ((a[{0, 1}]), 7);
+    ASSERT_EQ((a[{0, 2}]), 7);
+    ASSERT_EQ((a[{1, 0}]), 7);
+    ASSERT_EQ((a[{1, 1}]), 7);
+    ASSERT_EQ((a[{1, 2}]), 7);
+}
+
 TEST(Vector2DTest, Multiply) {
     Vector2D<int> a(2, 3), b(3, 2);
     a[{0, 0}] = 1;
