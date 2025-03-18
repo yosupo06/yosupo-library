@@ -10,10 +10,13 @@ namespace yosupo {
 
 template <class T> struct Vector2D {
     int h, w;
-    std::vector<T> d;
+    T* d;
 
-    Vector2D() : h(0), w(0), d() {}
-    Vector2D(int _h, int _w) : h(_h), w(_w), d(h * w) {}
+    Vector2D() : h(0), w(0), d(nullptr) {}
+    Vector2D(int _h, int _w) : h(_h), w(_w), d(new T[h * w]) {
+        for (int i = 0; i < h * w; i++) d[i] = T(0);
+    }
+    ~Vector2D() { delete[] d; }
 
     T& operator[](const Coord& idx) { return d[idx.r * w + idx.c]; }
     const T& operator[](const Coord& idx) const { return d[idx.r * w + idx.c]; }
@@ -34,6 +37,7 @@ template <class T> struct Vector2D {
         }
         return *this;
     }
+
     Vector2D& operator-=(const Vector2D& rhs) {
         assert(h == rhs.h);
         assert(w == rhs.w);
