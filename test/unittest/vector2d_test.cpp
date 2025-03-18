@@ -80,3 +80,27 @@ TEST(Vector2DTest, Dump) {
     a[{1, 2}] = 6;
     ASSERT_EQ(a.dump(), "1 2 3\n4 5 6");
 }
+
+TEST(Vector2DTest, InitializerList) {
+    Vector2D<int> a = {{1, 2, 3}, {4, 5, 6}};
+    ASSERT_EQ(a.h, 2);
+    ASSERT_EQ(a.w, 3);
+    ASSERT_EQ((a[{0, 0}]), 1);
+    ASSERT_EQ((a[{0, 1}]), 2);
+    ASSERT_EQ((a[{0, 2}]), 3);
+    ASSERT_EQ((a[{1, 0}]), 4);
+    ASSERT_EQ((a[{1, 1}]), 5);
+    ASSERT_EQ((a[{1, 2}]), 6);
+
+    Vector2D<int> b = {};
+    ASSERT_EQ(b.h, 0);
+    ASSERT_EQ(b.w, 0);
+
+    Vector2D<int> c = {{1, 2}, {3, 4}};
+    ASSERT_EQ(c.h, 2);
+    ASSERT_EQ(c.w, 2);
+    ASSERT_EQ((c[{0, 0}]), 1);
+    ASSERT_EQ((c[{0, 1}]), 2);
+    ASSERT_EQ((c[{1, 0}]), 3);
+    ASSERT_EQ((c[{1, 1}]), 4);
+}
