@@ -46,8 +46,10 @@ template <class T> struct Vector2D {
     }
     ~Vector2D() { delete[] d; }
 
-    T& operator[](const Coord& idx) { return d[idx.r * w + idx.c]; }
-    const T& operator[](const Coord& idx) const { return d[idx.r * w + idx.c]; }
+    T& operator[](const Coord& idx) { return d[idx.r() * w + idx.c()]; }
+    const T& operator[](const Coord& idx) const {
+        return d[idx.r() * w + idx.c()];
+    }
 
     static Vector2D e(int n) {
         Vector2D mat(n, n);
