@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include <vector>
 
 #include "yosupo/coord.hpp"
 #include "yosupo/dump.hpp"
@@ -12,32 +11,25 @@ template <class T> struct Vector2D {
     int h, w;
     T* d;
 
-    Vector2D() : h(0), w(0), d(nullptr) {}
-    Vector2D(int _h, int _w) : h(_h), w(_w), d(new T[h * w]) {
-        for (int i = 0; i < h * w; i++) d[i] = T(0);
+    Vector2D() : h(0), w(0), d(new T[0]()) {}
+    Vector2D(int _h, int _w) : h(_h), w(_w), d(new T[h * w]()) {}
+    Vector2D(int _h, int _w, const T& val) : h(_h), w(_w), d(new T[h * w]) {
+        std::fill_n(d, h * w, val);
     }
 
-    // Copy constructor
     Vector2D(const Vector2D& other) : h(other.h), w(other.w), d(new T[h * w]) {
-        for (int i = 0; i < h * w; i++) {
-            d[i] = other.d[i];
-        }
+        std::copy_n(other.d, h * w, d);
     }
-
-    // Copy assignment operator
     Vector2D& operator=(const Vector2D& other) {
         if (this != &other) {
             delete[] d;
             h = other.h;
             w = other.w;
             d = new T[h * w];
-            for (int i = 0; i < h * w; i++) {
-                d[i] = other.d[i];
-            }
+            std::copy_n(other.d, h * w, d);
         }
         return *this;
     }
-
     ~Vector2D() { delete[] d; }
 
     T& operator[](const Coord& idx) { return d[idx.r * w + idx.c]; }

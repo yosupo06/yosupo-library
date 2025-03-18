@@ -10,6 +10,16 @@ TEST(Vector2DTest, Empty) {
     ASSERT_EQ(a.w, 0);
 }
 
+TEST(Vector2DTest, Init) {
+    Vector2D<int> a(2, 3, 7);
+    ASSERT_EQ((a[{0, 0}]), 7);
+    ASSERT_EQ((a[{0, 1}]), 7);
+    ASSERT_EQ((a[{0, 2}]), 7);
+    ASSERT_EQ((a[{1, 0}]), 7);
+    ASSERT_EQ((a[{1, 1}]), 7);
+    ASSERT_EQ((a[{1, 2}]), 7);
+}
+
 TEST(Vector2DTest, Assign) {
     Vector2D<int> a(1, 2);
     a[{0, 0}] = 1;
