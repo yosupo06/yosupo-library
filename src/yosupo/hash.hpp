@@ -5,6 +5,8 @@
 #include <map>
 #include <set>
 #include <tuple>
+#include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "yosupo/bitvector.hpp"

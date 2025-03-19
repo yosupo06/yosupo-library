@@ -1,4 +1,6 @@
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/min_cost_b_flow
+#include <ranges>
+#include <utility>
 #include "yosupo/fastio.hpp"
 #include "yosupo/networksimplex.hpp"
 

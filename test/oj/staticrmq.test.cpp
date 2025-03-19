@@ -6,6 +6,7 @@
 #include "yosupo/sparsetable.hpp"
 
 #include <ranges>
+#include <vector>
 
 using ll = long long;
 using namespace std;

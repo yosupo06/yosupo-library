@@ -6,7 +6,6 @@
 #include "yosupo/types.hpp"
 
 #include <cassert>
-#include <cstdint>
 #include <cstdio>
 #include <limits>
 #include <string>

@@ -1,7 +1,5 @@
 #include "yosupo/flattenvector.hpp"
 
-#include <numeric>
-#include <queue>
 #include <utility>
 #include <vector>
 
