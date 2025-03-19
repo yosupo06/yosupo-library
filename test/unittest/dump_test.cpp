@@ -3,6 +3,8 @@
 #include "yosupo/types.hpp"
 
 #include <gtest/gtest.h>
+#include <string>
+#include <utility>
 
 TEST(DumpTest, String) {
     EXPECT_EQ(yosupo::dump("hello"), "hello");

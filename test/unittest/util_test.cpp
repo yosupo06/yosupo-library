@@ -1,5 +1,6 @@
 #include "yosupo/util.hpp"
 
+#include <ranges>
 #include <vector>
 
 #include "gtest/gtest.h"

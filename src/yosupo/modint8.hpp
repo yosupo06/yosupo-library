@@ -2,6 +2,7 @@
 
 #include <immintrin.h>
 #include <xmmintrin.h>
+#include <array>
 #include <span>
 #include <string>
 
@@ -108,7 +109,7 @@ template <i32 MOD> struct ModInt8 {
             to_m256i_u(), _mm256_loadu_si256((const m256i_u*)idx.data())));
     }
 
-    template <uint8_t MASK>
+    template <u8 MASK>
     __attribute__((target("avx2"))) friend ModInt8 blend(const ModInt8& lhs,
                                                          const ModInt8& rhs) {
         return ModInt8(

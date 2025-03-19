@@ -1,4 +1,6 @@
 #include "yosupo/fastset.hpp"
+#include <iterator>
+#include <limits>
 #include "yosupo/random.hpp"
 
 #include "gtest/gtest.h"

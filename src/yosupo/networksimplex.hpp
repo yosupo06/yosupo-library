@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <ranges>
+#include <utility>
 #include <vector>
 
 namespace yosupo {

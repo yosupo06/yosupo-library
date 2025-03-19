@@ -1,6 +1,8 @@
 #include "yosupo/splaytree.hpp"
 
 #include <algorithm>
+#include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 

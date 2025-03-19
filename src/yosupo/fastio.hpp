@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdio.h>
 #include <unistd.h>
 #include <algorithm>
 #include <array>
@@ -7,6 +8,7 @@
 #include <cassert>
 #include <cctype>
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 #include <sstream>
 #include <string>

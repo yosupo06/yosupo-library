@@ -1,4 +1,5 @@
 #include "yosupo/convolution.hpp"
+#include <vector>
 #include "yosupo/modint.hpp"
 
 #include "gtest/gtest.h"

@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <bit>
 #include <cassert>
+#include <cstddef>
+#include <functional>
 #include <vector>
 
 namespace yosupo {

@@ -1,4 +1,6 @@
 #include "yosupo/networksimplex.hpp"
+#include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 
