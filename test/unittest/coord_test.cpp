@@ -2,9 +2,8 @@
 #include "yosupo/util.hpp"
 
 #include <gtest/gtest.h>
-
-#include <iostream>
-#include <sstream>
+#include <utility>
+#include <vector>
 
 using namespace yosupo;
 

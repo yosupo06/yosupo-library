@@ -4,6 +4,7 @@
 
 #include "yosupo/modint.hpp"
 #include "yosupo/modint8.hpp"
+#include "yosupo/types.hpp"
 
 namespace yosupo {
 

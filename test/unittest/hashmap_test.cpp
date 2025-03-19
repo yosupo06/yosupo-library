@@ -1,6 +1,8 @@
 #include "yosupo/hashmap.hpp"
 
 #include <algorithm>
+#include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 

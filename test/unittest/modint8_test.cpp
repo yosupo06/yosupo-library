@@ -1,9 +1,8 @@
 #include "yosupo/modint8.hpp"
+#include "yosupo/modint.hpp"
 #include "yosupo/types.hpp"
 
-#include <algorithm>
-#include <cstdint>
-#include <iostream>
+#include <array>
 
 #include "gtest/gtest.h"
 

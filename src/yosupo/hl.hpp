@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <utility>
 #include <vector>
 
 #include "yosupo/flattenvector.hpp"

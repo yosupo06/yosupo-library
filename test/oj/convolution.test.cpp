@@ -1,5 +1,6 @@
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/convolution_mod
 #include "yosupo/convolution.hpp"
+#include <vector>
 #include "yosupo/fastio.hpp"
 #include "yosupo/modint.hpp"
 
@@ -22,15 +23,6 @@ int main() {
         b[i] = x;
     }
     auto c = yosupo::convolution(a, b);
-    c = yosupo::convolution(a, b);
-    c = yosupo::convolution(a, b);
-    c = yosupo::convolution(a, b);
-    c = yosupo::convolution(a, b);
-    c = yosupo::convolution(a, b);
-    c = yosupo::convolution(a, b);
-    c = yosupo::convolution(a, b);
-    c = yosupo::convolution(a, b);
-    c = yosupo::convolution(a, b);
     for (int i = 0; i < n + m - 1; i++) {
         pr.write(c[i].val());
         if (i + 1 < n + m - 1) pr.write(' ');

@@ -1,9 +1,6 @@
 #include "yosupo/modint.hpp"
-#include "yosupo/types.hpp"
 
-#include <algorithm>
 #include <cstdint>
-#include <iostream>
 
 #include "gtest/gtest.h"
 

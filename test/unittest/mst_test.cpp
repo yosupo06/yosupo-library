@@ -1,5 +1,7 @@
 #include "yosupo/mst.hpp"
 
+#include <vector>
+
 #include "gtest/gtest.h"
 
 using namespace yosupo;

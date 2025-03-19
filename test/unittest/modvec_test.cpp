@@ -1,4 +1,5 @@
 #include "yosupo/modvec.hpp"
+#include "yosupo/modint.hpp"
 
 #include "gtest/gtest.h"
 

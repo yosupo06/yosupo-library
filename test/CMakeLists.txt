@@ -38,7 +38,6 @@ add_executable(unittest
   unittest/fastio_test.cpp  
   unittest/fastset_test.cpp  
   unittest/flattenvector_test.cpp
-  # unittest/fps_test.cpp
   unittest/fraction_test.cpp
   unittest/hash_test.cpp
   unittest/hashmap_test.cpp

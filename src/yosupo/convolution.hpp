@@ -2,12 +2,16 @@
 
 #include <immintrin.h>
 #include <algorithm>
+#include <array>
+#include <bit>
 #include <cassert>
 #include <span>
+#include <vector>
 
 #include "yosupo/math.hpp"
 #include "yosupo/modint.hpp"
 #include "yosupo/modint8.hpp"
+#include "yosupo/types.hpp"
 #include "yosupo/util.hpp"
 
 namespace yosupo {

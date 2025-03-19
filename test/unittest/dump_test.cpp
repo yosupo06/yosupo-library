@@ -1,8 +1,12 @@
 #include "yosupo/dump.hpp"
 #include "yosupo/modint.hpp"
-#include "yosupo/types.hpp"
 
 #include <gtest/gtest.h>
+#include <array>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 TEST(DumpTest, String) {
     EXPECT_EQ(yosupo::dump("hello"), "hello");

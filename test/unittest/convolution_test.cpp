@@ -1,4 +1,6 @@
 #include "yosupo/convolution.hpp"
+#include <utility>
+#include <vector>
 #include "yosupo/modint.hpp"
 
 #include "gtest/gtest.h"

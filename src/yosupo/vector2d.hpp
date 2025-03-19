@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cassert>
+#include <initializer_list>
+#include <string>
 
 #include "yosupo/coord.hpp"
 #include "yosupo/dump.hpp"

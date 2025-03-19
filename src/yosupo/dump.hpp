@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <array>
 #include <concepts>
+#include <cstddef>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "yosupo/types.hpp"

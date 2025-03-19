@@ -1,4 +1,5 @@
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/factorize
+#include <algorithm>
 #include <cstdio>
 
 #include "yosupo/fastio.hpp"

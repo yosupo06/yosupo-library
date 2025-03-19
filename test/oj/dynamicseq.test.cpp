@@ -3,6 +3,7 @@
 // clang-format on
 
 #include <utility>
+#include <vector>
 
 #include "yosupo/fastio.hpp"
 #include "yosupo/modint.hpp"

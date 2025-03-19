@@ -1,8 +1,9 @@
 #include "yosupo/hash.hpp"
 #include "yosupo/bitvector.hpp"
 
-#include <numeric>
-#include <random>
+#include <array>
+#include <map>
+#include <tuple>
 #include <utility>
 #include <vector>
 

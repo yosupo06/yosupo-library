@@ -1,0 +1,7 @@
+Diagnostics:
+  UnusedIncludes: Strict
+  MissingIncludes: Strict
+  ClangTidy:
+    Add:
+      - clang-diagnostic-*
+      - clang-analyzer-*

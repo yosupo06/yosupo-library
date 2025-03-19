@@ -1,4 +1,7 @@
 #include "yosupo/math.hpp"
+
+#include <utility>
+
 #include "gtest/gtest.h"
 
 TEST(MathTest, Abs) {

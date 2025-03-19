@@ -1,4 +1,6 @@
 #include "yosupo/sparsetable.hpp"
+#include <algorithm>
+#include <vector>
 
 #include "gtest/gtest.h"
 

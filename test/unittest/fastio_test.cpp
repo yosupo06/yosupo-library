@@ -1,10 +1,15 @@
 #include "yosupo/fastio.hpp"
+#include <stdio.h>
+#include <unistd.h>
 
 #include "yosupo/random.hpp"
 #include "yosupo/types.hpp"
 
-#include <cstdint>
+#include <cassert>
+#include <cstdio>
+#include <limits>
 #include <string>
+#include <vector>
 
 #include "gtest/gtest.h"
 

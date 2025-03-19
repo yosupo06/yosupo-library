@@ -1,6 +1,6 @@
 #include "yosupo/random.hpp"
 
-#include <numeric>
+#include <limits>
 #include <random>
 #include <vector>
 

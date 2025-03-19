@@ -2,10 +2,12 @@
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/staticrmq
 // clang-format on
 
+#include "yosupo/algebra.hpp"
 #include "yosupo/fastio.hpp"
 #include "yosupo/sparsetable.hpp"
 
 #include <ranges>
+#include <vector>
 
 using ll = long long;
 using namespace std;
