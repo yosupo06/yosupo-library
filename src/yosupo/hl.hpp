@@ -10,7 +10,10 @@
 namespace yosupo {
 
 struct HLEulerTour {
-    HLEulerTour(int _n) : n(_n) {}
+  public:
+    std::vector<int> ord, rord;
+
+    explicit HLEulerTour(int _n) : n(_n) {}
 
     void add_edge(int u, int v) {
         edges.push_back({u, v});
@@ -98,9 +101,6 @@ struct HLEulerTour {
 
     // key / value is ordinal
     std::vector<int> nxt, _size;
-
-  public:
-    std::vector<int> ord, rord;
 };
 
 }  // namespace yosupo
