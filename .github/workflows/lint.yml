@@ -16,6 +16,7 @@ jobs:
       - name: Setup clangd-tidy
         run: |
           sudo apt install clangd-18
+          pipx install clangd-tidy
       - name: Generate compile_commands.json
         run: |
           mkdir build
