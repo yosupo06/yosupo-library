@@ -1,8 +1,5 @@
 #include "yosupo/maxflow.hpp"
 
-#include <algorithm>
-#include <numeric>
-
 #include "gtest/gtest.h"
 
 TEST(MaxFlowTest, usage) {

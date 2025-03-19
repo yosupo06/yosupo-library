@@ -1,8 +1,9 @@
 #include "yosupo/binaryheap.hpp"
 #include "yosupo/random.hpp"
 
-#include <numeric>
+#include <iterator>
 #include <queue>
+#include <vector>
 
 #include "gtest/gtest.h"
 

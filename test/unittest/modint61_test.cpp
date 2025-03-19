@@ -1,8 +1,5 @@
 #include "yosupo/modint61.hpp"
 
-#include <algorithm>
-#include <iostream>
-
 #include "gtest/gtest.h"
 
 TEST(ModInt61Test, Construct) {

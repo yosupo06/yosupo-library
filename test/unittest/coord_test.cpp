@@ -2,6 +2,7 @@
 #include "yosupo/util.hpp"
 
 #include <gtest/gtest.h>
+#include <utility>
 #include <vector>
 
 using namespace yosupo;
