@@ -6,21 +6,26 @@
 #include <ranges>
 #include <utility>
 #include <vector>
+
+#include "yosupo/algebra.hpp"
 #include "yosupo/flattenvector.hpp"
 #include "yosupo/types.hpp"
 
 namespace yosupo {
 
-template <class TreeDP> struct StaticTopTree {
-    using Point = TreeDP::Point;
-    using Path = TreeDP::Path;
+template <static_top_tree_dp TreeDP> struct StaticTopTree {
+    using Point = typename decltype(TreeDP::point)::S;
+    using Path = typename decltype(TreeDP::path)::S;
 
     int n;
     std::vector<std::pair<int, int>> edges;
     TreeDP& dp;
 
     StaticTopTree(int _n, TreeDP& _dp)
-        : n(_n), dp(_dp), points(n + 1, dp.id()), node_ids(n, {n, -1, -1}) {
+        : n(_n),
+          dp(_dp),
+          points(n + 1, dp.point.e()),
+          node_ids(n, {n, -1, -1}) {
         edges.reserve(2 * (n - 1));
     }
 
@@ -37,8 +42,8 @@ template <class TreeDP> struct StaticTopTree {
     std::vector<Inner<Path>> compressed;
     std::vector<Inner<Point>> raked;
 
-    Path op(const Path& l, const Path& r) { return dp.compress(l, r); }
-    Point op(const Point& l, const Point& r) { return dp.rake(l, r); }
+    Path op(const Path& l, const Path& r) { return dp.path.op(l, r); }
+    Point op(const Point& l, const Point& r) { return dp.point.op(l, r); }
 
     // compress / rake / leaf
     template <class D> struct Node {
@@ -147,7 +152,7 @@ template <class TreeDP> struct StaticTopTree {
                 if (v == heavy_child[u]) continue;
                 int d = std::countr_zero(
                     std::bit_ceil(sum_rake - (std::bit_ceil(mask[v]) << 1)));
-                Point point = dp.to_point(build_compress(v));
+                Point point = dp.add_edge(build_compress(v));
                 Node<Point> data = {point, &node_ids[v].r_id};
                 while (has.test(d)) {
                     has.reset(d);
@@ -205,7 +210,7 @@ template <class TreeDP> struct StaticTopTree {
         while (u != n) {
             auto [h_par, c_id, r_id] = node_ids[u];
             Point p =
-                dp.to_point(up(c_id, dp.add_vertex(points[u], u), compressed));
+                dp.add_edge(up(c_id, dp.add_vertex(points[u], u), compressed));
             points[h_par] = up(r_id, p, raked);
             u = h_par;
         }

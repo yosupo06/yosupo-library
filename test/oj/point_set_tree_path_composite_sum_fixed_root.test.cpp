@@ -23,24 +23,37 @@ struct TreeDP {
     struct Path {
         mint a, b, ans, cnt;  // f(x) = ax + b
     };
+
+    struct PointMonoid {
+        using S = Point;
+        Point op(Point x, Point y) {
+            return Point(x.ans + y.ans, x.cnt + y.cnt);
+        }
+        Point e() { return Point(mint(0), mint(0)); }
+    };
+    PointMonoid point = PointMonoid();
+
+    struct PathMonoid {
+        using S = Path;
+        Path op(Path x, Path y) {
+            return Path(x.a * y.a, x.b + x.a * y.b,
+                        x.ans + x.a * y.ans + x.b * y.cnt, x.cnt + y.cnt);
+        }
+        Path e() { return Path(mint(1), mint(0), mint(0), mint(0)); }
+    };
+    PathMonoid path = PathMonoid();
+
     struct Vertex {
         mint a, b;
         mint val;
     };
     std::vector<Vertex> f;
-
-    Point id() { return Point(mint(0), mint(0)); }
-    Point rake(Point x, Point y) { return Point(x.ans + y.ans, x.cnt + y.cnt); }
-    Path compress(Path x, Path y) {
-        return Path(x.a * y.a, x.b + x.a * y.b,
-                    x.ans + x.a * y.ans + x.b * y.cnt, x.cnt + y.cnt);
-    }
     Path add_vertex(Point x, int u) {
         x.ans += f[u].val;
         x.cnt += mint(1);
         return Path(f[u].a, f[u].b, f[u].a * x.ans + f[u].b * x.cnt, x.cnt);
     }
-    Point to_point(Path x) { return Point(x.ans, x.cnt); }
+    Point add_edge(Path x) { return Point(x.ans, x.cnt); }
 };
 
 int main() {
