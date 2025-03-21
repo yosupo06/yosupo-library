@@ -3,6 +3,7 @@
 #include <array>
 #include <bit>
 #include <bitset>
+#include <cassert>
 #include <ranges>
 #include <utility>
 #include <vector>
@@ -42,15 +43,12 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
     std::vector<Inner<Path>> compressed;
     std::vector<Inner<Point>> raked;
 
-    Path op(const Path& l, const Path& r) { return dp.path.op(l, r); }
-    Point op(const Point& l, const Point& r) { return dp.point.op(l, r); }
-
     // compress / rake / leaf
     template <class D> struct Node {
         D p;
         int* par;
     };
-    template <class D>
+    template <bool RAKE, class D>
     Node<D> merge(const Node<D>& l,
                   const Node<D>& r,
                   std::vector<Inner<D>>& nodes) {
@@ -58,7 +56,11 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
         *l.par = 2 * id;
         *r.par = 2 * id + 1;
         nodes.push_back({{l.p, r.p}, -1});
-        return {op(l.p, r.p), &nodes[id].par};
+        if constexpr (RAKE) {
+            return {dp.point.op(l.p, r.p), &nodes[id].par};
+        } else {
+            return {dp.path.op(l.p, r.p), &nodes[id].par};
+        }
     }
 
     void init(int r = 0) {
@@ -97,7 +99,7 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
                 auto x = b.back();
                 b.pop_back();
                 b.push_back({std::max(x.first, y.first) + 1,
-                             merge(x.second, y.second, compressed)});
+                             merge<false>(x.second, y.second, compressed)});
             };
             while (u != -1) {
                 b.push_back({std::countr_zero(std::bit_ceil(mask[u])),
@@ -156,7 +158,7 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
                 Node<Point> data = {point, &node_ids[v].r_id};
                 while (has.test(d)) {
                     has.reset(d);
-                    data = merge(q[d], data, raked);
+                    data = merge<true>(q[d], data, raked);
                     d++;
                 }
                 q[d] = data;
@@ -171,7 +173,7 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
                 d = int(has._Find_first());
                 if (d == int(has.size())) break;
                 has.reset(d);
-                data = merge(q[d], data, raked);
+                data = merge<true>(q[d], data, raked);
             }
             points[u] = data.p;
 
@@ -195,26 +197,75 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
     std::vector<ID> node_ids;
 
     Point update(int u) {
-        auto up = [&](int id, auto p, auto& nodes) {
+        auto up_compress = [&](int id, auto p) {
             while (id >= 0) {
                 if (id % 2 == 0) {
-                    nodes[id / 2].d.first = p;
+                    compressed[id / 2].d.first = p;
                 } else {
-                    nodes[id / 2].d.second = p;
+                    compressed[id / 2].d.second = p;
                 }
-                p = op(nodes[id / 2].d.first, nodes[id / 2].d.second);
-                id = nodes[id / 2].par;
+                p = dp.path.op(compressed[id / 2].d.first,
+                               compressed[id / 2].d.second);
+                id = compressed[id / 2].par;
+            }
+            return p;
+        };
+        auto up_rake = [&](int id, auto p) {
+            while (id >= 0) {
+                if (id % 2 == 0) {
+                    raked[id / 2].d.first = p;
+                } else {
+                    raked[id / 2].d.second = p;
+                }
+                p = dp.point.op(raked[id / 2].d.first, raked[id / 2].d.second);
+                id = raked[id / 2].par;
             }
             return p;
         };
         while (u != n) {
             auto [h_par, c_id, r_id] = node_ids[u];
             Point p =
-                dp.add_edge(up(c_id, dp.add_vertex(points[u], u), compressed));
-            points[h_par] = up(r_id, p, raked);
+                dp.add_edge(up_compress(c_id, dp.add_vertex(points[u], u)));
+            points[h_par] = up_rake(r_id, p);
             u = h_par;
         }
         return points[n];
+    }
+
+    Path path_prod(int u) {
+        Path path = dp.path.e();
+        Point point = points[u];
+        while (true) {
+            auto [h_par, c_id, r_id] = node_ids[u];
+            Path l = dp.path.e(), r = dp.path.e();
+            {
+                int id = c_id;
+                while (id >= 0) {
+                    if (id % 2 == 0) {
+                        r = dp.path.op(r, compressed[id / 2].d.second);
+                    } else {
+                        l = dp.path.op(compressed[id / 2].d.first, l);
+                    }
+                    id = compressed[id / 2].par;
+                }
+            }
+            point = dp.point.op(point, dp.add_edge(r));
+            path = dp.path.op(l, dp.path.op(dp.add_vertex(point, u), path));
+            if (h_par == n) return path;
+            point = dp.point.e();
+            {
+                int id = r_id;
+                while (id >= 0) {
+                    if (id % 2 == 0) {
+                        point = dp.point.op(point, raked[id / 2].d.second);
+                    } else {
+                        point = dp.point.op(raked[id / 2].d.first, point);
+                    }
+                    id = raked[id / 2].par;
+                }
+            }
+            u = h_par;
+        }
     }
 };
 
