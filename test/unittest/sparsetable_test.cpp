@@ -1,7 +1,7 @@
-#include "yosupo/sparsetable.hpp"
-#include <algorithm>
 #include <vector>
+
 #include "yosupo/algebra.hpp"
+#include "yosupo/sparsetable.hpp"
 
 #include "gtest/gtest.h"
 
