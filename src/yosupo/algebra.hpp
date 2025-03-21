@@ -9,57 +9,51 @@
 namespace yosupo {
 
 template <class T>
-concept monoid = requires(T& x, typename T::S s) {
-    { x.op(s, s) } -> std::same_as<typename T::S>;
-    { x.e() } -> std::same_as<typename T::S>;
+concept monoid = requires(T t, typename T::S s) {
+    requires std::same_as<decltype(t.e), typename T::S>;
+    { t.op(s, s) } -> std::same_as<typename T::S>;
 };
 
 template <class _S, class OP> struct Monoid {
     using S = _S;
     OP op;
-    S e() { return _e; }
-    Monoid(S e, OP _op = OP()) : op(_op), _e(e) {}
-
-  private:
-    S _e;
+    S e;
+    explicit Monoid(S _e, OP _op = OP()) : op(_op), e(_e) {}
 };
 
 template <monoid Monoid> struct ReversibleMonoid {
-    ReversibleMonoid(const Monoid& _monoid) : monoid(_monoid) {}
     struct S {
         typename Monoid::S val;
         typename Monoid::S rev;
     };
+    explicit ReversibleMonoid(const Monoid& _monoid)
+        : monoid(_monoid), e({monoid.e, monoid.e}) {}
     S op(S a, S b) {
         return {monoid.op(a.val, b.val), monoid.op(b.rev, a.rev)};
     }
-    S e() { return {monoid.e(), monoid.e()}; }
 
   private:
     Monoid monoid;
-};
 
-template <class _S> struct Max {
-    using S = _S;
-    Max(S e = std::numeric_limits<S>::min()) : _e(e) {}
-    S op(S a, S b) { return std::max(a, b); }
-    S e() { return _e; }
-
-  private:
-    S _e;
-};
-template <class _S> struct Min {
-    using S = _S;
-    Min(S e = std::numeric_limits<S>::max()) : _e(e) {}
-    S op(S a, S b) { return std::min(a, b); }
-    S e() { return _e; }
-
-  private:
-    S _e;
+  public:
+    S e;
 };
 
 template <class S> using Sum = Monoid<S, std::plus<S>>;
 template <class S> using Prod = Monoid<S, std::multiplies<S>>;
+
+template <class _S> struct Max {
+    using S = _S;
+    Max(S _e = std::numeric_limits<S>::min()) : e(_e) {}
+    S op(S a, S b) { return std::max(a, b); }
+    S e;
+};
+template <class _S> struct Min {
+    using S = _S;
+    Min(S _e = std::numeric_limits<S>::max()) : e(_e) {}
+    S op(S a, S b) { return std::min(a, b); }
+    S e;
+};
 
 template <class T>
 concept static_top_tree_dp = requires(T t) {

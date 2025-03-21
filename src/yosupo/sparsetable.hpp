@@ -29,7 +29,7 @@ template <monoid M> struct SparseTable {
     }
     M::S query(int l, int r) {
         assert(l <= r);
-        if (l == r) return m.e();
+        if (l == r) return m.e;
         int u = 31 - std::countl_zero(uint(r - l));
         return m.op(data[u][l], data[u][r - (1 << u)]);
     }
