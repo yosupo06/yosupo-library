@@ -11,22 +11,26 @@ namespace yosupo {
 
 struct HLEulerTour {
   public:
+    int n, root;
     std::vector<int> ord, rord;
 
-    explicit HLEulerTour(int _n) : n(_n) {}
+    explicit HLEulerTour(int _n, int _root = -1) : n(_n), root(_root) {
+        edges.reserve(2 * (n - 1));
+    }
 
     void add_edge(int u, int v) {
         edges.push_back({u, v});
         edges.push_back({v, u});
     }
+    void set_root(int _root) { root = _root; }
 
-    void build(int r = 0) {
+    void build() {
         auto g = FlattenVector(n, edges);
 
         auto par = std::vector<int>(n, -1);
         auto topo = std::vector<int>();
         topo.reserve(n);
-        topo.push_back(r);
+        topo.push_back(root);
         for (int i = 0; i < n; i++) {
             int u = topo[i];
             for (int v : g.at(u)) {
@@ -56,7 +60,7 @@ struct HLEulerTour {
 
         std::vector<int> stack;
         stack.reserve(n);
-        stack.push_back(r);
+        stack.push_back(root);
 
         while (stack.size()) {
             auto u = stack.back();
@@ -96,10 +100,9 @@ struct HLEulerTour {
     int subtree_size(int u) const { return _size[ord[u]]; }
 
   private:
-    int n;
     std::vector<std::pair<int, int>> edges;
 
-    // key / value is ordinal
+    // key / value are ordinal
     std::vector<int> nxt, _size;
 };
 

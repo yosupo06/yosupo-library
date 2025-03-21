@@ -4,7 +4,7 @@
 using namespace yosupo;
 
 TEST(HLTest, Subtree) {
-    HLEulerTour hl(5);
+    HLEulerTour hl(5, 0);
     hl.add_edge(0, 1);
     hl.add_edge(0, 2);
     hl.add_edge(1, 3);
@@ -20,6 +20,6 @@ TEST(HLTest, Subtree) {
 }
 
 TEST(HLTest, N1) {
-    HLEulerTour hl(1);
+    HLEulerTour hl(1, 0);
     hl.build();
 }
