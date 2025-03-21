@@ -29,7 +29,7 @@ struct TreeDP {
         Point op(Point x, Point y) {
             return Point(x.ans + y.ans, x.cnt + y.cnt);
         }
-        Point e() { return Point(mint(0), mint(0)); }
+        Point e = Point(mint(0), mint(0));
     };
     PointMonoid point = PointMonoid();
 
@@ -39,7 +39,7 @@ struct TreeDP {
             return Path(x.a * y.a, x.b + x.a * y.b,
                         x.ans + x.a * y.ans + x.b * y.cnt, x.cnt + y.cnt);
         }
-        Path e() { return Path(mint(1), mint(0), mint(0), mint(0)); }
+        Path e = Path(mint(1), mint(0), mint(0), mint(0));
     };
     PathMonoid path = PathMonoid();
 

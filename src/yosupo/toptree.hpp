@@ -23,10 +23,7 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
     TreeDP& dp;
 
     StaticTopTree(int _n, TreeDP& _dp)
-        : n(_n),
-          dp(_dp),
-          points(n + 1, dp.point.e()),
-          node_ids(n, {n, -1, -1}) {
+        : n(_n), dp(_dp), points(n + 1, dp.point.e), node_ids(n, {n, -1, -1}) {
         edges.reserve(2 * (n - 1));
     }
 
@@ -233,11 +230,11 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
     }
 
     Path path_prod(int u) {
-        Path path = dp.path.e();
+        Path path = dp.path.e;
         Point point = points[u];
         while (true) {
             auto [h_par, c_id, r_id] = node_ids[u];
-            Path l = dp.path.e(), r = dp.path.e();
+            Path l = dp.path.e, r = dp.path.e;
             {
                 int id = c_id;
                 while (id >= 0) {
@@ -252,7 +249,7 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
             point = dp.point.op(point, dp.add_edge(r));
             path = dp.path.op(l, dp.path.op(dp.add_vertex(point, u), path));
             if (h_par == n) return path;
-            point = dp.point.e();
+            point = dp.point.e;
             {
                 int id = r_id;
                 while (id >= 0) {
