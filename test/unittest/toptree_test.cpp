@@ -1,5 +1,6 @@
 #include "yosupo/toptree.hpp"
 #include <utility>
+#include <vector>
 #include "yosupo/algebra.hpp"
 
 #include "gtest/gtest.h"
