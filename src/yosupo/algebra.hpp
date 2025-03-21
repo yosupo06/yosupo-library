@@ -4,7 +4,6 @@
 #include <concepts>
 #include <functional>
 #include <limits>
-#include <utility>
 
 namespace yosupo {
 
