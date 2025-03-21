@@ -10,7 +10,7 @@ int main() {
     int n, q;
     sc.read(n, q);
 
-    yosupo::HLEulerTour hl(n);
+    yosupo::HLEulerTour hl(n, 0);
     for (int i = 1; i < n; i++) {
         int p;
         sc.read(p);
