@@ -26,8 +26,8 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
                   std::vector<Vertex> _vertices,
                   const TreeDP& _dp = TreeDP())
         : n(tree.n),
-          dp(_dp),
           vertices(std::move(_vertices)),
+          dp(_dp),
           points(n + 1, dp.point.e),
           node_ids(n, {n, -1, -1}) {
         std::vector<int> heavy_child(n, -1);
