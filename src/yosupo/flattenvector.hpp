@@ -30,6 +30,33 @@ template <class T> struct FlattenVector {
         return v | std::ranges::views::take(start[i + 1]) |
                std::ranges::views::drop(start[i]);
     }
+    auto at(int i) const {
+        return v | std::ranges::views::take(start[i + 1]) |
+               std::ranges::views::drop(start[i]);
+    }
+
+    template <class Pred> int erase_if(Pred pred) {
+        int n = int(start.size()) - 1;
+
+        int removed = 0;
+        int r = start[0];
+        for (int i = 0; i < n; i++) {
+            int l = r;
+            r = start[i + 1];
+            start[i + 1] = start[i];
+            for (int j = l; j < r; j++) {
+                std::pair<int, T> p = {i, v[j]};
+                if (pred(p)) {
+                    removed++;
+                } else {
+                    v[start[i + 1]] = v[j];
+                    start[i + 1]++;
+                }
+            }
+        }
+        v.resize(start[n]);
+        return removed;
+    }
 };
 
 }  // namespace yosupo

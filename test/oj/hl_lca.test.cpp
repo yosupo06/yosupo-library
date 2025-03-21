@@ -1,7 +1,9 @@
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/lca
 
+#include <utility>
 #include "yosupo/fastio.hpp"
 #include "yosupo/hl.hpp"
+#include "yosupo/tree.hpp"
 
 yosupo::Scanner sc = yosupo::Scanner(stdin);
 yosupo::Printer pr = yosupo::Printer(stdout);
@@ -10,13 +12,13 @@ int main() {
     int n, q;
     sc.read(n, q);
 
-    yosupo::HLEulerTour hl(n, 0);
+    yosupo::RootedTreeBuilder tree(n);
     for (int i = 1; i < n; i++) {
         int p;
         sc.read(p);
-        hl.add_edge(p, i);
+        tree.add_edge(p, i);
     }
-    hl.build();
+    yosupo::HLEulerTour hl(std::move(tree).build(0));
 
     for (int i = 0; i < q; i++) {
         int u, v;
