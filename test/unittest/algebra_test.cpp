@@ -1,5 +1,3 @@
-#include <vector>
-
 #include "yosupo/algebra.hpp"
 #include "yosupo/modint.hpp"
 
