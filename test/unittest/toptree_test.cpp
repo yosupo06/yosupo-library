@@ -1,8 +1,5 @@
-#include <algorithm>
-#include <queue>
-
-#include "yosupo/algebra.hpp"
 #include "yosupo/toptree.hpp"
+#include "yosupo/algebra.hpp"
 
 #include "gtest/gtest.h"
 
