@@ -54,6 +54,7 @@ add_executable(unittest
   unittest/networksimplex_test.cpp
   unittest/sparsetable_test.cpp
   unittest/splaytree_test.cpp
+  unittest/toptree_test.cpp
   unittest/util_test.cpp
   unittest/vector2d_test.cpp
 

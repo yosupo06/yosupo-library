@@ -1,11 +1,12 @@
 // clang-format off
-// verification-helper: PROBLEM https://judge.yosupo.jp/problem/point_set_tree_path_composite_sum_fixed_root
+// verification-helper: PROBLEM https://judge.yosupo.jp/problem/point_set_tree_path_composite_sum
 // clang-format on
 
 #include <cassert>
 #include <utility>
 #include <vector>
 
+#include "yosupo/algebra.hpp"
 #include "yosupo/fastio.hpp"
 #include "yosupo/flattenvector.hpp"
 #include "yosupo/modint.hpp"
@@ -16,14 +17,22 @@ using mint = yosupo::ModInt998244353;
 inline static yosupo::Scanner sc(stdin);
 inline static yosupo::Printer pr(stdout);
 
+struct Path {
+    mint a, b, ans, cnt;  // f(x) = ax + b
+};
+struct PathMonoid {
+    using S = Path;
+    Path op(Path x, Path y) {
+        return Path(x.a * y.a, x.b + x.a * y.b,
+                    x.ans + x.a * y.ans + x.b * y.cnt, x.cnt + y.cnt);
+    }
+    Path e() { return Path(mint(1), mint(0), mint(0), mint(0)); }
+};
+
 struct TreeDP {
     struct Point {
         mint ans, cnt;
     };
-    struct Path {
-        mint a, b, ans, cnt;  // f(x) = ax + b
-    };
-
     struct PointMonoid {
         using S = Point;
         Point op(Point x, Point y) {
@@ -33,27 +42,23 @@ struct TreeDP {
     };
     PointMonoid point = PointMonoid();
 
-    struct PathMonoid {
-        using S = Path;
-        Path op(Path x, Path y) {
-            return Path(x.a * y.a, x.b + x.a * y.b,
-                        x.ans + x.a * y.ans + x.b * y.cnt, x.cnt + y.cnt);
-        }
-        Path e() { return Path(mint(1), mint(0), mint(0), mint(0)); }
-    };
-    PathMonoid path = PathMonoid();
+    yosupo::ReversibleMonoid<PathMonoid> path =
+        yosupo::ReversibleMonoid(PathMonoid());
+    using Path = typename decltype(path)::S;
 
     struct Vertex {
-        mint a, b;
-        mint val;
+        mint a, b, val;
     };
     std::vector<Vertex> f;
     Path add_vertex(Point x, int u) {
         x.ans += f[u].val;
         x.cnt += mint(1);
-        return Path(f[u].a, f[u].b, f[u].a * x.ans + f[u].b * x.cnt, x.cnt);
+        auto up = PathMonoid::S(f[u].a, f[u].b, f[u].a * x.ans + f[u].b * x.cnt,
+                                x.cnt);
+        auto down = PathMonoid::S(f[u].a, f[u].b, x.ans, x.cnt);
+        return {up, down};
     }
-    Point add_edge(Path x) { return Point(x.ans, x.cnt); }
+    Point add_edge(Path x) { return Point(x.val.ans, x.val.cnt); }
 };
 
 int main() {
@@ -112,25 +117,29 @@ int main() {
     std::vector<Query> queries;
     for (int ph = 0; ph < q; ph++) {
         int t;
-        int u;
         sc.read(t);
 
         if (t == 0) {
-            int x;
+            int u, x;
             sc.read(u, x);
             dp.f[u].val = x;
+            tr.update(u);
         } else {
             int e, a, b;
             sc.read(e, a, b);
-            u = edges[2 * e].first;
+            int u = edges[2 * e].first;
             int v = edges[2 * e].second.to;
             if (par[v] == u) std::swap(u, v);
             assert(par[u] == v);
             dp.f[u].a = a;
             dp.f[u].b = b;
+            tr.update(u);
         }
-        auto ans = tr.update(u);
-        pr.writeln(ans.ans.val());
+
+        int r;
+        sc.read(r);
+        auto ans = tr.path_prod(r);
+        pr.writeln(ans.rev.ans.val());
     }
 
     return 0;
