@@ -8,7 +8,6 @@
 
 #include "yosupo/algebra.hpp"
 #include "yosupo/fastio.hpp"
-#include "yosupo/flattenvector.hpp"
 #include "yosupo/modint.hpp"
 #include "yosupo/toptree.hpp"
 #include "yosupo/tree.hpp"
