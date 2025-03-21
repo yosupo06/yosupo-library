@@ -24,6 +24,21 @@ template <class _S, class OP> struct Monoid {
     S _e;
 };
 
+template <monoid Monoid> struct ReversibleMonoid {
+    ReversibleMonoid(const Monoid& _monoid) : monoid(_monoid) {}
+    struct S {
+        typename Monoid::S val;
+        typename Monoid::S rev;
+    };
+    S op(S a, S b) {
+        return {monoid.op(a.val, b.val), monoid.op(b.rev, a.rev)};
+    }
+    S e() { return {monoid.e(), monoid.e()}; }
+
+  private:
+    Monoid monoid;
+};
+
 template <class _S> struct Max {
     using S = _S;
     Max(S e = std::numeric_limits<S>::min()) : _e(e) {}
