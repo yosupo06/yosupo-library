@@ -56,16 +56,16 @@ template <class _S> struct Min {
 };
 
 template <class T>
-concept static_top_tree_dp = requires(T t) {
+concept static_top_tree_dp = requires(T t,
+                                      typename T::Path path,
+                                      typename T::Point point,
+                                      typename T::Vertex v) {
     requires monoid<decltype(T::path)>;
     requires monoid<decltype(T::point)>;
-    {
-        t.add_vertex(std::declval<typename decltype(T::point)::S>(),
-                     std::declval<int>())
-    } -> std::same_as<typename decltype(T::path)::S>;
-    {
-        t.add_edge(std::declval<typename decltype(T::path)::S>())
-    } -> std::same_as<typename decltype(T::point)::S>;
+    requires std::same_as<typename T::Path, typename decltype(T::path)::S>;
+    requires std::same_as<typename T::Point, typename decltype(T::point)::S>;
+    { t.add_vertex(point, v) } -> std::same_as<typename T::Path>;
+    { t.add_edge(path) } -> std::same_as<typename T::Point>;
 };
 
 }  // namespace yosupo

@@ -8,6 +8,7 @@
 struct TopTreeDP {
     using Point = int;
     using Path = int;
+    using Vertex = int;
 
     yosupo::Sum<int> point = yosupo::Sum<int>(0);
     yosupo::Sum<int> path = yosupo::Sum<int>(0);
@@ -23,7 +24,8 @@ TEST(StaticTopTree, Usage) {
     tree.add_edge(2, 3);
     tree.add_edge(2, 4);
     TopTreeDP dp;
-    yosupo::StaticTopTree top_tree(std::move(tree).build(0), dp);
+    yosupo::StaticTopTree<TopTreeDP> top_tree(std::move(tree).build(0),
+                                              std::vector<int>(5));
 
     auto path = top_tree.path_prod(0);
     EXPECT_EQ(path, 5);

@@ -16,15 +16,18 @@
 namespace yosupo {
 
 template <static_top_tree_dp TreeDP> struct StaticTopTree {
-    using Point = typename decltype(TreeDP::point)::S;
-    using Path = typename decltype(TreeDP::path)::S;
+    using Point = typename TreeDP::Point;
+    using Path = typename TreeDP::Path;
+    using Vertex = typename TreeDP::Vertex;
 
     int n;
-    TreeDP& dp;
 
-    StaticTopTree(const RootedTree& tree, TreeDP& _dp)
+    StaticTopTree(const RootedTree& tree,
+                  std::vector<Vertex> _vertices,
+                  const TreeDP& _dp = TreeDP())
         : n(tree.n),
           dp(_dp),
+          vertices(std::move(_vertices)),
           points(n + 1, dp.point.e),
           node_ids(n, {n, -1, -1}) {
         std::vector<int> heavy_child(n, -1);
@@ -44,7 +47,8 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
             };
             while (u != -1) {
                 b.push_back({std::countr_zero(std::bit_ceil(mask[u])),
-                             {dp.add_vertex(points[u], u), &node_ids[u].c_id}});
+                             {dp.add_vertex(points[u], vertices[u]),
+                              &node_ids[u].c_id}});
                 while (true) {
                     int len = int(b.size());
                     if (len >= 3 && (b[len - 3].first == b[len - 2].first ||
@@ -131,6 +135,86 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
         build_compress(tree.root);
     }
 
+    Vertex get_vertex(int u) { return vertices[u]; }
+    void update(int u, Vertex vertex) {
+        vertices[u] = vertex;
+        auto up_compress = [&](int id, auto p) {
+            while (id >= 0) {
+                if (id % 2 == 0) {
+                    compressed[id / 2].d.first = p;
+                } else {
+                    compressed[id / 2].d.second = p;
+                }
+                p = dp.path.op(compressed[id / 2].d.first,
+                               compressed[id / 2].d.second);
+                id = compressed[id / 2].par;
+            }
+            return p;
+        };
+        auto up_rake = [&](int id, auto p) {
+            while (id >= 0) {
+                if (id % 2 == 0) {
+                    raked[id / 2].d.first = p;
+                } else {
+                    raked[id / 2].d.second = p;
+                }
+                p = dp.point.op(raked[id / 2].d.first, raked[id / 2].d.second);
+                id = raked[id / 2].par;
+            }
+            return p;
+        };
+        while (u != n) {
+            auto [h_par, c_id, r_id] = node_ids[u];
+            Point p = dp.add_edge(
+                up_compress(c_id, dp.add_vertex(points[u], vertices[u])));
+            points[h_par] = up_rake(r_id, p);
+            u = h_par;
+        }
+    }
+
+    Point all_prod() { return points[n]; }
+
+    Path path_prod(int u) {
+        Path path = dp.path.e;
+        Point point = points[u];
+        while (true) {
+            auto [h_par, c_id, r_id] = node_ids[u];
+            Path l = dp.path.e, r = dp.path.e;
+            {
+                int id = c_id;
+                while (id >= 0) {
+                    if (id % 2 == 0) {
+                        r = dp.path.op(r, compressed[id / 2].d.second);
+                    } else {
+                        l = dp.path.op(compressed[id / 2].d.first, l);
+                    }
+                    id = compressed[id / 2].par;
+                }
+            }
+            point = dp.point.op(point, dp.add_edge(r));
+            path = dp.path.op(
+                l, dp.path.op(dp.add_vertex(point, vertices[u]), path));
+            if (h_par == n) return path;
+            point = dp.point.e;
+            {
+                int id = r_id;
+                while (id >= 0) {
+                    if (id % 2 == 0) {
+                        point = dp.point.op(point, raked[id / 2].d.second);
+                    } else {
+                        point = dp.point.op(raked[id / 2].d.first, point);
+                    }
+                    id = raked[id / 2].par;
+                }
+            }
+            u = h_par;
+        }
+    }
+
+  private:
+    std::vector<Vertex> vertices;
+    TreeDP dp;
+
     // compress / rake
     template <class D> struct Inner {
         std::pair<D, D> d;
@@ -164,78 +248,6 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
         int h_par, c_id, r_id;
     };
     std::vector<ID> node_ids;
-
-    Point update(int u) {
-        auto up_compress = [&](int id, auto p) {
-            while (id >= 0) {
-                if (id % 2 == 0) {
-                    compressed[id / 2].d.first = p;
-                } else {
-                    compressed[id / 2].d.second = p;
-                }
-                p = dp.path.op(compressed[id / 2].d.first,
-                               compressed[id / 2].d.second);
-                id = compressed[id / 2].par;
-            }
-            return p;
-        };
-        auto up_rake = [&](int id, auto p) {
-            while (id >= 0) {
-                if (id % 2 == 0) {
-                    raked[id / 2].d.first = p;
-                } else {
-                    raked[id / 2].d.second = p;
-                }
-                p = dp.point.op(raked[id / 2].d.first, raked[id / 2].d.second);
-                id = raked[id / 2].par;
-            }
-            return p;
-        };
-        while (u != n) {
-            auto [h_par, c_id, r_id] = node_ids[u];
-            Point p =
-                dp.add_edge(up_compress(c_id, dp.add_vertex(points[u], u)));
-            points[h_par] = up_rake(r_id, p);
-            u = h_par;
-        }
-        return points[n];
-    }
-
-    Path path_prod(int u) {
-        Path path = dp.path.e;
-        Point point = points[u];
-        while (true) {
-            auto [h_par, c_id, r_id] = node_ids[u];
-            Path l = dp.path.e, r = dp.path.e;
-            {
-                int id = c_id;
-                while (id >= 0) {
-                    if (id % 2 == 0) {
-                        r = dp.path.op(r, compressed[id / 2].d.second);
-                    } else {
-                        l = dp.path.op(compressed[id / 2].d.first, l);
-                    }
-                    id = compressed[id / 2].par;
-                }
-            }
-            point = dp.point.op(point, dp.add_edge(r));
-            path = dp.path.op(l, dp.path.op(dp.add_vertex(point, u), path));
-            if (h_par == n) return path;
-            point = dp.point.e;
-            {
-                int id = r_id;
-                while (id >= 0) {
-                    if (id % 2 == 0) {
-                        point = dp.point.op(point, raked[id / 2].d.second);
-                    } else {
-                        point = dp.point.op(raked[id / 2].d.first, point);
-                    }
-                    id = raked[id / 2].par;
-                }
-            }
-            u = h_par;
-        }
-    }
 };
 
 }  // namespace yosupo
