@@ -10,6 +10,7 @@
 
 #include "yosupo/algebra.hpp"
 #include "yosupo/flattenvector.hpp"
+#include "yosupo/tree.hpp"
 #include "yosupo/types.hpp"
 
 namespace yosupo {
@@ -19,70 +20,13 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
     using Path = typename decltype(TreeDP::path)::S;
 
     int n;
-    std::vector<std::pair<int, int>> edges;
     TreeDP& dp;
 
-    StaticTopTree(int _n, TreeDP& _dp)
-        : n(_n), dp(_dp), points(n + 1, dp.point.e), node_ids(n, {n, -1, -1}) {
-        edges.reserve(2 * (n - 1));
-    }
-
-    void add_edge(int u, int v) {
-        edges.push_back({u, v});
-        edges.push_back({v, u});
-    }
-
-    // compress / rake
-    template <class D> struct Inner {
-        std::pair<D, D> d;
-        int par;
-    };
-    std::vector<Inner<Path>> compressed;
-    std::vector<Inner<Point>> raked;
-
-    // compress / rake / leaf
-    template <class D> struct Node {
-        D p;
-        int* par;
-    };
-    template <bool RAKE, class D>
-    Node<D> merge(const Node<D>& l,
-                  const Node<D>& r,
-                  std::vector<Inner<D>>& nodes) {
-        int id = int(nodes.size());
-        *l.par = 2 * id;
-        *r.par = 2 * id + 1;
-        nodes.push_back({{l.p, r.p}, -1});
-        if constexpr (RAKE) {
-            return {dp.point.op(l.p, r.p), &nodes[id].par};
-        } else {
-            return {dp.path.op(l.p, r.p), &nodes[id].par};
-        }
-    }
-
-    void init(int r = 0) {
-        FlattenVector tree(n, edges);
-        std::vector<int> topo;
-        {
-            std::vector<int> parent(n, -1);
-            topo.reserve(n);
-            topo.push_back(r);
-            for (int i = 0; i < n; i++) {
-                int u = topo[i];
-                for (int v : tree.at(u)) {
-                    if (v == parent[u]) continue;
-                    parent[v] = u;
-                    topo.push_back(v);
-                }
-            }
-            edges.erase(remove_if(edges.begin(), edges.end(),
-                                  [&](auto edge) {
-                                      return parent[edge.second] != edge.first;
-                                  }),
-                        edges.end());
-            tree = FlattenVector(n, edges);
-        }
-
+    StaticTopTree(const RootedTree& tree, TreeDP& _dp)
+        : n(tree.n),
+          dp(_dp),
+          points(n + 1, dp.point.e),
+          node_ids(n, {n, -1, -1}) {
         std::vector<int> heavy_child(n, -1);
         std::vector<u64> mask(n);
 
@@ -130,13 +74,13 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
         const int MAX_H = 128;
         std::array<Node<Point>, MAX_H> q;
         std::bitset<MAX_H> has = {};
-        for (int u : topo | std::ranges::views::reverse) {
+        for (int u : tree.topo | std::ranges::views::reverse) {
             u64 sum_rake = 0;
-            for (int v : tree.at(u)) {
+            for (int v : tree.children.at(u)) {
                 sum_rake += std::bit_ceil(mask[v]) << 1;
             }
             mask[u] = std::bit_ceil(sum_rake);
-            for (int v : tree.at(u)) {
+            for (int v : tree.children.at(u)) {
                 int d = std::countr_zero(
                     std::bit_ceil(sum_rake - (std::bit_ceil(mask[v]) << 1)));
                 u64 s =
@@ -147,7 +91,7 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
                 }
             }
 
-            for (int v : tree.at(u)) {
+            for (int v : tree.children.at(u)) {
                 if (v == heavy_child[u]) continue;
                 int d = std::countr_zero(
                     std::bit_ceil(sum_rake - (std::bit_ceil(mask[v]) << 1)));
@@ -174,7 +118,7 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
             }
             points[u] = data.p;
 
-            for (int v0 : tree.at(u)) {
+            for (int v0 : tree.children.at(u)) {
                 if (v0 == heavy_child[u]) continue;
                 int v = v0;
                 while (v != -1) {
@@ -184,7 +128,35 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
                 }
             }
         }
-        build_compress(r);
+        build_compress(tree.root);
+    }
+
+    // compress / rake
+    template <class D> struct Inner {
+        std::pair<D, D> d;
+        int par;
+    };
+    std::vector<Inner<Path>> compressed;
+    std::vector<Inner<Point>> raked;
+
+    // compress / rake / leaf
+    template <class D> struct Node {
+        D p;
+        int* par;
+    };
+    template <bool RAKE, class D>
+    Node<D> merge(const Node<D>& l,
+                  const Node<D>& r,
+                  std::vector<Inner<D>>& nodes) {
+        int id = int(nodes.size());
+        *l.par = 2 * id;
+        *r.par = 2 * id + 1;
+        nodes.push_back({{l.p, r.p}, -1});
+        if constexpr (RAKE) {
+            return {dp.point.op(l.p, r.p), &nodes[id].par};
+        } else {
+            return {dp.path.op(l.p, r.p), &nodes[id].par};
+        }
     }
 
     std::vector<Point> points;

@@ -1,7 +1,9 @@
 #include "yosupo/toptree.hpp"
+#include <utility>
 #include "yosupo/algebra.hpp"
 
 #include "gtest/gtest.h"
+#include "yosupo/tree.hpp"
 
 struct TopTreeDP {
     using Point = int;
@@ -15,13 +17,13 @@ struct TopTreeDP {
 };
 
 TEST(StaticTopTree, Usage) {
+    yosupo::RootedTreeBuilder tree(5);
+    tree.add_edge(0, 1);
+    tree.add_edge(1, 2);
+    tree.add_edge(2, 3);
+    tree.add_edge(2, 4);
     TopTreeDP dp;
-    yosupo::StaticTopTree top_tree(5, dp);
-    top_tree.add_edge(0, 1);
-    top_tree.add_edge(1, 2);
-    top_tree.add_edge(2, 3);
-    top_tree.add_edge(2, 4);
-    top_tree.init();
+    yosupo::StaticTopTree top_tree(std::move(tree).build(0), dp);
 
     auto path = top_tree.path_prod(0);
     EXPECT_EQ(path, 5);

@@ -7,9 +7,9 @@
 #include <vector>
 
 #include "yosupo/fastio.hpp"
-#include "yosupo/flattenvector.hpp"
 #include "yosupo/modint.hpp"
 #include "yosupo/toptree.hpp"
+#include "yosupo/tree.hpp"
 
 using mint = yosupo::ModInt998244353;
 
@@ -68,41 +68,32 @@ int main() {
         dp.f[u].val = x;
     }
 
-    yosupo::StaticTopTree<TreeDP> tr(n, dp);
     struct E {
-        int to;
+        int u, v;
         mint a, b;
     };
-    std::vector<std::pair<int, E>> edges;
+    std::vector<E> edges(n - 1);
+    yosupo::RootedTreeBuilder treeb(n);
     for (int i = 0; i < n - 1; i++) {
-        int u, v;
-        sc.read(u, v);
-        int a, b;
-        sc.read(a, b);
-        tr.add_edge(u, v);
-        edges.push_back({u, {v, a, b}});
-        edges.push_back({v, {u, a, b}});
+        int u, v, a, b;
+        sc.read(u, v, a, b);
+
+        treeb.add_edge(u, v);
+        edges[i] = {u, v, a, b};
     }
-    std::vector<int> par(n, -1);
-    {
-        auto tree = yosupo::FlattenVector(n, edges);
-        std::vector<int> topo;
-        topo.reserve(n);
-        topo.push_back(0);
-        dp.f[0].a = mint(1);
-        for (int i = 0; i < n; i++) {
-            int u = topo[i];
-            for (auto e : tree.at(u)) {
-                int v = e.to;
-                if (v == par[u]) continue;
-                par[v] = u;
-                dp.f[v].a = e.a;
-                dp.f[v].b = e.b;
-                topo.push_back(v);
-            }
-        }
+    auto tree = std::move(treeb).build(0);
+
+    dp.f[0].a = mint(1);
+    dp.f[0].b = mint(0);
+    for (auto& e : edges) {
+        int& u = e.u;
+        int& v = e.v;
+        if (tree.par[v] == u) std::swap(u, v);
+        assert(tree.par[u] == v);
+        dp.f[u].a = e.a;
+        dp.f[u].b = e.b;
     }
-    tr.init();
+    yosupo::StaticTopTree<TreeDP> tr(tree, dp);
 
     struct Query {
         int t;
@@ -122,10 +113,7 @@ int main() {
         } else {
             int e, a, b;
             sc.read(e, a, b);
-            u = edges[2 * e].first;
-            int v = edges[2 * e].second.to;
-            if (par[v] == u) std::swap(u, v);
-            assert(par[u] == v);
+            u = edges[e].u;
             dp.f[u].a = a;
             dp.f[u].b = b;
         }
