@@ -24,9 +24,12 @@ template <monoid Monoid> struct ReversibleMonoid {
     struct S {
         typename Monoid::S val;
         typename Monoid::S rev;
+        S(typename Monoid::S v) : val(v), rev(v) {}
+        S(typename Monoid::S _val, typename Monoid::S _rev)
+            : val(_val), rev(_rev) {}
     };
     explicit ReversibleMonoid(const Monoid& _monoid)
-        : monoid(_monoid), e({monoid.e, monoid.e}) {}
+        : monoid(_monoid), e(monoid.e) {}
     S op(S a, S b) {
         return {monoid.op(a.val, b.val), monoid.op(b.rev, a.rev)};
     }
