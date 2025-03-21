@@ -47,11 +47,10 @@ struct TreeDP {
         mint a, b;
         mint val;
     };
-    std::vector<Vertex> f;
-    Path add_vertex(Point x, int u) {
-        x.ans += f[u].val;
+    Path add_vertex(Point x, Vertex f) {
+        x.ans += f.val;
         x.cnt += mint(1);
-        return Path(f[u].a, f[u].b, f[u].a * x.ans + f[u].b * x.cnt, x.cnt);
+        return Path(f.a, f.b, f.a * x.ans + f.b * x.cnt, x.cnt);
     }
     Point add_edge(Path x) { return Point(x.ans, x.cnt); }
 };
@@ -60,12 +59,11 @@ int main() {
     int n, q;
     sc.read(n, q);
 
-    TreeDP dp;
-    dp.f = std::vector<TreeDP::Vertex>(n);
+    std::vector<TreeDP::Vertex> f(n);
     for (int u = 0; u < n; u++) {
         int x;
         sc.read(x);
-        dp.f[u].val = x;
+        f[u].val = x;
     }
 
     struct E {
@@ -83,17 +81,17 @@ int main() {
     }
     auto tree = std::move(treeb).build(0);
 
-    dp.f[0].a = mint(1);
-    dp.f[0].b = mint(0);
+    f[0].a = mint(1);
+    f[0].b = mint(0);
     for (auto& e : edges) {
         int& u = e.u;
         int& v = e.v;
         if (tree.par[v] == u) std::swap(u, v);
         assert(tree.par[u] == v);
-        dp.f[u].a = e.a;
-        dp.f[u].b = e.b;
+        f[u].a = e.a;
+        f[u].b = e.b;
     }
-    yosupo::StaticTopTree<TreeDP> tr(tree, dp);
+    yosupo::StaticTopTree<TreeDP> top_tree(tree, std::move(f));
 
     struct Query {
         int t;
@@ -109,16 +107,19 @@ int main() {
         if (t == 0) {
             int x;
             sc.read(u, x);
-            dp.f[u].val = x;
+            auto fu = top_tree.get_vertex(u);
+            fu.val = x;
+            top_tree.update(u, fu);
         } else {
             int e, a, b;
             sc.read(e, a, b);
             u = edges[e].u;
-            dp.f[u].a = a;
-            dp.f[u].b = b;
+            auto fu = top_tree.get_vertex(u);
+            fu.a = a;
+            fu.b = b;
+            top_tree.update(u, fu);
         }
-        auto ans = tr.update(u);
-        pr.writeln(ans.ans.val());
+        pr.writeln(top_tree.all_prod().ans.val());
     }
 
     return 0;
