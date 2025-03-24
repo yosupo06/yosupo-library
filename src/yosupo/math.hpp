@@ -34,7 +34,7 @@ int sgn(T x) {
 }
 
 // abs
-using std::abs;
+template <std::integral T> inline T abs(T x) { return std::abs(x); }
 inline i128 abs(i128 x) { return x < 0 ? -x : x; }
 template <class T>
     requires requires(T x) {

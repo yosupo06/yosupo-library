@@ -12,6 +12,7 @@ jobs:
     strategy:
       matrix:
         compiler: [g++, clang++]
+        extensions: [ON, OFF]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,7 +21,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ../test -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
+          cmake ../test -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -DCMAKE_CXX_EXTENSIONS=${{ matrix.extensions }}
           make
           ./unittest
         env:
