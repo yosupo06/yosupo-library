@@ -4,7 +4,6 @@
 #include <array>
 #include <bit>
 #include <cmath>
-#include <ranges>
 
 #include "yosupo/types.hpp"
 
