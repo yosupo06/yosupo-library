@@ -41,6 +41,7 @@ add_executable(unittest
   unittest/hash_test.cpp
   unittest/hashmap_test.cpp
   unittest/hl_test.cpp
+  unittest/hyperloglog_test.cpp
   unittest/int_n_test.cpp
   unittest/math_test.cpp
   unittest/maxflow_test.cpp
