@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include <array>
 #include <map>
+#include <set>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -107,4 +108,18 @@ TEST(DumpTest, Map) {
 
     std::map<int, int> m5;
     EXPECT_EQ(yosupo::dump(m5), "{}");
+}
+
+TEST(DumpTest, Set) {
+    std::set<int> s1 = {1, 2, 3, 4, 5};
+    EXPECT_EQ(yosupo::dump(s1), "{1, 2, 3, 4, 5}");
+
+    std::set<std::string> s2 = {"apple", "banana", "cherry"};
+    EXPECT_EQ(yosupo::dump(s2), "{apple, banana, cherry}");
+
+    std::set<std::pair<int, int>> s3 = {{1, 2}, {3, 4}, {5, 6}};
+    EXPECT_EQ(yosupo::dump(s3), "{(1, 2), (3, 4), (5, 6)}");
+
+    std::set<int> s4;
+    EXPECT_EQ(yosupo::dump(s4), "{}");
 }

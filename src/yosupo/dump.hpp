@@ -5,6 +5,7 @@
 #include <concepts>
 #include <cstddef>
 #include <map>
+#include <set>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -57,6 +58,7 @@ template <class T, std::size_t N> std::string dump(const std::array<T, N>&);
 template <class T> std::string dump(const std::vector<T>&);
 template <class T1, class T2> std::string dump(const std::pair<T1, T2>&);
 template <class K, class V> std::string dump(const std::map<K, V>&);
+template <class T> std::string dump(const std::set<T>&);
 template <class... Ts> std::string dump(const std::tuple<Ts...>& t);
 
 template <class T>
@@ -116,6 +118,18 @@ template <class K, class V> std::string dump(const std::map<K, V>& m) {
     }
     s += "}";
     return s;
+}
+
+template <class T> std::string dump(const std::set<T>& s) {
+    std::string str = "{";
+    for (auto it = s.begin(); it != s.end(); ++it) {
+        if (it != s.begin()) {
+            str += ", ";
+        }
+        str += dump(*it);
+    }
+    str += "}";
+    return str;
 }
 
 template <class... Ts> std::string dump(const std::tuple<Ts...>& t) {
