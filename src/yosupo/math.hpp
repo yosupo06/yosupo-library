@@ -114,7 +114,7 @@ u64 iroot(u64 a, int k) {
     if (k == 1) return a;
 
     // is (b^k <= a)?
-    auto check = [&](u64 b, int k) {
+    auto check = [&](u64 b) {
         u128 result = 1;
         for (int i = 0; i < k; i++) {
             result *= b;
@@ -128,7 +128,7 @@ u64 iroot(u64 a, int k) {
     u64 up = 1LL << 33;
     while (up - lw > 1) {
         u64 mid = (lw + up) / 2;
-        if (check(mid, k)) {
+        if (check(mid)) {
             lw = mid;
         } else {
             up = mid;
