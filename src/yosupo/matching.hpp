@@ -48,7 +48,7 @@ struct MaxMatching {
 
     void blossom_match() {
         std::vector<int> is_even(n, -1);  // (i -> is_even[i])への交互パスが存在
-        std::vector<int> _first(n);       // 親方向
+        std::vector<int> _first(n);  // 親方向
 
         // 代表偶点 nx[i] = (j, -1) : P(i) = (i, mate[i]) + (mate[i], j) + P(j)
         // 非代表偶点 nx[i] = (j, k) : P(i) = P(j) + P(k) + 辺(j, k) -
