@@ -109,6 +109,35 @@ inline constexpr u64 pow_mod_u64(u64 x, u64 n, u64 m) {
     return r;
 }
 
+// integer k-th root: floor(a^(1/k))
+u64 iroot(u64 a, int k) {
+    if (k == 1) return a;
+
+    // is (b^k <= a)?
+    auto check = [&](u64 b, int k) {
+        u128 result = 1;
+        for (int i = 0; i < k; i++) {
+            result *= b;
+            if (result > a) return false;
+        }
+        return true;
+    };
+
+    // lw^k <= a < up^k
+    u64 lw = 0;
+    u64 up = 1LL << 33;
+    while (up - lw > 1) {
+        u64 mid = (lw + up) / 2;
+        if (check(mid, k)) {
+            lw = mid;
+        } else {
+            up = mid;
+        }
+    }
+
+    return lw;
+}
+
 inline constexpr u32 smallest_primitive_root(u32 m) {
     if (m == 2) return 1;
 
