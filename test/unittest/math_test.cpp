@@ -60,6 +60,12 @@ TEST(MathTest, CeilDiv) {
     EXPECT_EQ(yosupo::ceil_div(-11, 5), -2);
 }
 
+TEST(MathTest, ISqrtTest) {
+    EXPECT_EQ(yosupo::isqrt(99), 9);
+    EXPECT_EQ(yosupo::isqrt(100), 10);
+    EXPECT_EQ(yosupo::isqrt(101), 10);
+}
+
 TEST(MathTest, IRootTest) {
     EXPECT_EQ(yosupo::iroot(99, 2), 9);
     EXPECT_EQ(yosupo::iroot(100, 2), 10);
