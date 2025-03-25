@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <vector>
 
 #include "yosupo/geo/point.hpp"
 #include "yosupo/geo/polygon.hpp"
