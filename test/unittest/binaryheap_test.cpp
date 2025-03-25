@@ -1,11 +1,11 @@
 #include "yosupo/binaryheap.hpp"
-#include "yosupo/random.hpp"
 
 #include <iterator>
 #include <queue>
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "yosupo/random.hpp"
 
 using namespace yosupo;
 using ll = long long;

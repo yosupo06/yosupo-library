@@ -1,5 +1,4 @@
 #include "yosupo/hash.hpp"
-#include "yosupo/bitvector.hpp"
 
 #include <array>
 #include <map>
@@ -8,6 +7,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "yosupo/bitvector.hpp"
 
 using namespace yosupo;
 using ll = long long;

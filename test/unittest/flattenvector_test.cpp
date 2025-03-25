@@ -1,10 +1,10 @@
 #include "yosupo/flattenvector.hpp"
-#include "yosupo/util.hpp"
 
 #include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "yosupo/util.hpp"
 
 using namespace yosupo;
 using ll = long long;

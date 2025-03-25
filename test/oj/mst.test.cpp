@@ -3,6 +3,7 @@
 // clang-format on
 
 #include "yosupo/mst.hpp"
+
 #include "yosupo/fastio.hpp"
 
 using ll = long long;

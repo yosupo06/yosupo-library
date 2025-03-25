@@ -1,10 +1,11 @@
 #include "yosupo/geo/convex.hpp"
-#include "yosupo/geo/point.hpp"
-#include "yosupo/int_n.hpp"
 
 #include <gtest/gtest.h>
 
 #include <vector>
+
+#include "yosupo/geo/point.hpp"
+#include "yosupo/int_n.hpp"
 
 using namespace yosupo;
 

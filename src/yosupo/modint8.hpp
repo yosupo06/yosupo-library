@@ -2,6 +2,7 @@
 
 #include <immintrin.h>
 #include <xmmintrin.h>
+
 #include <array>
 #include <span>
 #include <string>

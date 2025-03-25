@@ -1,10 +1,10 @@
 #include "yosupo/modint8.hpp"
-#include "yosupo/modint.hpp"
-#include "yosupo/types.hpp"
 
 #include <array>
 
 #include "gtest/gtest.h"
+#include "yosupo/modint.hpp"
+#include "yosupo/types.hpp"
 
 using namespace yosupo;
 

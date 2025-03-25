@@ -1,9 +1,7 @@
 #include "yosupo/fastio.hpp"
+
 #include <stdio.h>
 #include <unistd.h>
-
-#include "yosupo/random.hpp"
-#include "yosupo/types.hpp"
 
 #include <cassert>
 #include <cstdio>
@@ -12,6 +10,8 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "yosupo/random.hpp"
+#include "yosupo/types.hpp"
 
 using namespace yosupo;
 

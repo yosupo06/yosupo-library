@@ -1,7 +1,7 @@
 #include "yosupo/dump.hpp"
-#include "yosupo/modint.hpp"
 
 #include <gtest/gtest.h>
+
 #include <array>
 #include <map>
 #include <set>
@@ -9,6 +9,8 @@
 #include <tuple>
 #include <utility>
 #include <vector>
+
+#include "yosupo/modint.hpp"
 
 TEST(DumpTest, String) {
     EXPECT_EQ(yosupo::dump("hello"), "hello");
