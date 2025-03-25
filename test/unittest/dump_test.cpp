@@ -3,6 +3,7 @@
 
 #include <gtest/gtest.h>
 #include <array>
+#include <map>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -87,4 +88,23 @@ TEST(DumpTest, ModInt) {
 
     yosupo::ModInt<1000000007> b = -5;
     EXPECT_EQ(yosupo::dump(b), "1000000002");
+}
+
+TEST(DumpTest, Map) {
+    std::map<int, int> m1 = {{1, 2}, {3, 4}, {5, 6}};
+    EXPECT_EQ(yosupo::dump(m1), "{1: 2, 3: 4, 5: 6}");
+
+    std::map<std::string, int> m2 = {
+        {"apple", 1}, {"banana", 2}, {"cherry", 3}};
+    EXPECT_EQ(yosupo::dump(m2), "{apple: 1, banana: 2, cherry: 3}");
+
+    std::map<int, std::vector<int>> m3 = {{1, {1, 2, 3}}, {2, {4, 5, 6}}};
+    EXPECT_EQ(yosupo::dump(m3), "{1: [1, 2, 3], 2: [4, 5, 6]}");
+
+    std::map<int, std::map<int, int>> m4 = {{1, {{1, 2}, {3, 4}}},
+                                            {2, {{5, 6}, {7, 8}}}};
+    EXPECT_EQ(yosupo::dump(m4), "{1: {1: 2, 3: 4}, 2: {5: 6, 7: 8}}");
+
+    std::map<int, int> m5;
+    EXPECT_EQ(yosupo::dump(m5), "{}");
 }

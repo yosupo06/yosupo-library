@@ -11,3 +11,4 @@
 - `EXPECT_EQ` を `ASSERT_EQ` より好みます
 - `++i` より `i++` を好みます
 - `public:` の後ろに `private:` を書きます。基本的に `protected:` は使いません
+- 自明なコメントは不要です
