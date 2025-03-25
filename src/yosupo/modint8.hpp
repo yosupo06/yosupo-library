@@ -8,7 +8,7 @@
 #include <string>
 
 #include "yosupo/dump.hpp"
-#include "yosupo/math.hpp"
+#include "yosupo/math/basic.hpp"
 #include "yosupo/modint.hpp"
 #include "yosupo/types.hpp"
 

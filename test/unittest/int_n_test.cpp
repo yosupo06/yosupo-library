@@ -6,7 +6,7 @@
 #include <limits>
 
 #include "yosupo/bit.hpp"
-#include "yosupo/math.hpp"
+#include "yosupo/numeric.hpp"
 
 using namespace yosupo;
 

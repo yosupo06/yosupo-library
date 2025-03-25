@@ -25,6 +25,21 @@ template <class T> bool chmax(T& a, const T& b) {
     return false;
 }
 
+template <class T> T floor_div(T x, T y) {
+    auto d = x / y;
+    auto r = x % y;
+    if (r == 0) return d;
+    if ((r > 0) == (y > 0)) return d;
+    return d - 1;
+}
+template <class T> T ceil_div(T x, T y) {
+    auto d = x / y;
+    auto r = x % y;
+    if (r == 0) return d;
+    if ((r > 0) == (y > 0)) return d + 1;
+    return d;
+}
+
 template <std::ranges::input_range R>
 std::vector<std::ranges::range_value_t<R>> to_vec(R&& r) {
     auto common = r | std::views::common;

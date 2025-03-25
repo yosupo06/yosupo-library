@@ -3,7 +3,7 @@
 // clang-format on
 
 #include "yosupo/fastio.hpp"
-#include "yosupo/math.hpp"
+#include "yosupo/math/basic.hpp"
 #include "yosupo/types.hpp"
 
 yosupo::Scanner sc(stdin);

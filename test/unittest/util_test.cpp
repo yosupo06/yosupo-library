@@ -26,6 +26,24 @@ TEST(UtilTest, Chmax) {
     EXPECT_EQ(15, a);
 }
 
+TEST(UtilTest, FloorDiv) {
+    EXPECT_EQ(yosupo::floor_div(11, 5), 2);
+    EXPECT_EQ(yosupo::floor_div(10, 5), 2);
+    EXPECT_EQ(yosupo::floor_div(9, 5), 1);
+    EXPECT_EQ(yosupo::floor_div(-9, 5), -2);
+    EXPECT_EQ(yosupo::floor_div(-10, 5), -2);
+    EXPECT_EQ(yosupo::floor_div(-11, 5), -3);
+}
+
+TEST(UtilTest, CeilDiv) {
+    EXPECT_EQ(yosupo::ceil_div(11, 5), 3);
+    EXPECT_EQ(yosupo::ceil_div(10, 5), 2);
+    EXPECT_EQ(yosupo::ceil_div(9, 5), 2);
+    EXPECT_EQ(yosupo::ceil_div(-9, 5), -1);
+    EXPECT_EQ(yosupo::ceil_div(-10, 5), -2);
+    EXPECT_EQ(yosupo::ceil_div(-11, 5), -2);
+}
+
 TEST(UtilTest, ToVec) {
     ASSERT_EQ(std::vector({1, 2, 3}), yosupo::to_vec(std::views::iota(1, 4)));
 }
