@@ -1,7 +1,7 @@
 #include "yosupo/modvec.hpp"
-#include "yosupo/modint.hpp"
 
 #include "gtest/gtest.h"
+#include "yosupo/modint.hpp"
 
 using modint = yosupo::ModInt<998244353>;
 using modvec = yosupo::ModVec<998244353>;

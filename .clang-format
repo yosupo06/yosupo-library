@@ -1,6 +1,7 @@
 BasedOnStyle: 'Chromium'
 IndentWidth: 4
 AccessModifierOffset: -2
+IncludeBlocks: Regroup
 
 # for competitive programming
 AllowShortFunctionsOnASingleLine: All

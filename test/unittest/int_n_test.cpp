@@ -1,11 +1,12 @@
-#include "yosupo/bit.hpp"
-#include "yosupo/math.hpp"
-
 #include "yosupo/int_n.hpp"
 
 #include <gtest/gtest.h>
+
 #include <cstdint>
 #include <limits>
+
+#include "yosupo/bit.hpp"
+#include "yosupo/math.hpp"
 
 using namespace yosupo;
 

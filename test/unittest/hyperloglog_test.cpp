@@ -1,9 +1,7 @@
 #include "yosupo/hyperloglog.hpp"
 
 #include "gtest/gtest.h"
-
 #include "yosupo/random.hpp"
-
 #include "yosupo/types.hpp"
 
 using namespace yosupo;

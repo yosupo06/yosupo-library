@@ -1,8 +1,8 @@
 #include "yosupo/geo/point.hpp"
-#include "yosupo/fraction.hpp"
-#include "yosupo/int_n.hpp"
 
 #include "gtest/gtest.h"
+#include "yosupo/fraction.hpp"
+#include "yosupo/int_n.hpp"
 
 using namespace yosupo;
 

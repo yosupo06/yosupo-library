@@ -1,4 +1,5 @@
 #include "yosupo/networksimplex.hpp"
+
 #include <utility>
 #include <vector>
 

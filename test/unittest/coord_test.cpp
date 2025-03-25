@@ -1,9 +1,11 @@
 #include "yosupo/coord.hpp"
-#include "yosupo/util.hpp"
 
 #include <gtest/gtest.h>
+
 #include <utility>
 #include <vector>
+
+#include "yosupo/util.hpp"
 
 using namespace yosupo;
 

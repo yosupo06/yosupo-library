@@ -1,9 +1,10 @@
 #include "yosupo/toptree.hpp"
+
 #include <utility>
 #include <vector>
-#include "yosupo/algebra.hpp"
 
 #include "gtest/gtest.h"
+#include "yosupo/algebra.hpp"
 #include "yosupo/tree.hpp"
 
 struct TopTreeDP {

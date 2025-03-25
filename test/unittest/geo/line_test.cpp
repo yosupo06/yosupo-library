@@ -1,9 +1,9 @@
 #include "yosupo/geo/line.hpp"
-#include "yosupo/fraction.hpp"
 
 #include <algorithm>
 
 #include "gtest/gtest.h"
+#include "yosupo/fraction.hpp"
 
 using namespace yosupo;
 
