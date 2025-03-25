@@ -4,6 +4,7 @@
 #include <array>
 #include <concepts>
 #include <cstddef>
+#include <map>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -55,6 +56,7 @@ std::string dump(T t);
 template <class T, std::size_t N> std::string dump(const std::array<T, N>&);
 template <class T> std::string dump(const std::vector<T>&);
 template <class T1, class T2> std::string dump(const std::pair<T1, T2>&);
+template <class K, class V> std::string dump(const std::map<K, V>&);
 template <class... Ts> std::string dump(const std::tuple<Ts...>& t);
 
 template <class T>
@@ -99,6 +101,20 @@ template <class T1, class T2> std::string dump(const std::pair<T1, T2>& p) {
     s += ", ";
     s += dump(p.second);
     s += ")";
+    return s;
+}
+
+template <class K, class V> std::string dump(const std::map<K, V>& m) {
+    std::string s = "{";
+    for (auto it = m.begin(); it != m.end(); ++it) {
+        if (it != m.begin()) {
+            s += ", ";
+        }
+        s += dump(it->first);
+        s += ": ";
+        s += dump(it->second);
+    }
+    s += "}";
     return s;
 }
 
