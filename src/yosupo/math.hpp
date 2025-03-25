@@ -109,9 +109,16 @@ inline constexpr u64 pow_mod_u64(u64 x, u64 n, u64 m) {
     return r;
 }
 
+inline u64 isqrt(u64 a) {
+    if (a == u64(-1)) return (u64(1) << 32) - 1;
+    u64 x = (u64)std::sqrt((double)a);
+    return x * x > a ? x - 1 : x;
+}
+
 // integer k-th root: floor(a^(1/k))
 inline u64 iroot(u64 a, int k) {
     if (k == 1) return a;
+    if (k == 2) return isqrt(a);
 
     // is (b^k <= a)?
     auto check = [&](u64 b) {
@@ -125,7 +132,7 @@ inline u64 iroot(u64 a, int k) {
 
     // lw^k <= a < up^k
     u64 lw = 0;
-    u64 up = 1LL << 33;
+    u64 up = 1LL << 22;
     while (up - lw > 1) {
         u64 mid = (lw + up) / 2;
         if (check(mid)) {
