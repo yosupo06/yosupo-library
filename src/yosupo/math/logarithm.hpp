@@ -6,7 +6,7 @@
 
 namespace yosupo {
 
-u64 discrete_logarithm(u64 start, u64 x, u64 y, u64 m) {
+inline u64 discrete_logarithm(u64 start, u64 x, u64 y, u64 m) {
     const u64 STEP = 32000;
 
     auto mul = [&](u64 a, u64 b) { return (a * b) % m; };
@@ -27,7 +27,7 @@ u64 discrete_logarithm(u64 start, u64 x, u64 y, u64 m) {
     return -1;
 }
 
-u64 discrete_logarithm(u64 x, u64 y, u64 m) {
+inline u64 discrete_logarithm(u64 x, u64 y, u64 m) {
     if (m == 1) return 0;
     auto mul = [&](i64 a, i64 b) { return (a * b) % m; };
     u64 start = 1;
