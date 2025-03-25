@@ -1,9 +1,12 @@
 #include "yosupo/geo/line.hpp"
 
 #include <algorithm>
+#include <cstddef>
+#include <vector>
 
 #include "gtest/gtest.h"
 #include "yosupo/fraction.hpp"
+#include "yosupo/geo/point.hpp"
 
 using namespace yosupo;
 

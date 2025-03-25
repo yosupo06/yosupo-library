@@ -1,6 +1,7 @@
 #pragma once
 
 #include <compare>
+#include <string>
 
 #include "yosupo/dump.hpp"
 #include "yosupo/math.hpp"

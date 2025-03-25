@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cassert>
 #include <deque>
+#include <utility>
+#include <vector>
 
 #include "yosupo/geo/point.hpp"
 #include "yosupo/util.hpp"
