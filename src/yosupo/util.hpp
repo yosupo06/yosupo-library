@@ -9,6 +9,22 @@
 
 namespace yosupo {
 
+template <class T> bool chmin(T& a, const T& b) {
+    if (a > b) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+
+template <class T> bool chmax(T& a, const T& b) {
+    if (a < b) {
+        a = b;
+        return true;
+    }
+    return false;
+}
+
 template <std::ranges::input_range R>
 std::vector<std::ranges::range_value_t<R>> to_vec(R&& r) {
     auto common = r | std::views::common;
