@@ -2,6 +2,7 @@
 
 #include <initializer_list>
 #include <limits>
+#include <vector>
 
 #include "yosupo/math/basic.hpp"
 #include "yosupo/types.hpp"
@@ -55,6 +56,33 @@ inline bool is_prime(i32 n) {
 inline bool is_prime(i64 n) {
     if (n <= 1) return false;
     return is_prime((u64)n);
+}
+
+// lpf_table[i] = the smallest prime factor of i
+inline std::vector<i32> lpf_table(i32 n) {
+    std::vector<i32> table(n + 1, -1);
+    std::vector<int> primes;
+    for (int d = 2; d <= n; d++) {
+        if (table[d] == -1) {
+            primes.push_back(d);
+            table[d] = d;
+        }
+        for (int p : primes) {
+            if (p * d > n || p > table[d]) break;
+            table[p * d] = p;
+        }
+    }
+    return table;
+}
+
+// enumerate primes no more than n
+inline std::vector<i32> primes(i32 n) {
+    std::vector<i32> table = lpf_table(n);
+    std::vector<i32> p;
+    for (int i = 2; i <= n; i++) {
+        if (table[i] == i) p.push_back(i);
+    }
+    return p;
 }
 
 }  // namespace yosupo
