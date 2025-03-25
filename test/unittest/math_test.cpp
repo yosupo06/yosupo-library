@@ -61,9 +61,9 @@ TEST(MathTest, CeilDiv) {
 }
 
 TEST(MathTest, ISqrtTest) {
-    EXPECT_EQ(yosupo::isqrt(99, 3), 9);
-    EXPECT_EQ(yosupo::isqrt(100, 3), 10);
-    EXPECT_EQ(yosupo::isqrt(101, 3), 10);
+    EXPECT_EQ(yosupo::isqrt(99), 9);
+    EXPECT_EQ(yosupo::isqrt(100), 10);
+    EXPECT_EQ(yosupo::isqrt(101), 10);
 }
 
 TEST(MathTest, IRootTest) {
