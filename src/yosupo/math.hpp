@@ -110,7 +110,7 @@ inline constexpr u64 pow_mod_u64(u64 x, u64 n, u64 m) {
 }
 
 // integer k-th root: floor(a^(1/k))
-u64 iroot(u64 a, int k) {
+inline u64 iroot(u64 a, int k) {
     if (k == 1) return a;
 
     // is (b^k <= a)?
