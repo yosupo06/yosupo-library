@@ -19,7 +19,7 @@ jobs:
           pipx install clangd-tidy
       - name: Run clang-format
         run: |
-          clang-format --dry-run -Werror src/**/*.hpp test/unittest/*.cpp test/oj/*.cpp
+          clang-format --dry-run -Werror src/**/*.hpp test/unittest/**/*.cpp test/oj/**/*.cpp
       - name: Generate compile_commands.json
         run: |
           mkdir build
@@ -27,4 +27,4 @@ jobs:
           cmake ../test -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON          
       - name: Run clangd-tidy
         run: |
-          clangd-tidy --clangd-executable clangd-18 -p build src/**/*.hpp test/unittest/*.cpp test/oj/*.cpp
+          clangd-tidy -v --clangd-executable clangd-18 -p build src/**/*.hpp test/unittest/**/*.cpp test/oj/**/*.cpp
