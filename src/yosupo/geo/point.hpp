@@ -4,7 +4,7 @@
 #include <string>
 
 #include "yosupo/dump.hpp"
-#include "yosupo/math.hpp"
+#include "yosupo/numeric.hpp"
 
 namespace yosupo {
 

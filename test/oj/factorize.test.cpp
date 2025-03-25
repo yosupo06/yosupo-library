@@ -3,7 +3,7 @@
 #include <cstdio>
 
 #include "yosupo/fastio.hpp"
-#include "yosupo/math.hpp"
+#include "yosupo/math/factor.hpp"
 
 yosupo::Scanner sc(stdin);
 yosupo::Printer pr(stdout);

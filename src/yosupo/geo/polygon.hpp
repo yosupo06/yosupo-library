@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "yosupo/geo/point.hpp"
-#include "yosupo/math.hpp"
+#include "yosupo/numeric.hpp"
 
 namespace yosupo {
 

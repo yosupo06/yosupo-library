@@ -9,7 +9,7 @@
 #include <span>
 #include <vector>
 
-#include "yosupo/math.hpp"
+#include "yosupo/math/primitive_root.hpp"
 #include "yosupo/modint.hpp"
 #include "yosupo/modint8.hpp"
 #include "yosupo/types.hpp"

@@ -43,12 +43,17 @@ add_executable(unittest
   unittest/hl_test.cpp
   unittest/hyperloglog_test.cpp
   unittest/int_n_test.cpp
-  unittest/math_test.cpp
+
+  unittest/math/basic_test.cpp
+  unittest/math/prime_test.cpp
+  unittest/math/primitive_root_test.cpp
+
   unittest/maxflow_test.cpp
   unittest/modint_test.cpp
   unittest/modint8_test.cpp
   unittest/modint61_test.cpp
   unittest/modvec_test.cpp
+  unittest/numeric_test.cpp
   unittest/random_test.cpp
   unittest/mst_test.cpp
   unittest/networksimplex_test.cpp

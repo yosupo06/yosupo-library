@@ -2,7 +2,6 @@
 
 #include "gtest/gtest.h"
 #include "yosupo/int_n.hpp"
-#include "yosupo/math.hpp"
 
 using namespace yosupo;
 using ll = long long;

@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <string>
 
-#include "yosupo/math.hpp"
+#include "yosupo/math/basic.hpp"
 #include "yosupo/types.hpp"
 
 namespace yosupo {
