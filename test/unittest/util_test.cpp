@@ -6,6 +6,26 @@
 
 #include "gtest/gtest.h"
 
+TEST(UtilTest, Chmin) {
+    int a = 10;
+    EXPECT_TRUE(yosupo::chmin(a, 5));
+    EXPECT_EQ(5, a);
+    EXPECT_FALSE(yosupo::chmin(a, 7));
+    EXPECT_EQ(5, a);
+    EXPECT_FALSE(yosupo::chmin(a, 5));
+    EXPECT_EQ(5, a);
+}
+
+TEST(UtilTest, Chmax) {
+    int a = 10;
+    EXPECT_TRUE(yosupo::chmax(a, 15));
+    EXPECT_EQ(15, a);
+    EXPECT_FALSE(yosupo::chmax(a, 12));
+    EXPECT_EQ(15, a);
+    EXPECT_FALSE(yosupo::chmax(a, 15));
+    EXPECT_EQ(15, a);
+}
+
 TEST(UtilTest, ToVec) {
     ASSERT_EQ(std::vector({1, 2, 3}), yosupo::to_vec(std::views::iota(1, 4)));
 }
