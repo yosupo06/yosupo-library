@@ -1,6 +1,6 @@
 #pragma once
 
-#include "yosupo/hashmap.hpp"
+#include "yosupo/container/hashmap.hpp"
 #include "yosupo/math/basic.hpp"
 #include "yosupo/types.hpp"
 

@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-#include "yosupo/bitvector.hpp"
+#include "yosupo/container/bitvector.hpp"
 #include "yosupo/internal_type_traits.hpp"
 #include "yosupo/random.hpp"
 

@@ -28,9 +28,12 @@ FetchContent_MakeAvailable(googletest)
 # unittest
 add_executable(unittest
   unittest/algebra_test.cpp
-  unittest/binaryheap_test.cpp
   unittest/bit_test.cpp
   unittest/comb_test.cpp 
+
+  unittest/container/binaryheap_test.cpp
+  unittest/container/splaytree_test.cpp
+
   unittest/convolution_test.cpp 
   unittest/coord_test.cpp
   unittest/dump_test.cpp
@@ -58,7 +61,6 @@ add_executable(unittest
   unittest/mst_test.cpp
   unittest/networksimplex_test.cpp
   unittest/sparsetable_test.cpp
-  unittest/splaytree_test.cpp
   unittest/toptree_test.cpp
   unittest/util_test.cpp
   unittest/vector2d_test.cpp

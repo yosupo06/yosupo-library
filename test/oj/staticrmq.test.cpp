@@ -6,8 +6,8 @@
 #include <vector>
 
 #include "yosupo/algebra.hpp"
+#include "yosupo/container/sparsetable.hpp"
 #include "yosupo/fastio.hpp"
-#include "yosupo/sparsetable.hpp"
 
 using ll = long long;
 using namespace std;
