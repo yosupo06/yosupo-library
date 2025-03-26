@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "yosupo/vector2d.hpp"
+#include "yosupo/container/vector2d.hpp"
 
 namespace yosupo {
 
