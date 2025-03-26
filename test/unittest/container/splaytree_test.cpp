@@ -1,21 +1,21 @@
 #include "yosupo/container/splaytree.hpp"
 
 #include <algorithm>
+#include <functional>
 #include <utility>
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "yosupo/algebra.hpp"
 
 struct RangeAddMax {
     using S = int;
     using F = int;
-    S op(S a, S b) { return std::max(a, b); }
-    S e() { return 0; }
-    S rev(S a) { return a; }
+
+    yosupo::Max<S> monoid = yosupo::Max<S>(0);
+    yosupo::Monoid<F, std::plus<F>> act = yosupo::Monoid<F, std::plus<F>>(0);
 
     S mapping(F l, S r) { return l + r; }
-    F composition(F l, F r) { return l + r; }
-    F id() { return 0; }
 };
 
 TEST(SplayTreeTest, ToVec) {
