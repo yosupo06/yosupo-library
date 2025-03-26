@@ -1,6 +1,5 @@
 #include "yosupo/container/splaytree.hpp"
 
-#include <algorithm>
 #include <functional>
 #include <utility>
 #include <vector>
