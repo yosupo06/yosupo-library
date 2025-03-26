@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "yosupo/bitvector.hpp"
+#include "yosupo/container/bitvector.hpp"
 
 using namespace yosupo;
 using ll = long long;

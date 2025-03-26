@@ -28,18 +28,23 @@ FetchContent_MakeAvailable(googletest)
 # unittest
 add_executable(unittest
   unittest/algebra_test.cpp
-  unittest/binaryheap_test.cpp
   unittest/bit_test.cpp
   unittest/comb_test.cpp 
+
+  unittest/container/binaryheap_test.cpp
+  unittest/container/fastset_test.cpp
+  unittest/container/hashmap_test.cpp
+  unittest/container/sparsetable_test.cpp
+  unittest/container/splaytree_test.cpp
+  unittest/container/vector2d_test.cpp
+
   unittest/convolution_test.cpp 
   unittest/coord_test.cpp
   unittest/dump_test.cpp
   unittest/fastio_test.cpp  
-  unittest/fastset_test.cpp  
   unittest/flattenvector_test.cpp
   unittest/fraction_test.cpp
   unittest/hash_test.cpp
-  unittest/hashmap_test.cpp
   unittest/hl_test.cpp
   unittest/hyperloglog_test.cpp
   unittest/int_n_test.cpp
@@ -57,11 +62,8 @@ add_executable(unittest
   unittest/random_test.cpp
   unittest/mst_test.cpp
   unittest/networksimplex_test.cpp
-  unittest/sparsetable_test.cpp
-  unittest/splaytree_test.cpp
   unittest/toptree_test.cpp
   unittest/util_test.cpp
-  unittest/vector2d_test.cpp
 
   unittest/geo/point_test.cpp
   unittest/geo/line_test.cpp

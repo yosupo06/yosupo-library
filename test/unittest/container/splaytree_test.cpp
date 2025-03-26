@@ -1,4 +1,4 @@
-#include "yosupo/splaytree.hpp"
+#include "yosupo/container/splaytree.hpp"
 
 #include <algorithm>
 #include <utility>

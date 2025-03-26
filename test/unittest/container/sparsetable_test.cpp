@@ -1,4 +1,4 @@
-#include "yosupo/sparsetable.hpp"
+#include "yosupo/container/sparsetable.hpp"
 
 #include <vector>
 
