@@ -58,6 +58,15 @@ template <class _S> struct Min {
 };
 
 template <class T>
+concept acted_monoid = requires(T t, typename T::S s, typename T::F f) {
+    requires monoid<decltype(T::monoid)>;
+    requires monoid<decltype(T::act)>;
+    requires std::same_as<typename T::S, typename decltype(T::monoid)::S>;
+    requires std::same_as<typename T::F, typename decltype(T::act)::S>;
+    { t.mapping(f, s) } -> std::same_as<typename T::S>;
+};
+
+template <class T>
 concept static_top_tree_dp = requires(T t,
                                       typename T::Path path,
                                       typename T::Point point,

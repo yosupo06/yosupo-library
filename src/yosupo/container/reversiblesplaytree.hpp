@@ -6,15 +6,13 @@
 #include <utility>
 #include <vector>
 
-#include "yosupo/algebra.hpp"
-
 namespace yosupo {
 
-template <acted_monoid M> struct SplayTree {
+template <class M> struct SplayTree {
     using S = typename M::S;
     using F = typename M::F;
 
-    SplayTree(const M& _m) : m(_m) {}
+    SplayTree(M _m) : m(_m) {}
 
     struct Tree {
         int id = EMPTY_ID, ex = EMPTY_ID;
@@ -37,20 +35,24 @@ template <acted_monoid M> struct SplayTree {
     ssize_t ssize(const Tree& t) { return ssize_t(size(t)); }
 
     S all_prod(const Tree& t) {
-        if (t.id == EMPTY_ID) return m.monoid.e;
+        if (t.id == EMPTY_ID) return m.e();
         return all_prod(t.id);
     }
     void all_apply(Tree& t, F f) {
         if (t.id != EMPTY_ID) all_apply(t.id, f);
     }
+    void reverse(Tree& t) {
+        if (t.id == EMPTY_ID) return;
+        reverse(t.id);
+    }
 
     template <class F> int max_right(Tree& t, F f) {
         if (f(all_prod(t))) return (int)size(t);
         if (ssize(t) == 1) return 0;
-        S s = m.monoid.e;
+        S s = m.e();
         int r = 0;
         splay(t, [&](int lid, int) {
-            S s2 = m.monoid.op(s, all_prod(lid));
+            S s2 = m.op(s, all_prod(lid));
 
             if (!f(s2)) return -1;
 
@@ -70,7 +72,7 @@ template <acted_monoid M> struct SplayTree {
     Tree merge(Tree&& l, Tree&& r) {
         if (l.id == EMPTY_ID) return r;
         if (r.id == EMPTY_ID) return l;
-        inner(l.ex) = Inner{l.id, r.id, -1, false, m.monoid.e, m.act.e};
+        inner(l.ex) = Inner{l.id, r.id, -1, false, false, m.e(), m.id()};
         update(l.ex);
         return Tree{l.ex, r.ex};
     }
@@ -126,7 +128,7 @@ template <acted_monoid M> struct SplayTree {
 
     struct Inner {
         int lid, rid, sz;
-        bool lz;
+        bool lz, rev;
         S s;
         F f;
     };
@@ -161,6 +163,15 @@ template <acted_monoid M> struct SplayTree {
         _to_vec(rid, buf);
     }
 
+    void reverse(int id) {
+        if (!leaf_id(id)) {
+            Inner& n = inner(id);
+            n.rev = !n.rev;
+            std::swap(n.lid, n.rid);
+            n.s = m.rev(n.s);
+        }
+    }
+
     void all_apply(int id, F f) {
         if (leaf_id(id)) {
             Leaf& n = leaf(id);
@@ -168,7 +179,7 @@ template <acted_monoid M> struct SplayTree {
         } else {
             Inner& n = inner(id);
             n.s = m.mapping(f, n.s);
-            n.f = m.act.op(f, n.f);
+            n.f = m.composition(f, n.f);
             n.lz = true;
         }
     }
@@ -179,15 +190,20 @@ template <acted_monoid M> struct SplayTree {
         if (n.lz) {
             all_apply(n.lid, n.f);
             all_apply(n.rid, n.f);
-            n.f = m.act.e;
+            n.f = m.id();
             n.lz = false;
+        }
+        if (n.rev) {
+            reverse(n.lid);
+            reverse(n.rid);
+            n.rev = false;
         }
     }
 
     void update(int id) {
         Inner& n = inner(id);
         n.sz = size(n.lid) + size(n.rid);
-        n.s = m.monoid.op(all_prod(n.lid), all_prod(n.rid));
+        n.s = m.op(all_prod(n.lid), all_prod(n.rid));
     }
 
     template <class F> void splay(Tree& t, F f) {
