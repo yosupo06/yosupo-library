@@ -91,6 +91,13 @@ template <acted_monoid M> struct SplayTree {
         t = merge(std::move(t), std::move(t2));
     }
 
+    void erase(Tree& t, int k) {
+        assert(0 <= k && k < int(ssize(t)));
+        auto t2 = split(t, k);
+        auto t3 = split(t2, 1);
+        t = merge(std::move(t), std::move(t3));
+    }
+
     void apply(Tree& t, int l, int r, F f) {
         assert(0 <= l && l <= r && r <= ssize(t));
         auto t3 = split(t, r);

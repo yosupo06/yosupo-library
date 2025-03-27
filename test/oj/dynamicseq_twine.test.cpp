@@ -54,38 +54,14 @@ int main() {
             int i, x;
             sc.read(i, x);
 
-            {
-                auto tr1 = treem.make_leaf({x, 1});
-                auto tr2 = treem.split(tree1, i);
-
-                tree1 =
-                    treem.merge(std::move(tree1),
-                                treem.merge(std::move(tr1), std::move(tr2)));
-            }
-            {
-                auto tr1 = treem.make_leaf({x, 1});
-                auto tr2 = treem.split(tree2, size - i);
-
-                tree2 =
-                    treem.merge(std::move(tree2),
-                                treem.merge(std::move(tr1), std::move(tr2)));
-            }
+            treem.insert(tree1, i, {x, 1});
+            treem.insert(tree2, size - i, {x, 1});
         } else if (ty == 1) {
             int i;
             sc.read(i);
 
-            {
-                auto tr2 = treem.split(tree1, i);
-                auto tr3 = treem.split(tr2, 1);
-
-                tree1 = treem.merge(std::move(tree1), std::move(tr3));
-            }
-            {
-                auto tr2 = treem.split(tree2, size - 1 - i);
-                auto tr3 = treem.split(tr2, 1);
-
-                tree2 = treem.merge(std::move(tree2), std::move(tr3));
-            }
+            treem.erase(tree1, i);
+            treem.erase(tree2, size - 1 - i);
         } else if (ty == 2) {
             int l, r;
             sc.read(l, r);
