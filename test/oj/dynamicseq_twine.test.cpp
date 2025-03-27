@@ -80,37 +80,13 @@ int main() {
             int l, r, b, c;
             sc.read(l, r, b, c);
 
-            {
-                auto tr1 = treem.split(tree1, l);
-                auto tr2 = treem.split(tr1, r - l);
-
-                treem.all_apply(tr1, {b, c});
-
-                tree1 =
-                    treem.merge(std::move(tree1),
-                                treem.merge(std::move(tr1), std::move(tr2)));
-            }
-            {
-                auto tr1 = treem.split(tree2, size - r);
-                auto tr2 = treem.split(tr1, r - l);
-
-                treem.all_apply(tr1, {b, c});
-
-                tree2 =
-                    treem.merge(std::move(tree2),
-                                treem.merge(std::move(tr1), std::move(tr2)));
-            }
+            treem.apply(tree1, l, r, {b, c});
+            treem.apply(tree2, size - r, size - l, {b, c});
         } else if (ty == 4) {
             int l, r;
             sc.read(l, r);
 
-            auto tr1 = treem.split(tree1, l);
-            auto tr2 = treem.split(tr1, r - l);
-
-            pr.writeln(treem.all_prod(tr1).first.val());
-
-            tree1 = treem.merge(std::move(tree1),
-                                treem.merge(std::move(tr1), std::move(tr2)));
+            pr.writeln(treem.prod(tree1, l, r).first.val());
         }
     }
     return 0;

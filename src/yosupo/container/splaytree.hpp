@@ -40,8 +40,14 @@ template <acted_monoid M> struct SplayTree {
         if (t.id == EMPTY_ID) return m.monoid.e;
         return all_prod(t.id);
     }
-    void all_apply(Tree& t, F f) {
-        if (t.id != EMPTY_ID) all_apply(t.id, f);
+    S prod(Tree& t, int l, int r) {
+        assert(0 <= l && l <= r && r <= ssize(t));
+        auto t3 = split(t, r);
+        auto t2 = split(t, l);
+        S s = all_prod(t2);
+        t = merge(std::move(t), std::move(t2));
+        t = merge(std::move(t), std::move(t3));
+        return s;
     }
 
     template <class F> int max_right(Tree& t, F f) {
@@ -98,6 +104,9 @@ template <acted_monoid M> struct SplayTree {
         t = merge(std::move(t), std::move(t3));
     }
 
+    void all_apply(Tree& t, F f) {
+        if (t.id != EMPTY_ID) all_apply(t.id, f);
+    }
     void apply(Tree& t, int l, int r, F f) {
         assert(0 <= l && l <= r && r <= ssize(t));
         auto t3 = split(t, r);
