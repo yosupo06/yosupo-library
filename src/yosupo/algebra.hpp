@@ -13,7 +13,11 @@ concept monoid = requires(T t, typename T::S s) {
     { t.op(s, s) } -> std::same_as<typename T::S>;
 };
 
-template <class _S, class OP> struct Monoid {
+template <class _S, class OP>
+    requires requires(OP op, _S a, _S b) {
+        { op(a, b) } -> std::same_as<_S>;
+    }
+struct Monoid {
     using S = _S;
     S e;
     OP op;
@@ -65,7 +69,14 @@ concept acted_monoid = requires(T t, typename T::S s, typename T::F f) {
     requires std::same_as<typename T::F, typename decltype(T::act)::S>;
     { t.mapping(f, s) } -> std::same_as<typename T::S>;
 };
-template <monoid Monoid, monoid Act, class Mapping> struct ActedMonoid {
+
+template <monoid Monoid, monoid Act, class Mapping>
+    requires requires(Mapping mapping,
+                      typename Act::S a,
+                      typename Monoid::S b) {
+        { mapping(a, b) } -> std::same_as<typename Monoid::S>;
+    }
+struct ActedMonoid {
     using S = Monoid::S;
     using F = Act::S;
 
