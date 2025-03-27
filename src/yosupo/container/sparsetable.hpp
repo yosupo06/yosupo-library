@@ -13,7 +13,7 @@ template <monoid M> struct SparseTable {
 
     M m;
     std::vector<std::vector<S>> data;
-    SparseTable(std::vector<S> d, M _m = M()) : m(_m) {
+    SparseTable(std::vector<S> d, const M& _m = M()) : m(_m) {
         int n = int(d.size());
         if (n == 0) return;
         int lg = 32 - std::countl_zero(uint(n));
