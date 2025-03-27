@@ -1,5 +1,6 @@
 #include "yosupo/container/binaryheap.hpp"
 
+#include <functional>
 #include <iterator>
 #include <queue>
 #include <vector>
@@ -74,4 +75,13 @@ TEST(BinaryHeapTest, PopPush) {
     ASSERT_EQ(manager.top(h), 0);
     manager.pop(h);
     ASSERT_TRUE(h.empty());
+}
+
+TEST(BinaryHeapTest, Reverse) {
+    MeldableBinaryHeapManager<int, std::greater<int>> manager;
+
+    auto h = manager.build({1, 2, 3});
+
+    ASSERT_EQ(3, h.size());
+    ASSERT_EQ(3, std::ssize(h));
 }

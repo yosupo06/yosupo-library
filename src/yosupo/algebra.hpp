@@ -15,9 +15,9 @@ concept monoid = requires(T t, typename T::S s) {
 
 template <class _S, class OP> struct Monoid {
     using S = _S;
-    OP op;
     S e;
-    explicit Monoid(S _e, OP _op = OP()) : op(_op), e(_e) {}
+    OP op;
+    explicit Monoid(S _e, OP _op = OP()) : e(_e), op(_op) {}
 };
 
 template <monoid Monoid> struct ReversibleMonoid {
@@ -64,6 +64,19 @@ concept acted_monoid = requires(T t, typename T::S s, typename T::F f) {
     requires std::same_as<typename T::S, typename decltype(T::monoid)::S>;
     requires std::same_as<typename T::F, typename decltype(T::act)::S>;
     { t.mapping(f, s) } -> std::same_as<typename T::S>;
+};
+template <monoid Monoid, monoid Act, class Mapping> struct ActedMonoid {
+    using S = Monoid::S;
+    using F = Act::S;
+
+    explicit ActedMonoid(const Monoid& _monoid = Monoid(),
+                         const Act& _act = Act(),
+                         const Mapping& _mapping = Mapping())
+        : monoid(_monoid), act(_act), mapping(_mapping) {}
+
+    Monoid monoid;
+    Act act;
+    Mapping mapping;
 };
 
 template <class T>
