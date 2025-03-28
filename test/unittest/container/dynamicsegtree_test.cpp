@@ -23,3 +23,17 @@ TEST(DynamicSegtreeTest, NoLazy) {
     tree.set(tr, 2, 3);
     EXPECT_EQ(tree.all_prod(tr), 107);
 }
+
+TEST(DynamicSegtreeTest, SetE) {
+    yosupo::DynamicSegtree tree((yosupo::ActedMonoid(yosupo::Sum<int>(0))));
+    auto tr = tree.empty(1 << 30);
+    tree.set(tr, 0, 1);
+    tree.set(tr, 1, 10);
+    tree.set(tr, 3, 1000);
+    tree.set(tr, 4, 10000);
+    EXPECT_EQ(tree.all_prod(tr), 11011);
+    tree.set_e(tr, 1);
+    EXPECT_EQ(tree.all_prod(tr), 11001);
+    tree.set_e(tr, 2);
+    EXPECT_EQ(tree.all_prod(tr), 11001);
+}
