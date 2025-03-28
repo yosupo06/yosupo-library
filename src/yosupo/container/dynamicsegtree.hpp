@@ -50,7 +50,7 @@ template <acted_monoid M> struct DynamicSegtree {
     Tree empty(int size) { return {size, manager.make_empty()}; }
 
     void set(Tree& tr, int k, typename M::S s) {
-        int i = manager.max_right(tr.tr, [&](auto s) { return s.first < k; });
+        int i = manager.max_right(tr.tr, [&](auto x) { return x.first < k; });
         if (i < int(manager.size(tr.tr)) && manager.get(tr.tr, i).first == k) {
             manager.set(tr.tr, i, {k, s});
         } else {
@@ -59,16 +59,16 @@ template <acted_monoid M> struct DynamicSegtree {
     }
 
     typename M::S prod(Tree& tr, int l, int r) {
-        int li = manager.max_right(tr.tr, [&](auto s) { return s.first < l; });
-        int ri = manager.max_right(tr.tr, [&](auto s) { return s.first < r; });
+        int li = manager.max_right(tr.tr, [&](auto x) { return x.first < l; });
+        int ri = manager.max_right(tr.tr, [&](auto x) { return x.first < r; });
         return manager.prod(tr.tr, li, ri).second;
     }
 
     typename M::S all_prod(Tree& tr) { return manager.all_prod(tr.tr).second; }
 
     void apply(Tree& tr, int l, int r, typename M::F f) {
-        int li = manager.max_right(tr.tr, [&](auto s) { return s.first < l; });
-        int ri = manager.max_right(tr.tr, [&](auto s) { return s.first < r; });
+        int li = manager.max_right(tr.tr, [&](auto x) { return x.first < l; });
+        int ri = manager.max_right(tr.tr, [&](auto x) { return x.first < r; });
         manager.apply(tr.tr, li, ri, f);
     }
 
