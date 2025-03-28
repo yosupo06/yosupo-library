@@ -17,27 +17,77 @@ template <acted_monoid M> struct SplayTree {
     SplayTree(const M& _m) : m(_m) {}
 
     struct Tree {
-        int id = EMPTY_ID, ex = EMPTY_ID;
+        int id, ex;
+        Tree() : id(-12345), ex(-12354) {}
+        Tree(int _id, int _ex) : id(_id), ex(_ex) {}
+        bool empty() const { return id == -12345; }
     };
 
-    Tree make_empty() { return Tree{}; }
-    Tree make_leaf(S s) {
+    Tree build() { return Tree(); }
+    Tree build(S s) {
         int id = int(nodes.size());
         nodes.push_back({
             Inner{},
             Leaf{s},
         });
-        return Tree{2 * id + 1, 2 * id};
+        return Tree(2 * id + 1, 2 * id);
+    }
+    Tree build(const std::vector<S>& v) {
+        nodes.reserve(nodes.size() + v.size());
+        Tree t = _build(v, 0, int(v.size()));
+        return t;
     }
 
     size_t size(const Tree& t) {
-        if (t.id == EMPTY_ID) return 0;
+        if (t.empty()) return 0;
         return size(t.id);
     }
-    ssize_t ssize(const Tree& t) { return ssize_t(size(t)); }
+    std::ptrdiff_t ssize(const Tree& t) { return ptrdiff_t(size(t)); }
+
+    Tree merge(Tree&& l, Tree&& r) {
+        if (l.empty()) return r;
+        if (r.empty()) return l;
+        inner(l.ex) = Inner{l.id, r.id, -1, false, m.monoid.e, m.act.e};
+        update(l.ex);
+        return Tree(l.ex, r.ex);
+    }
+
+    Tree split(Tree& t, int k) {
+        if (k == 0) return std::exchange(t, build());
+        if (k == size(t.id)) return build();
+        splay_k(t, k);
+        int id = t.id;
+        t.id = inner(id).lid;
+        return Tree(inner(id).rid, id);
+    }
+
+    void insert(Tree& t, int k, S s) {
+        assert(0 <= k && k <= ssize(t));
+        auto t2 = split(t, k);
+        t = merge(std::move(t), build(s));
+        t = merge(std::move(t), std::move(t2));
+    }
+
+    void erase(Tree& t, int k) {
+        assert(0 <= k && k < ssize(t));
+        auto t2 = split(t, k);
+        auto t3 = split(t2, 1);
+        t = merge(std::move(t), std::move(t3));
+    }
+
+    S get(Tree& t, int k) {
+        assert(0 <= k && k < ssize(t));
+        S s;
+        access_leaf_k(t, k, [&](int id) { s = leaf(id).s; });
+        return s;
+    }
+    void set(Tree& t, int k, S s) {
+        assert(0 <= k && k < ssize(t));
+        access_leaf_k(t, k, [&](int id) { leaf(id).s = s; });
+    }
 
     S all_prod(const Tree& t) {
-        if (t.id == EMPTY_ID) return m.monoid.e;
+        if (t.empty()) return m.monoid.e;
         return all_prod(t.id);
     }
     S prod(Tree& t, int l, int r) {
@@ -50,8 +100,21 @@ template <acted_monoid M> struct SplayTree {
         return s;
     }
 
+    void all_apply(Tree& t, F f) {
+        if (t.empty()) return;
+        all_apply(t.id, f);
+    }
+    void apply(Tree& t, int l, int r, F f) {
+        assert(0 <= l && l <= r && r <= ssize(t));
+        auto t3 = split(t, r);
+        auto t2 = split(t, l);
+        all_apply(t2, f);
+        t = merge(std::move(t), std::move(t2));
+        t = merge(std::move(t), std::move(t3));
+    }
+
     template <class F> int max_right(Tree& t, F f) {
-        if (f(all_prod(t))) return (int)size(t);
+        if (f(all_prod(t))) return int(ssize(t));
         if (ssize(t) == 1) return 0;
         S s = m.monoid.e;
         int r = 0;
@@ -67,77 +130,15 @@ template <acted_monoid M> struct SplayTree {
         return r;
     }
 
-    Tree build(const std::vector<S>& v) {
-        nodes.reserve(nodes.size() + v.size());
-        Tree t = _build(v, 0, int(v.size()));
-        return t;
-    }
-
-    Tree merge(Tree&& l, Tree&& r) {
-        if (l.id == EMPTY_ID) return r;
-        if (r.id == EMPTY_ID) return l;
-        inner(l.ex) = Inner{l.id, r.id, -1, false, m.monoid.e, m.act.e};
-        update(l.ex);
-        return Tree{l.ex, r.ex};
-    }
-
-    Tree split(Tree& t, int k) {
-        if (k == 0) return std::exchange(t, make_empty());
-        if (k == size(t.id)) return make_empty();
-        splay_k(t, k);
-        int id = t.id;
-        t.id = inner(id).lid;
-        return Tree{inner(id).rid, id};
-    }
-
-    void insert(Tree& t, int k, S s) {
-        assert(0 <= k && k <= int(ssize(t)));
-        auto t2 = split(t, k);
-        t = merge(std::move(t), make_leaf(s));
-        t = merge(std::move(t), std::move(t2));
-    }
-
-    void erase(Tree& t, int k) {
-        assert(0 <= k && k < int(ssize(t)));
-        auto t2 = split(t, k);
-        auto t3 = split(t2, 1);
-        t = merge(std::move(t), std::move(t3));
-    }
-
-    void all_apply(Tree& t, F f) {
-        if (t.id != EMPTY_ID) all_apply(t.id, f);
-    }
-    void apply(Tree& t, int l, int r, F f) {
-        assert(0 <= l && l <= r && r <= ssize(t));
-        auto t3 = split(t, r);
-        auto t2 = split(t, l);
-        all_apply(t2, f);
-        t = merge(std::move(t), std::move(t2));
-        t = merge(std::move(t), std::move(t3));
-    }
-
-    S get(Tree& t, int k) {
-        assert(0 <= k && k < ssize(t));
-        S s;
-        access_leaf_k(t, k, [&](int id) { s = leaf(id).s; });
-        return s;
-    }
-    void set(Tree& t, int k, S s) {
-        assert(0 <= k && k < ssize(t));
-        access_leaf_k(t, k, [&](int id) { leaf(id).s = s; });
-    }
-
     std::vector<S> to_vec(const Tree& t) {
-        if (t.id == EMPTY_ID) return {};
+        if (t.empty()) return {};
         std::vector<S> buf;
-        buf.reserve(size(t.id));
+        buf.reserve(ssize(t.id));
         _to_vec(t.id, buf);
         return buf;
     }
 
   private:
-    static constexpr int EMPTY_ID = -1234567;
-
     M m;
 
     struct Inner {
@@ -160,7 +161,7 @@ template <acted_monoid M> struct SplayTree {
 
     Tree _build(const std::vector<S>& v, int l, int r) {
         if (r - l == 1) {
-            return make_leaf(v[l]);
+            return build(v[l]);
         }
         int md = (l + r) / 2;
         return merge(_build(v, l, md), _build(v, md, r));

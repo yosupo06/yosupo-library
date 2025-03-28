@@ -55,7 +55,7 @@ int main() {
             int i, x;
             sc.read(i, x);
 
-            auto tr2 = treem.make_leaf({x, 1});
+            auto tr2 = treem.build({x, 1});
             auto tr3 = treem.split(tr, i);
 
             tr2 = treem.merge(std::move(tr2), std::move(tr3));
