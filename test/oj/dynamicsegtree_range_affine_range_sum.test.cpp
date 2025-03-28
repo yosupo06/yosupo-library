@@ -2,10 +2,8 @@
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/range_affine_range_sum
 // clang-format on
 
-#include <algorithm>
 #include <cassert>
 #include <utility>
-#include <vector>
 
 #include "yosupo/algebra.hpp"
 #include "yosupo/container/dynamicsegtree.hpp"

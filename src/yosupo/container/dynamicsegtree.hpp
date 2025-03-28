@@ -1,4 +1,3 @@
-#include <cstddef>
 #include <utility>
 
 #include "yosupo/algebra.hpp"

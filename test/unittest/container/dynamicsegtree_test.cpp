@@ -1,8 +1,6 @@
 #include "yosupo/container/dynamicsegtree.hpp"
 
-#include <algorithm>
 #include <functional>
-#include <vector>
 
 #include "gtest/gtest.h"
 #include "yosupo/algebra.hpp"
