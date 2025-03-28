@@ -6,14 +6,17 @@
 #include <string>
 
 #include "yosupo/math/basic.hpp"
+#include "yosupo/math/prime.hpp"
 #include "yosupo/types.hpp"
 
 namespace yosupo {
 
-template <i32 MOD> struct ModInt {
-    static_assert(MOD % 2 && 1 <= MOD && MOD <= (1 << 30) - 1,
-                  "mod must be odd and at most 2^30 - 1");
-
+template <i32 MOD>
+    requires requires {
+        MOD % 2 == 1 && 1 <= MOD&& MOD <= (1 << 30) - 1;
+        is_prime(MOD);
+    }
+struct ModInt {
     static constexpr i32 mod() { return MOD; }
 
     constexpr ModInt() : x(0) {}
@@ -80,10 +83,7 @@ template <i32 MOD> struct ModInt {
         }
         return r;
     }
-    constexpr ModInt inv() const {
-        // TODO: for non-prime
-        return pow(MOD - 2);
-    }
+    constexpr ModInt inv() const { return pow(MOD - 2); }
 
     std::string dump() const { return std::to_string(val()); }
 

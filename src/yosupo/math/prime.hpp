@@ -9,7 +9,7 @@
 
 namespace yosupo {
 
-inline bool is_prime(u32 n) {
+inline constexpr bool is_prime(u32 n) {
     if (n == 2) return true;
     if (n % 2 == 0) return false;
     u64 d = n - 1;
@@ -28,7 +28,7 @@ inline bool is_prime(u32 n) {
     }
     return true;
 }
-inline bool is_prime(u64 n) {
+inline constexpr bool is_prime(u64 n) {
     if (n <= std::numeric_limits<u32>::max()) {
         return is_prime((u32)n);
     }
