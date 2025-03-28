@@ -13,7 +13,7 @@ TEST(DynamicSegtreeTest, Usage) {
 
 TEST(DynamicSegtreeTest, NoLazy) {
     yosupo::DynamicSegtree tree((yosupo::ActedMonoid(yosupo::Sum<int>(0))));
-    auto tr = tree.empty(1 << 30);
+    auto tr = tree.build(1 << 30);
     tree.set(tr, 0, 1);
     tree.set(tr, 1, 10);
     tree.set(tr, 1 << 29, 100);
@@ -26,7 +26,7 @@ TEST(DynamicSegtreeTest, NoLazy) {
 
 TEST(DynamicSegtreeTest, SetE) {
     yosupo::DynamicSegtree tree((yosupo::ActedMonoid(yosupo::Sum<int>(0))));
-    auto tr = tree.empty(1 << 30);
+    auto tr = tree.build(1 << 30);
     tree.set(tr, 0, 1);
     tree.set(tr, 1, 10);
     tree.set(tr, 3, 1000);

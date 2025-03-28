@@ -18,8 +18,8 @@ template <class M> struct SplayTree {
         int id = EMPTY_ID, ex = EMPTY_ID;
     };
 
-    Tree make_empty() { return Tree{}; }
-    Tree make_leaf(S s) {
+    Tree build() { return Tree{}; }
+    Tree build(S s) {
         int id = int(nodes.size());
         nodes.push_back({
             Inner{},
@@ -78,8 +78,8 @@ template <class M> struct SplayTree {
     }
 
     Tree split(Tree& t, int k) {
-        if (k == 0) return std::exchange(t, make_empty());
-        if (k == size(t.id)) return make_empty();
+        if (k == 0) return std::exchange(t, build());
+        if (k == size(t.id)) return build();
         splay_k(t, k);
         int id = t.id;
         t.id = inner(id).lid;
@@ -89,7 +89,7 @@ template <class M> struct SplayTree {
     void insert(Tree& t, int k, S s) {
         assert(0 <= k && k <= int(ssize(t)));
         auto t2 = split(t, k);
-        t = merge(std::move(t), make_leaf(s));
+        t = merge(std::move(t), build(s));
         t = merge(std::move(t), std::move(t2));
     }
 
@@ -146,7 +146,7 @@ template <class M> struct SplayTree {
 
     Tree _build(const std::vector<S>& v, int l, int r) {
         if (r - l == 1) {
-            return make_leaf(v[l]);
+            return build(v[l]);
         }
         int md = (l + r) / 2;
         return merge(_build(v, l, md), _build(v, md, r));

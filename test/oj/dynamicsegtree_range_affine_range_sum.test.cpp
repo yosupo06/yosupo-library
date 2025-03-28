@@ -34,7 +34,7 @@ int main() {
     int n, q;
     sc.read(n, q);
 
-    auto tree = treem.empty(n);
+    auto tree = treem.build(n);
     for (int i = 0; i < n; i++) {
         int a;
         sc.read(a);
