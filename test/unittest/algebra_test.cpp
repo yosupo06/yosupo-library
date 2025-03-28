@@ -5,6 +5,7 @@
 
 using namespace yosupo;
 
+static_assert(monoid<NoOpMonoid>);
 static_assert(monoid<Max<int>>);
 static_assert(monoid<Min<int>>);
 static_assert(monoid<Sum<int>>);

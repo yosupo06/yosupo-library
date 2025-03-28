@@ -24,6 +24,12 @@ struct Monoid {
     explicit Monoid(S _e, OP _op = OP()) : e(_e), op(_op) {}
 };
 
+struct NoOpMonoid {
+    struct S {};
+    S e;
+    S op(S, S) { return S{}; }
+};
+
 template <monoid Monoid> struct ReversibleMonoid {
     struct S {
         typename Monoid::S val;
@@ -45,22 +51,6 @@ template <monoid Monoid> struct ReversibleMonoid {
     S e;
 };
 
-template <class S> using Sum = Monoid<S, std::plus<S>>;
-template <class S> using Prod = Monoid<S, std::multiplies<S>>;
-
-template <class _S> struct Max {
-    using S = _S;
-    Max(S _e = std::numeric_limits<S>::min()) : e(_e) {}
-    S op(S a, S b) { return std::max(a, b); }
-    S e;
-};
-template <class _S> struct Min {
-    using S = _S;
-    Min(S _e = std::numeric_limits<S>::max()) : e(_e) {}
-    S op(S a, S b) { return std::min(a, b); }
-    S e;
-};
-
 template <class T>
 concept acted_monoid = requires(T t, typename T::S s, typename T::F f) {
     requires monoid<decltype(T::monoid)>;
@@ -68,6 +58,12 @@ concept acted_monoid = requires(T t, typename T::S s, typename T::F f) {
     requires std::same_as<typename T::S, typename decltype(T::monoid)::S>;
     requires std::same_as<typename T::F, typename decltype(T::act)::S>;
     { t.mapping(f, s) } -> std::same_as<typename T::S>;
+};
+
+struct IdentityRight {
+    template <class S, class T> T operator()(S&&, T a) {
+        return std::forward<T>(a);
+    }
 };
 
 template <monoid Monoid, monoid Act, class Mapping>
@@ -89,6 +85,9 @@ struct ActedMonoid {
     Act act;
     Mapping mapping;
 };
+template <class Monoid>
+ActedMonoid(const Monoid& _monoid)
+    -> ActedMonoid<Monoid, NoOpMonoid, IdentityRight>;
 
 template <class T>
 concept static_top_tree_dp = requires(T t,
@@ -101,6 +100,23 @@ concept static_top_tree_dp = requires(T t,
     requires std::same_as<typename T::Point, typename decltype(T::point)::S>;
     { t.add_vertex(point, v) } -> std::same_as<typename T::Path>;
     { t.add_edge(path) } -> std::same_as<typename T::Point>;
+};
+
+// usuful monoids
+template <class S> using Sum = Monoid<S, std::plus<S>>;
+template <class S> using Prod = Monoid<S, std::multiplies<S>>;
+
+template <class _S> struct Max {
+    using S = _S;
+    Max(S _e = std::numeric_limits<S>::min()) : e(_e) {}
+    S op(S a, S b) { return std::max(a, b); }
+    S e;
+};
+template <class _S> struct Min {
+    using S = _S;
+    Min(S _e = std::numeric_limits<S>::max()) : e(_e) {}
+    S op(S a, S b) { return std::min(a, b); }
+    S e;
 };
 
 }  // namespace yosupo
