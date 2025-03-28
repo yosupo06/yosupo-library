@@ -23,10 +23,11 @@ int main() {
     auto monoid = Monoid(S(0, 0), [](S l, S r) {
         return S(l.first + r.first, l.second + r.second);
     });
-    auto act = Monoid(S(1, 0), [](S l, S r) {
-        return S(l.first * r.first, l.first * r.second + l.second);
+    using F = pair<mint, mint>;
+    auto act = Monoid(F(1, 0), [](F l, F r) {
+        return F(l.first * r.first, l.first * r.second + l.second);
     });
-    auto mapping = [](S l, S r) {
+    auto mapping = [](F l, S r) {
         return S(l.first * r.first + l.second * r.second, r.second);
     };
     SplayTree treem(ActedMonoid(monoid, act, mapping));

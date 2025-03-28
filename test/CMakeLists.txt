@@ -32,6 +32,7 @@ add_executable(unittest
   unittest/comb_test.cpp 
 
   unittest/container/binaryheap_test.cpp
+  unittest/container/dynamicsegtree_test.cpp
   unittest/container/fastset_test.cpp
   unittest/container/hashmap_test.cpp
   unittest/container/sparsetable_test.cpp

@@ -134,3 +134,11 @@ TEST(SplayTreeTest, Lambda) {
     tree.all_apply(tr, 10);
     EXPECT_EQ(tree.all_prod(tr), 15);
 }
+
+TEST(SplayTreeTest, NoLazy) {
+    yosupo::SplayTree tree((yosupo::ActedMonoid(yosupo::Max<int>())));
+    auto tr = tree.build({1, 2, 3, 4, 5});
+    EXPECT_EQ(tree.all_prod(tr), 5);
+    tree.set(tr, 1, 10);
+    EXPECT_EQ(tree.all_prod(tr), 10);
+}
