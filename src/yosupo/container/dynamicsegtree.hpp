@@ -45,9 +45,13 @@ template <acted_monoid M> struct DynamicSegtree {
     struct Tree {
         int len;
         typename SplayTree<internal::IndexedActedMonoid<M>>::Tree tr;
+
+        Tree(int _len,
+             typename SplayTree<internal::IndexedActedMonoid<M>>::Tree _tr)
+            : len(_len), tr(_tr) {}
     };
 
-    Tree build(int len) { return {len, manager.build()}; }
+    Tree build(int len) { return Tree(len, manager.build()); }
 
     void set(Tree& tr, int k, typename M::S s) {
         assert(0 <= k && k < tr.len);
