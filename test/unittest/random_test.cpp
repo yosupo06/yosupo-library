@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "yosupo/types.hpp"
 
 using namespace yosupo;
 using ll = long long;
@@ -108,11 +109,69 @@ TEST(RandomTest, UniformMinMax) {
     uniform(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
 }
 
-TEST(RandomTest, OpenClosed01) {
+TEST(RandomTest, Random01) {
     Random gen(123);
     for (int i = 0; i < 10; i++) {
-        double x = open_closed_01();
-        ASSERT_GT(x, 0.0);
-        ASSERT_LE(x, 1.0);
+        double x = random_01();
+        ASSERT_LE(0.0, x);
+        ASSERT_LT(x, 1.0);
+    }
+}
+
+TEST(RandomTest, Random) {
+    Random gen(123);
+    for (int i = 0; i < 100; i++) {
+        for (int j = 0; j < 100; j++) {
+            double x = random(0, i);
+            ASSERT_LE(0, x);
+            ASSERT_LE(x, i);
+        }
+    }
+}
+
+TEST(RandomTest, UniformCompatibility) {
+    WYRand gen(123);
+    EXPECT_EQ(internal::uniform_u64(123, gen), 90);
+    EXPECT_EQ(internal::uniform_u64(0, gen), 0);
+    EXPECT_EQ(internal::uniform_u64(1, gen), 1);
+    EXPECT_EQ(internal::uniform_u64(1023, gen), 448);
+    EXPECT_EQ(internal::uniform_u64(1024, gen), 629);
+    EXPECT_EQ(internal::uniform_u64(u64(1) << 63, gen), 9132492245186335750u);
+    EXPECT_EQ(internal::uniform_u64(u64(-1), gen), 15072721646345668731u);
+    EXPECT_EQ(internal::uniform_u64(12345, gen), 5576);
+}
+
+TEST(RandomTest, UniformAll) {
+    {
+        using T = i32;
+        Random gen1(234), gen2(234);
+        u64 x = uniform<T>(gen1);
+        u64 y = uniform(std::numeric_limits<T>::min(),
+                        std::numeric_limits<T>::max(), gen2);
+        EXPECT_EQ(x, y);
+    }
+    {
+        using T = u32;
+        Random gen1(234), gen2(234);
+        u64 x = uniform<T>(gen1);
+        u64 y = uniform(std::numeric_limits<T>::min(),
+                        std::numeric_limits<T>::max(), gen2);
+        EXPECT_EQ(x, y);
+    }
+    {
+        using T = i64;
+        Random gen1(234), gen2(234);
+        u64 x = uniform<T>(gen1);
+        u64 y = uniform(std::numeric_limits<T>::min(),
+                        std::numeric_limits<T>::max(), gen2);
+        EXPECT_EQ(x, y);
+    }
+    {
+        using T = u64;
+        Random gen1(234), gen2(234);
+        u64 x = uniform<T>(gen1);
+        u64 y = uniform(std::numeric_limits<T>::min(),
+                        std::numeric_limits<T>::max(), gen2);
+        EXPECT_EQ(x, y);
     }
 }
