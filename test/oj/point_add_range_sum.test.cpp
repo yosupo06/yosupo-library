@@ -3,7 +3,6 @@
 // clang-format on
 
 #include <cassert>
-#include <utility>
 #include <vector>
 
 #include "yosupo/algebra.hpp"

@@ -1,9 +1,5 @@
 #include "yosupo/container/segtree.hpp"
 
-#include <iterator>
-#include <limits>
-#include <set>
-
 #include "gtest/gtest.h"
 #include "yosupo/algebra.hpp"
 
