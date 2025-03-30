@@ -8,26 +8,26 @@
 namespace yosupo {
 
 template <class T>
-concept monoid = requires(T t, typename T::S s) {
+concept monoid = requires(T t, const typename T::S& s) {
     requires std::same_as<decltype(t.e), typename T::S>;
     { t.op(s, s) } -> std::same_as<typename T::S>;
 };
 
 template <class _S, class OP>
-    requires requires(OP op, _S a, _S b) {
+    requires requires(OP op, const _S& a, const _S& b) {
         { op(a, b) } -> std::same_as<_S>;
     }
 struct Monoid {
     using S = _S;
     S e;
     OP op;
-    explicit Monoid(S _e, OP _op = OP()) : e(_e), op(_op) {}
+    explicit Monoid(S _e, const OP& _op = OP()) : e(_e), op(_op) {}
 };
 
 struct NoOpMonoid {
     struct S {};
     S e;
-    S op(S, S) { return S{}; }
+    S op(const S&, const S&) { return S{}; }
 };
 
 template <monoid Monoid> struct ReversibleMonoid {
@@ -36,11 +36,11 @@ template <monoid Monoid> struct ReversibleMonoid {
         typename Monoid::S rev;
         S(typename Monoid::S v) : val(v), rev(v) {}
         S(typename Monoid::S _val, typename Monoid::S _rev)
-            : val(_val), rev(_rev) {}
+            : val(std::move(_val)), rev(std::move(_rev)) {}
     };
     explicit ReversibleMonoid(const Monoid& _monoid)
         : monoid(_monoid), e(monoid.e) {}
-    S op(S a, S b) {
+    S op(const S& a, const S& b) {
         return {monoid.op(a.val, b.val), monoid.op(b.rev, a.rev)};
     }
 
@@ -52,24 +52,25 @@ template <monoid Monoid> struct ReversibleMonoid {
 };
 
 template <class T>
-concept acted_monoid = requires(T t, typename T::S s, typename T::F f) {
-    requires monoid<decltype(T::monoid)>;
-    requires monoid<decltype(T::act)>;
-    requires std::same_as<typename T::S, typename decltype(T::monoid)::S>;
-    requires std::same_as<typename T::F, typename decltype(T::act)::S>;
-    { t.mapping(f, s) } -> std::same_as<typename T::S>;
-};
+concept acted_monoid =
+    requires(T t, const typename T::S& s, const typename T::F& f) {
+        requires monoid<decltype(T::monoid)>;
+        requires monoid<decltype(T::act)>;
+        requires std::same_as<typename T::S, typename decltype(T::monoid)::S>;
+        requires std::same_as<typename T::F, typename decltype(T::act)::S>;
+        { t.mapping(f, s) } -> std::same_as<typename T::S>;
+    };
 
 struct IdentityRight {
-    template <class S, class T> T operator()(S&&, T a) {
-        return std::forward<T>(a);
+    template <class S, class T> T operator()(const S&, T a) {
+        return std::move(a);
     }
 };
 
 template <monoid Monoid, monoid Act, class Mapping>
     requires requires(Mapping mapping,
-                      typename Act::S a,
-                      typename Monoid::S b) {
+                      const typename Act::S& a,
+                      const typename Monoid::S& b) {
         { mapping(a, b) } -> std::same_as<typename Monoid::S>;
     }
 struct ActedMonoid {
@@ -91,9 +92,9 @@ ActedMonoid(const Monoid& _monoid)
 
 template <class T>
 concept static_top_tree_dp = requires(T t,
-                                      typename T::Path path,
-                                      typename T::Point point,
-                                      typename T::Vertex v) {
+                                      const typename T::Path& path,
+                                      const typename T::Point& point,
+                                      const typename T::Vertex& v) {
     requires monoid<decltype(T::path)>;
     requires monoid<decltype(T::point)>;
     requires std::same_as<typename T::Path, typename decltype(T::path)::S>;
@@ -105,17 +106,16 @@ concept static_top_tree_dp = requires(T t,
 // usuful monoids
 template <class S> using Sum = Monoid<S, std::plus<S>>;
 template <class S> using Prod = Monoid<S, std::multiplies<S>>;
-
 template <class _S> struct Max {
     using S = _S;
     Max(S _e = std::numeric_limits<S>::min()) : e(_e) {}
-    S op(S a, S b) { return std::max(a, b); }
+    S op(const S& a, const S& b) { return std::max(a, b); }
     S e;
 };
 template <class _S> struct Min {
     using S = _S;
     Min(S _e = std::numeric_limits<S>::max()) : e(_e) {}
-    S op(S a, S b) { return std::min(a, b); }
+    S op(const S& a, const S& b) { return std::min(a, b); }
     S e;
 };
 
