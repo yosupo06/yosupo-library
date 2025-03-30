@@ -10,23 +10,23 @@
 #include "yosupo/fastio.hpp"
 #include "yosupo/modint.hpp"
 
-using namespace std;
 using namespace yosupo;
 
-Scanner sc(stdin);
-Printer pr(stdout);
 using mint = ModInt998244353;
 
 int main() {
-    using S = pair<mint, mint>;
-    auto monoid = Monoid(S(0, 0), [](S l, S r) {
+    Scanner sc(stdin);
+    Printer pr(stdout);
+
+    using S = std::pair<mint, mint>;
+    auto monoid = Monoid(S(0, 0), [](const S& l, const S& r) {
         return S(l.first + r.first, l.second + r.second);
     });
-    using F = pair<mint, mint>;
-    auto act = Monoid(F(1, 0), [](F l, F r) {
+    using F = std::pair<mint, mint>;
+    auto act = Monoid(F(1, 0), [](const F& l, const F& r) {
         return F(l.first * r.first, l.first * r.second + l.second);
     });
-    auto mapping = [](F l, S r) {
+    auto mapping = [](const F& l, const S& r) {
         return S(l.first * r.first + l.second * r.second, r.second);
     };
     DynamicSegtree treem(ActedMonoid(monoid, act, mapping));

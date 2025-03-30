@@ -11,31 +11,16 @@
 #include "yosupo/toptree.hpp"
 #include "yosupo/tree.hpp"
 
-using mint = yosupo::ModInt998244353;
-
-inline static yosupo::Scanner sc(stdin);
-inline static yosupo::Printer pr(stdout);
+using namespace yosupo;
+using mint = ModInt998244353;
 
 struct TreeDP {
-    struct Point {
-        mint ans, cnt;
-    };
     struct Path {
         mint a, b, ans, cnt;  // f(x) = ax + b
     };
-
-    struct PointMonoid {
-        using S = Point;
-        Point op(Point x, Point y) {
-            return Point(x.ans + y.ans, x.cnt + y.cnt);
-        }
-        Point e = Point(mint(0), mint(0));
-    };
-    PointMonoid point = PointMonoid();
-
     struct PathMonoid {
         using S = Path;
-        Path op(Path x, Path y) {
+        Path op(const Path& x, const Path& y) {
             return Path(x.a * y.a, x.b + x.a * y.b,
                         x.ans + x.a * y.ans + x.b * y.cnt, x.cnt + y.cnt);
         }
@@ -43,11 +28,23 @@ struct TreeDP {
     };
     PathMonoid path = PathMonoid();
 
+    struct Point {
+        mint ans, cnt;
+    };
+    struct PointMonoid {
+        using S = Point;
+        Point op(const Point& x, const Point& y) {
+            return Point(x.ans + y.ans, x.cnt + y.cnt);
+        }
+        Point e = Point(mint(0), mint(0));
+    };
+    PointMonoid point = PointMonoid();
+
     struct Vertex {
         mint a, b;
         mint val;
     };
-    Path add_vertex(Point x, Vertex f) {
+    Path add_vertex(Point x, const Vertex& f) {
         x.ans += f.val;
         x.cnt += mint(1);
         return Path(f.a, f.b, f.a * x.ans + f.b * x.cnt, x.cnt);
@@ -56,6 +53,9 @@ struct TreeDP {
 };
 
 int main() {
+    Scanner sc(stdin);
+    Printer pr(stdout);
+
     int n, q;
     sc.read(n, q);
 
@@ -71,7 +71,7 @@ int main() {
         mint a, b;
     };
     std::vector<E> edges(n - 1);
-    yosupo::RootedTreeBuilder treeb(n);
+    RootedTreeBuilder treeb(n);
     for (int i = 0; i < n - 1; i++) {
         int u, v, a, b;
         sc.read(u, v, a, b);
@@ -91,7 +91,7 @@ int main() {
         f[u].a = e.a;
         f[u].b = e.b;
     }
-    yosupo::StaticTopTree<TreeDP> top_tree(tree, std::move(f));
+    StaticTopTree<TreeDP> top_tree(tree, std::move(f));
 
     struct Query {
         int t;
