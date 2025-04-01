@@ -9,8 +9,7 @@
 
 namespace yosupo {
 
-template <class K, class D, class H = UniversalHash32<K>>
-struct IncrementalHashMap {
+template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
   public:
     using Data = std::pair<K, D>;
 
