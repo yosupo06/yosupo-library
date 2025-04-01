@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "yosupo/hash.hpp"
+#include "yosupo/types.hpp"
 
 namespace yosupo {
 
@@ -49,7 +50,7 @@ template <class K, class H = Hasher<K>> struct IncrementalHashSet {
     using iterator = Iterator;
 
     void insert(const K& k) {
-        unsigned int i = H()(k) & mask;
+        u32 i = (u32)(H()(k)) & mask;
         while (used[i] && keys[i] != k) {
             i = (i + 1) & mask;
         }
@@ -65,7 +66,7 @@ template <class K, class H = Hasher<K>> struct IncrementalHashSet {
     }
 
     Iterator find(const K& k) {
-        unsigned int i = H()(k) & mask;
+        u32 i = H()(k) & mask;
         while (used[i] && keys[i] != k) {
             i = (i + 1) & mask;
         }
@@ -74,25 +75,25 @@ template <class K, class H = Hasher<K>> struct IncrementalHashSet {
     }
 
   private:
-    unsigned int mask, filled;  // data.size() == 1 << s
+    u32 mask, filled;  // data.size() == 1 << s
 
     std::vector<bool> used;
     std::vector<K> keys;
 
     void rehash() {
-        unsigned int pmask = mask;
+        u32 pmask = mask;
         mask = mask * 2 + 1;
         filled = 0;
         auto pused = std::exchange(used, std::vector<bool>(mask + 1));
         auto pkeys = std::exchange(keys, std::vector<K>(mask + 1));
-        for (unsigned int i = 0; i <= pmask; i++) {
+        for (u32 i = 0; i <= pmask; i++) {
             if (pused[i]) {
                 this->insert(pkeys[i]);
             }
         }
     }
 
-    unsigned int next_bucket(unsigned int i) const {
+    u32 next_bucket(u32 i) const {
         while (i <= mask && !used[i]) i++;
         return i;
     }

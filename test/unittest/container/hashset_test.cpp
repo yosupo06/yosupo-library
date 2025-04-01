@@ -1,9 +1,5 @@
 #include "yosupo/container/hashset.hpp"
 
-#include <algorithm>
-#include <utility>
-#include <vector>
-
 #include "gtest/gtest.h"
 
 using namespace yosupo;
