@@ -45,7 +45,7 @@ struct DynHasher {
     u64 v;
 
     DynHasher(u64 seed) : gen(Random(seed)), v(seed) {}
-    DynHasher(Random gen, u64 v) : gen(gen), v(v) {}
+    DynHasher(Random _gen, u64 _v) : gen(_gen), v(_v) {}
 
     DynHasher update(u64 x) && {
         u64 seed = gen();
