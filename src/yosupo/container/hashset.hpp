@@ -6,23 +6,23 @@
 #include <vector>
 
 #include "yosupo/hash.hpp"
+#include "yosupo/types.hpp"
 
 namespace yosupo {
 
-template <class K, class H = UniversalHash32<K>> struct IncrementalHashSet {
+template <class K, class H = Hasher<K>> struct IncrementalHashSet {
   private:
     struct Iterator {
       public:
-        using difference_type = int;
+        using difference_type = i32;
         using value_type = K;
         using pointer = K*;
         using reference = K&;
         using iterator_category = std::forward_iterator_tag;
 
         IncrementalHashSet& _mp;
-        unsigned int _pos;
-        Iterator(IncrementalHashSet& mp, unsigned int pos)
-            : _mp(mp), _pos(pos) {}
+        u32 _pos;
+        Iterator(IncrementalHashSet& mp, u32 pos) : _mp(mp), _pos(pos) {}
 
         K operator*() const { return _mp.keys[_pos]; }
 
@@ -50,7 +50,7 @@ template <class K, class H = UniversalHash32<K>> struct IncrementalHashSet {
     using iterator = Iterator;
 
     void insert(const K& k) {
-        unsigned int i = H()(k) & mask;
+        u32 i = start_bucket(k);
         while (used[i] && keys[i] != k) {
             i = (i + 1) & mask;
         }
@@ -66,7 +66,7 @@ template <class K, class H = UniversalHash32<K>> struct IncrementalHashSet {
     }
 
     Iterator find(const K& k) {
-        unsigned int i = H()(k) & mask;
+        u32 i = start_bucket(k);
         while (used[i] && keys[i] != k) {
             i = (i + 1) & mask;
         }
@@ -75,25 +75,27 @@ template <class K, class H = UniversalHash32<K>> struct IncrementalHashSet {
     }
 
   private:
-    unsigned int mask, filled;  // data.size() == 1 << s
+    u32 mask, filled;  // data.size() == 1 << s
 
     std::vector<bool> used;
     std::vector<K> keys;
 
     void rehash() {
-        unsigned int pmask = mask;
+        u32 pmask = mask;
         mask = mask * 2 + 1;
         filled = 0;
         auto pused = std::exchange(used, std::vector<bool>(mask + 1));
         auto pkeys = std::exchange(keys, std::vector<K>(mask + 1));
-        for (unsigned int i = 0; i <= pmask; i++) {
+        for (u32 i = 0; i <= pmask; i++) {
             if (pused[i]) {
                 this->insert(pkeys[i]);
             }
         }
     }
 
-    unsigned int next_bucket(unsigned int i) const {
+    u32 start_bucket(const K& k) const { return (u32)(H()(k)) & mask; }
+
+    u32 next_bucket(u32 i) const {
         while (i <= mask && !used[i]) i++;
         return i;
     }

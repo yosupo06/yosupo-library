@@ -3,7 +3,6 @@
 #include <array>
 #include <bit>
 #include <cassert>
-#include <chrono>
 #include <cmath>
 #include <concepts>
 #include <cstdint>
@@ -78,11 +77,12 @@ struct WYRand {
     uint64_t s;
 };
 using Random = WYRand;
-inline Random& global_gen() {
-    static Random gen(
-        std::chrono::steady_clock::now().time_since_epoch().count());
-    return gen;
+inline Random get_random() { return Random(std::random_device()()); }
+
+namespace internal {
+inline Random global_gen = get_random();
 }
+inline Random& global_gen() { return internal::global_gen; }
 
 template <class G>
 concept random_64 = std::uniform_random_bit_generator<G> &&

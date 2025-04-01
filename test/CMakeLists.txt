@@ -35,6 +35,7 @@ add_executable(unittest
   unittest/container/dynamicsegtree_test.cpp
   unittest/container/fastset_test.cpp
   unittest/container/hashmap_test.cpp
+  unittest/container/hashset_test.cpp
   unittest/container/segtree_test.cpp
   unittest/container/sparsetable_test.cpp
   unittest/container/splaytree_test.cpp
