@@ -81,13 +81,23 @@ TEST(HashTest, ShortArray) {
     EXPECT_EQ(Hasher<A>()(A{1, 2}), Hasher<A>()(A{1, 2}));
 }
 TEST(HashTest, LongArray) {
-    using A = std::array<int, 10000>;
-    A t1;
-    t1.fill(1);
-    A t2 = t1;
-    auto x = Hasher<A>()(t1);
-    auto y = Hasher<A>()(t2);
-    EXPECT_EQ(x, y);
+    {
+        using A = std::array<int, 50>;
+        using T = std::tuple<A, A, A>;
+        A a;
+        a.fill(1);
+        auto x = Hasher<T>()({a, a, a});
+        auto y = Hasher<T>()({a, a, a});
+        EXPECT_EQ(x, y);
+    }
+    {
+        using A = std::array<int, 10000>;
+        A a;
+        a.fill(1);
+        auto x = Hasher<A>()(a);
+        auto y = Hasher<A>()(a);
+        EXPECT_EQ(x, y);
+    }
 }
 
 TEST(HashTest, ArrayHashQuality) {
