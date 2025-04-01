@@ -50,7 +50,7 @@ template <class K, class H = Hasher<K>> struct IncrementalHashSet {
     using iterator = Iterator;
 
     void insert(const K& k) {
-        u32 i = (u32)(H()(k)) & mask;
+        u32 i = start_bucket(k);
         while (used[i] && keys[i] != k) {
             i = (i + 1) & mask;
         }
@@ -66,7 +66,7 @@ template <class K, class H = Hasher<K>> struct IncrementalHashSet {
     }
 
     Iterator find(const K& k) {
-        u32 i = H()(k) & mask;
+        u32 i = start_bucket(k);
         while (used[i] && keys[i] != k) {
             i = (i + 1) & mask;
         }
@@ -92,6 +92,8 @@ template <class K, class H = Hasher<K>> struct IncrementalHashSet {
             }
         }
     }
+
+    u32 start_bucket(const K& k) const { return (u32)(H()(k)) & mask; }
 
     u32 next_bucket(u32 i) const {
         while (i <= mask && !used[i]) i++;

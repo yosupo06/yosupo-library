@@ -54,7 +54,7 @@ template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
     using iterator = Iterator;
 
     D& operator[](const K& k) {
-        u32 i = (u32)(H()(k)) & mask;
+        u32 i = start_bucket(k);
         while (used[i] && data[i].first != k) {
             i = (i + 1) & mask;
         }
@@ -71,7 +71,7 @@ template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
     }
 
     Iterator find(const K& k) {
-        u32 i = H()(k) & mask;
+        u32 i = start_bucket(k);
         while (used[i] && data[i].first != k) {
             i = (i + 1) & mask;
         }
@@ -101,6 +101,8 @@ template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
             }
         }
     }
+
+    u32 start_bucket(const K& k) const { return (u32)(H()(k)) & mask; }
 
     u32 next_bucket(u32 i) const {
         while (i <= mask && !used[i]) i++;
