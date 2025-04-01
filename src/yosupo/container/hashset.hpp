@@ -9,20 +9,19 @@
 
 namespace yosupo {
 
-template <class K, class H = UniversalHash32<K>> struct IncrementalHashSet {
+template <class K, class H = Hasher<K>> struct IncrementalHashSet {
   private:
     struct Iterator {
       public:
-        using difference_type = int;
+        using difference_type = i32;
         using value_type = K;
         using pointer = K*;
         using reference = K&;
         using iterator_category = std::forward_iterator_tag;
 
         IncrementalHashSet& _mp;
-        unsigned int _pos;
-        Iterator(IncrementalHashSet& mp, unsigned int pos)
-            : _mp(mp), _pos(pos) {}
+        u32 _pos;
+        Iterator(IncrementalHashSet& mp, u32 pos) : _mp(mp), _pos(pos) {}
 
         K operator*() const { return _mp.keys[_pos]; }
 
