@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "yosupo/hash.hpp"
+#include "yosupo/types.hpp"
 
 namespace yosupo {
 
@@ -16,16 +17,15 @@ template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
   private:
     struct Iterator {
       public:
-        using difference_type = int;
+        using difference_type = i32;
         using value_type = Data;
         using pointer = Data*;
         using reference = Data&;
         using iterator_category = std::forward_iterator_tag;
 
         IncrementalHashMap& _mp;
-        unsigned int _pos;
-        Iterator(IncrementalHashMap& mp, unsigned int pos)
-            : _mp(mp), _pos(pos) {}
+        u32 _pos;
+        Iterator(IncrementalHashMap& mp, u32 pos) : _mp(mp), _pos(pos) {}
 
         std::pair<K, D>& operator*() const { return _mp.data[_pos]; }
         std::pair<K, D>* operator->() const { return &_mp.data[_pos]; }
@@ -54,7 +54,7 @@ template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
     using iterator = Iterator;
 
     D& operator[](const K& k) {
-        unsigned int i = H()(k) & mask;
+        u32 i = (u32)(H()(k)) & mask;
         while (used[i] && data[i].first != k) {
             i = (i + 1) & mask;
         }
@@ -71,7 +71,7 @@ template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
     }
 
     Iterator find(const K& k) {
-        unsigned int i = H()(k) & mask;
+        u32 i = H()(k) & mask;
         while (used[i] && data[i].first != k) {
             i = (i + 1) & mask;
         }
@@ -84,25 +84,25 @@ template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
     size_t size() const { return filled; }
 
   private:
-    unsigned int mask, filled;  // data.size() == 1 << s
+    u32 mask, filled;  // data.size() == 1 << s
 
     std::vector<bool> used;
     std::vector<Data> data;
 
     void rehash() {
-        unsigned int pmask = mask;
+        u32 pmask = mask;
         mask = mask * 2 + 1;
         filled = 0;
         auto pused = std::exchange(used, std::vector<bool>(mask + 1));
         auto pdata = std::exchange(data, std::vector<Data>(mask + 1));
-        for (unsigned int i = 0; i <= pmask; i++) {
+        for (u32 i = 0; i <= pmask; i++) {
             if (pused[i]) {
                 (*this)[pdata[i].first] = pdata[i].second;
             }
         }
     }
 
-    unsigned int next_bucket(unsigned int i) const {
+    u32 next_bucket(u32 i) const {
         while (i <= mask && !used[i]) i++;
         return i;
     }
