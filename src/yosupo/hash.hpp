@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <bit>
 #include <concepts>
 #include <cstddef>
 #include <map>
@@ -11,7 +10,6 @@
 #include <utility>
 #include <vector>
 
-#include "yosupo/container/bitvector.hpp"
 #include "yosupo/random.hpp"
 #include "yosupo/types.hpp"
 
