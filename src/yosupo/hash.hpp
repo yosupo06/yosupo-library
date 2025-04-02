@@ -41,7 +41,7 @@ struct Hasher {
         requires(std::same_as<T, i128> || std::same_as<T, u128>)
     void update(const T& x) {
         update64(u64(x));
-        update64((u128)(x) >> 64);
+        update64(u64((u128)(x) >> 64));
     }
 
     // pair
