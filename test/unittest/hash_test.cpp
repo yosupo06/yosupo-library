@@ -78,9 +78,15 @@ TEST(HashTest, Pair) {
 
 TEST(HashTest, Tuple) {
     Hasher h;
-
-    using T = std::tuple<int, bool, u64>;
-    EXPECT_EQ(h(T(123, false, 1)), h(T(123, false, 1)));
+    {
+        using T = std::tuple<int, bool, u64>;
+        EXPECT_EQ(h(T(123, false, 1)), h(T(123, false, 1)));
+    }
+    {
+        EXPECT_NE(h(std::make_tuple(0, 0, 1)), h(std::make_tuple(0, 1, 0)));
+        EXPECT_NE(h(std::make_tuple(0, 0, 1)), h(std::make_tuple(1, 0, 0)));
+        EXPECT_NE(h(std::make_tuple(0, 1, 0)), h(std::make_tuple(1, 0, 0)));
+    }
 }
 
 TEST(HashTest, Vector) {
