@@ -10,7 +10,7 @@
 
 namespace yosupo {
 
-template <class K, class H = Hasher<K>> struct IncrementalHashSet {
+template <class K, class H = Hasher> struct IncrementalHashSet {
   private:
     struct Iterator {
       public:
@@ -41,9 +41,13 @@ template <class K, class H = Hasher<K>> struct IncrementalHashSet {
     };
 
   public:
-    IncrementalHashSet(size_t s)
-        : mask((1 << s) - 1), filled(0), used(mask + 1), keys(mask + 1) {}
-    IncrementalHashSet() : IncrementalHashSet(2) {}
+    IncrementalHashSet(size_t s, const H& _h = H())
+        : h(_h),
+          mask((1 << s) - 1),
+          filled(0),
+          used(mask + 1),
+          keys(mask + 1) {}
+    IncrementalHashSet(const H& _h = H()) : IncrementalHashSet(2, _h) {}
 
     Iterator begin() { return Iterator(*this, next_bucket(0)); }
     Iterator end() { return Iterator(*this, mask + 1); }
@@ -75,6 +79,8 @@ template <class K, class H = Hasher<K>> struct IncrementalHashSet {
     }
 
   private:
+    Hasher h;
+
     u32 mask, filled;  // data.size() == 1 << s
 
     std::vector<bool> used;
@@ -93,7 +99,7 @@ template <class K, class H = Hasher<K>> struct IncrementalHashSet {
         }
     }
 
-    u32 start_bucket(const K& k) const { return (u32)(H()(k)) & mask; }
+    u32 start_bucket(const K& k) const { return (u32)(h(k)) & mask; }
 
     u32 next_bucket(u32 i) const {
         while (i <= mask && !used[i]) i++;

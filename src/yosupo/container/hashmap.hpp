@@ -10,7 +10,7 @@
 
 namespace yosupo {
 
-template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
+template <class K, class D, class H = Hasher> struct IncrementalHashMap {
   public:
     using Data = std::pair<K, D>;
 
@@ -45,9 +45,13 @@ template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
     };
 
   public:
-    IncrementalHashMap(size_t s)
-        : mask((1 << s) - 1), filled(0), used(mask + 1), data(mask + 1) {}
-    IncrementalHashMap() : IncrementalHashMap(2) {}
+    IncrementalHashMap(size_t s, const H& _h = H())
+        : h(_h),
+          mask((1 << s) - 1),
+          filled(0),
+          used(mask + 1),
+          data(mask + 1) {}
+    IncrementalHashMap(const H& _h = H()) : IncrementalHashMap(2, _h) {}
 
     Iterator begin() { return Iterator(*this, next_bucket(0)); }
     Iterator end() { return Iterator(*this, mask + 1); }
@@ -84,6 +88,8 @@ template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
     size_t size() const { return filled; }
 
   private:
+    Hasher h;
+
     u32 mask, filled;  // data.size() == 1 << s
 
     std::vector<bool> used;
@@ -102,7 +108,7 @@ template <class K, class D, class H = Hasher<K>> struct IncrementalHashMap {
         }
     }
 
-    u32 start_bucket(const K& k) const { return (u32)(H()(k)) & mask; }
+    u32 start_bucket(const K& k) const { return (u32)(h(k)) & mask; }
 
     u32 next_bucket(u32 i) const {
         while (i <= mask && !used[i]) i++;
