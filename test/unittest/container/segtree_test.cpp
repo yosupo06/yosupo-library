@@ -16,3 +16,8 @@ TEST(SegTreeTest, Usage) {
     EXPECT_EQ(seg.all_prod(), 22);
     EXPECT_EQ(seg.prod(1, 3), 12);
 }
+
+TEST(SegTreeTest, SizeConstructor) {
+    SegTree seg(5, Sum<ll>(0));
+    EXPECT_EQ(seg.all_prod(), 0);
+}
