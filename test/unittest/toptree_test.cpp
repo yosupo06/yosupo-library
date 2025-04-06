@@ -32,3 +32,17 @@ TEST(StaticTopTree, Usage) {
     auto path = top_tree.path_prod(0);
     EXPECT_EQ(path, 5);
 }
+
+TEST(StaticTopTree, AllProd) {
+    yosupo::RootedTreeBuilder tree(5);
+    tree.add_edge(0, 1);
+    tree.add_edge(1, 2);
+    tree.add_edge(2, 3);
+    tree.add_edge(2, 4);
+    TopTreeDP dp;
+    yosupo::StaticTopTree<TopTreeDP> top_tree(std::move(tree).build(0),
+                                              std::vector<int>(5));
+
+    auto all = top_tree.all_prod();
+    EXPECT_EQ(all, 5);
+}

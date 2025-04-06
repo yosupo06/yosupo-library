@@ -132,7 +132,7 @@ template <static_top_tree_dp TreeDP> struct StaticTopTree {
                 }
             }
         }
-        build_compress(tree.root);
+        points[n] = dp.add_edge(build_compress(tree.root));
     }
 
     Vertex get_vertex(int u) { return vertices[u]; }
