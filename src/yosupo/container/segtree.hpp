@@ -1,7 +1,10 @@
 #pragma once
 
+#include <algorithm>
 #include <bit>
 #include <cassert>
+#include <concepts>
+#include <ranges>
 #include <vector>
 
 #include "yosupo/algebra.hpp"
@@ -13,14 +16,20 @@ template <monoid M> struct SegTree {
   public:
     explicit SegTree(int n, M _m = M())
         : SegTree(std::vector<S>(n, _m.e), _m) {}
+
     explicit SegTree(const std::vector<S>& v, M _m = M())
-        : m(_m), _n(int(v.size())) {
+        : SegTree(std::views::all(v), _m) {}
+
+    template <std::ranges::forward_range R>
+        requires std::ranges::sized_range<R> &&
+                     std::convertible_to<std::ranges::range_value_t<R>, S>
+    explicit SegTree(R&& r, M _m = M()) : m(_m), _n(int(std::ranges::size(r))) {
         size = (int)std::bit_ceil((unsigned int)(_n));
         log = std::countr_zero((unsigned int)size);
         d = std::vector<S>(2 * size, m.e);
-        for (int i = 0; i < _n; i++) d[size + i] = v[i];
-        for (int i = size - 1; i >= 1; i--) {
-            update(i);
+        std::ranges::copy(r, d.begin() + size);
+        for (int k = size - 1; k >= 1; k--) {
+            update(k);
         }
     }
 
@@ -96,7 +105,7 @@ template <monoid M> struct SegTree {
                 while (r < size) {
                     r = (2 * r + 1);
                     if (f(m.op(d[r], sm))) {
-                        sm = op(d[r], sm);
+                        sm = m.op(d[r], sm);
                         r--;
                     }
                 }
