@@ -11,7 +11,8 @@ template <monoid M> struct SegTree {
     using S = typename M::S;
 
   public:
-    explicit SegTree(int n, M _m = M()) : SegTree(std::vector<S>(n, _m.e), m) {}
+    explicit SegTree(int n, M _m = M())
+        : SegTree(std::vector<S>(n, _m.e), _m) {}
     explicit SegTree(const std::vector<S>& v, M _m = M())
         : m(_m), _n(int(v.size())) {
         size = (int)std::bit_ceil((unsigned int)(_n));
