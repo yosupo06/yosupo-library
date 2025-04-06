@@ -78,6 +78,8 @@ template <class K, class H = Hasher> struct IncrementalHashSet {
         return Iterator(*this, i);
     }
 
+    int size() const { return filled; }
+
   private:
     Hasher h;
 
