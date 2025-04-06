@@ -1,4 +1,7 @@
+// clang-format off
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/convolution_mod
+// clang-format on
+
 #include "yosupo/convolution.hpp"
 
 #include <vector>

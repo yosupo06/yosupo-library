@@ -3,8 +3,29 @@
 #include "gtest/gtest.h"
 #include "yosupo/modint.hpp"
 
-using modint = yosupo::ModInt<998244353>;
-using modvec = yosupo::ModVec<998244353>;
+using namespace yosupo;
+
+using modint = ModInt998244353;
+using modvec = ModVec998244353;
+
+TEST(ModVecTest, Constructor) {
+    {
+        modvec a;
+        EXPECT_EQ(a.size(), 0);
+    }
+    {
+        modvec a(5);
+        modvec b({0, 0, 0, 0, 0});
+        EXPECT_EQ(a, b);
+    }
+    {
+        modvec c({1, 2, 3});
+        EXPECT_EQ(c.size(), 3);
+        EXPECT_EQ(c[0], modint(1));
+        EXPECT_EQ(c[1], modint(2));
+        EXPECT_EQ(c[2], modint(3));
+    }
+}
 
 TEST(ModVecTest, Index) {
     modvec a({1, 2, 3, 4});
@@ -58,7 +79,24 @@ TEST(ModVecTest, Subtract) {
     }
 }
 
+TEST(ModVecTest, Multiply) {
+    modvec a({1, 2, 3});
+    modvec b({5, 6, 7, 8});
+    modvec c({5, 16, 34, 40, 37, 24});
+    EXPECT_EQ(a * b, c);
+    a *= b;
+    EXPECT_EQ(a, c);
+}
+
 TEST(ModVecTest, Dump) {
     modvec a({1, 2, 3, 4});
     EXPECT_EQ(a.dump(), "[1, 2, 3, 4]");
+}
+
+TEST(ModVecTest, Prod) {
+    modvec a({1, 1});
+    modvec b({1, 2});
+    modvec c({1, 3});
+    modvec d({1, 6, 11, 6});
+    EXPECT_EQ(modvec::prod({a, b, c}), d);
 }
