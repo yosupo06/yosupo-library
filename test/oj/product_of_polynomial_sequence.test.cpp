@@ -4,7 +4,6 @@
 
 #include <vector>
 
-#include "yosupo/convolution.hpp"
 #include "yosupo/fastio.hpp"
 #include "yosupo/modint.hpp"
 #include "yosupo/modvec.hpp"
