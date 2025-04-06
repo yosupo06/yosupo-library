@@ -1,4 +1,7 @@
+// clang-format off
 // verification-helper: PROBLEM https://judge.yosupo.jp/problem/many_aplusb
+// clang-format on
+
 #include <cstdio>
 
 #include "yosupo/fastio.hpp"
