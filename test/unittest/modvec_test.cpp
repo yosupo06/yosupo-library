@@ -19,11 +19,20 @@ TEST(ModVecTest, Constructor) {
         EXPECT_EQ(a, b);
     }
     {
-        modvec c({1, 2, 3});
-        EXPECT_EQ(c.size(), 3);
-        EXPECT_EQ(c[0], modint(1));
-        EXPECT_EQ(c[1], modint(2));
-        EXPECT_EQ(c[2], modint(3));
+        modvec a({1, 2, 3});
+        EXPECT_EQ(a.size(), 3);
+        EXPECT_EQ(a[0], modint(1));
+        EXPECT_EQ(a[1], modint(2));
+        EXPECT_EQ(a[2], modint(3));
+    }
+    {
+        modvec a = {2};
+        EXPECT_EQ(a.size(), 1);
+        EXPECT_EQ(a[0], modint(2));
+    }
+    {
+        modvec a({});
+        EXPECT_EQ(a.size(), 0);
     }
 }
 
