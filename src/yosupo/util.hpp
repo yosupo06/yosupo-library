@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <functional>
 #include <ranges>
+#include <ranges>  // for std::views::iota
 #include <span>
 #include <vector>
 
@@ -54,6 +55,11 @@ void dedup(std::vector<T>& v, Comp comp = Comp{}) {
 
 template <size_t N, class T> std::span<T, N> subspan(std::span<T> a, int idx) {
     return a.subspan(idx).template first<N>();
+}
+
+inline auto rep(int l, int r) {
+    if (l > r) return std::views::iota(l, l);
+    return std::views::iota(l, r);
 }
 
 }  // namespace yosupo
