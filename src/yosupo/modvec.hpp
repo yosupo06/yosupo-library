@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <initializer_list>
 #include <queue>
 #include <string>
 #include <utility>
@@ -24,6 +25,7 @@ template <i32 MOD> struct ModVec {
     ModVec() {}
     explicit ModVec(size_t n) : v(n) {}
     ModVec(const std::vector<modint>& _v) : v(_v) {}
+    ModVec(std::initializer_list<modint> init) : v(init) {}
 
     modint& operator[](int p) { return v[p]; }
     const modint& operator[](int p) const { return v[p]; }
