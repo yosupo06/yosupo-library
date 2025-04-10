@@ -355,8 +355,9 @@ __attribute__((target("avx2"))) void butterfly_inv(
 }
 
 template <i32 MOD>
-std::vector<ModInt<MOD>> convolution(std::vector<ModInt<MOD>> a,
-                                     std::vector<ModInt<MOD>> b) {
+__attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_fft(
+    std::vector<ModInt<MOD>> a,
+    std::vector<ModInt<MOD>> b) {
     int n = int(a.size()), m = int(b.size());
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
 
@@ -372,6 +373,40 @@ std::vector<ModInt<MOD>> convolution(std::vector<ModInt<MOD>> a,
     auto iz = ModInt<MOD>(z).inv();
     for (int i = 0; i < n + m - 1; i++) a[i] *= iz;
     return a;
+}
+
+template <i32 MOD>
+__attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_naive(
+    const std::vector<ModInt<MOD>>& a,
+    const std::vector<ModInt<MOD>>& b) {
+    // TODO: use simd
+    int n = int(a.size()), m = int(b.size());
+    std::vector<ModInt<MOD>> ans(n + m - 1);
+    if (n < m) {
+        for (int j = 0; j < m; j++) {
+            for (int i = 0; i < n; i++) {
+                ans[i + j] += a[i] * b[j];
+            }
+        }
+    } else {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                ans[i + j] += a[i] * b[j];
+            }
+        }
+    }
+    return ans;
+}
+
+template <i32 MOD>
+__attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution(
+    const std::vector<ModInt<MOD>>& a,
+    const std::vector<ModInt<MOD>>& b) {
+    const int THRESHOLD = 64;
+    if (a.size() <= THRESHOLD || b.size() <= THRESHOLD) {
+        return convolution_naive(a, b);
+    }
+    return convolution_fft(a, b);
 }
 
 }  // namespace yosupo
