@@ -61,6 +61,7 @@ template <i32 MOD> struct ModVec {
     ModVec& operator*=(const ModVec& rhs) { return *this = *this * rhs; }
 
     size_t size() const { return v.size(); }
+    void resize(size_t n) { v.resize(n); }
 
     std::string dump() const { return ::yosupo::dump(v); }
 

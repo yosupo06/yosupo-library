@@ -109,3 +109,14 @@ TEST(ModVecTest, Prod) {
     modvec d({1, 6, 11, 6});
     EXPECT_EQ(modvec::prod({a, b, c}), d);
 }
+
+TEST(ModVecTest, Resize) {
+    modvec a({1, 2, 3});
+    a.resize(5);
+    EXPECT_EQ(a.size(), 5);
+    EXPECT_EQ(a[0], modint(1));
+    EXPECT_EQ(a[1], modint(2));
+    EXPECT_EQ(a[2], modint(3));
+    EXPECT_EQ(a[3], modint(0));
+    EXPECT_EQ(a[4], modint(0));
+}
