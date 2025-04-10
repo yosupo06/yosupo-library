@@ -6,10 +6,10 @@ project(YosupoLibrary)
 set(CMAKE_CXX_STANDARD 20)
 
 # TODO: remove mavx2
-add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wno-sign-conversion -Werror)
+add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wno-sign-conversion)
 
 # sanitizer
-add_compile_options("$<$<CONFIG:DEBUG>:-fsanitize=undefined,address;-fno-sanitize-recover=all>")
+add_compile_options("$<$<CONFIG:DEBUG>:-Werror -fsanitize=undefined,address;-fno-sanitize-recover=all>")
 add_link_options("$<$<CONFIG:DEBUG>:-fsanitize=undefined,address>")
 
 include_directories(../src)
@@ -17,12 +17,23 @@ include_directories(../ac-library)
 
 include(FetchContent)
 FetchContent_Declare(
-  googletest
+  gtest
   DOWNLOAD_EXTRACT_TIMESTAMP ON
   # Specify the commit you depend on and update it regularly.
   URL https://github.com/google/googletest/archive/f8d7d77c06936315286eb55f8de22cd23c188571.zip
 )
-FetchContent_MakeAvailable(googletest)
+FetchContent_Declare(
+  gbench
+  GIT_REPOSITORY https://github.com/google/benchmark.git
+  GIT_TAG v1.9.2
+)
+FetchContent_MakeAvailable(gtest)
+FetchContent_MakeAvailable(gbench)
+
+# benchmark
+add_executable(convolution_bench benchmark/convolution_bench.cpp)
+target_link_libraries(convolution_bench benchmark::benchmark)
+
 
 # unittest
 add_executable(unittest
