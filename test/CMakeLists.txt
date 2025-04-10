@@ -75,13 +75,3 @@ add_executable(unittest
   )
 target_link_libraries(unittest gtest_main)
 add_test(NAME test COMMAND unittest)
-
-# oj
-add_executable(oj_aplusb oj/aplusb.test.cpp)
-add_executable(oj_factorize oj/factorize.test.cpp)
-add_executable(oj_hl_lca oj/hl_lca.test.cpp)
-add_executable(oj_matching oj/matching.test.cpp)
-add_executable(oj_dynamicseq oj/dynamicseq.test.cpp)
-add_executable(oj_mst oj/mst.test.cpp)
-add_executable(oj_mcf oj/min_cost_b_flow.test.cpp)
-add_executable(oj_staticrmq oj/staticrmq.test.cpp)
