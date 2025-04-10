@@ -14,7 +14,6 @@ add_link_options("$<$<CONFIG:DEBUG>:-fsanitize=undefined,address>")
 
 include_directories(../src)
 include_directories(../ac-library)
-include_directories(./util)
 
 include(FetchContent)
 FetchContent_Declare(
