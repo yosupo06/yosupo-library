@@ -29,11 +29,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(gtest)
 FetchContent_MakeAvailable(gbench)
 
-# benchmark
-add_executable(convolution_bench benchmark/convolution_bench.cpp)
-target_link_libraries(convolution_bench benchmark::benchmark)
-
-
 # unittest
 add_executable(unittest
   unittest/algebra_test.cpp
@@ -84,3 +79,7 @@ add_executable(unittest
   )
 target_link_libraries(unittest gtest_main)
 add_test(NAME test COMMAND unittest)
+
+# benchmark
+add_executable(convolution_bench benchmark/convolution_bench.cpp)
+target_link_libraries(convolution_bench benchmark::benchmark)
