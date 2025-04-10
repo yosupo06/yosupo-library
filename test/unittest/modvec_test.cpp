@@ -113,10 +113,31 @@ TEST(ModVecTest, Prod) {
 TEST(ModVecTest, Resize) {
     modvec a({1, 2, 3});
     a.resize(5);
-    EXPECT_EQ(a.size(), 5);
-    EXPECT_EQ(a[0], modint(1));
-    EXPECT_EQ(a[1], modint(2));
-    EXPECT_EQ(a[2], modint(3));
-    EXPECT_EQ(a[3], modint(0));
-    EXPECT_EQ(a[4], modint(0));
+    EXPECT_EQ(a, modvec({1, 2, 3, 0, 0}));
+}
+
+TEST(ModVecTest, Front) {
+    modvec a({1, 2, 3});
+    EXPECT_EQ(a.front(), modint(1));
+    a.front() = 100;
+    EXPECT_EQ(a, modvec({100, 2, 3}));
+}
+
+TEST(ModVecTest, Back) {
+    modvec a({1, 2, 3});
+    EXPECT_EQ(a.back(), modint(3));
+    a.back() = 200;
+    EXPECT_EQ(a, modvec({1, 2, 200}));
+}
+
+TEST(ModVecTest, PushBack) {
+    modvec a({1, 2, 3});
+    a.push_back(4);
+    EXPECT_EQ(a, modvec({1, 2, 3, 4}));
+}
+
+TEST(ModVecTest, PopBack) {
+    modvec a({1, 2, 3});
+    a.pop_back();
+    EXPECT_EQ(a, modvec({1, 2}));
 }
