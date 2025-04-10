@@ -27,8 +27,8 @@ template <i32 MOD> struct ModVec {
     ModVec(const std::vector<modint>& _v) : v(_v) {}
     ModVec(std::initializer_list<modint> init) : v(init) {}
 
-    modint& operator[](int p) { return v[p]; }
-    const modint& operator[](int p) const { return v[p]; }
+    modint& operator[](size_t i) { return v[i]; }
+    const modint& operator[](size_t i) const { return v[i]; }
 
     bool operator==(const ModVec& rhs) const { return v == rhs.v; }
 
@@ -62,6 +62,14 @@ template <i32 MOD> struct ModVec {
 
     size_t size() const { return v.size(); }
     void resize(size_t n) { v.resize(n); }
+
+    modint& front() { return v.front(); }
+    const modint& front() const { return v.front(); }
+    modint& back() { return v.back(); }
+    const modint& back() const { return v.back(); }
+
+    void push_back(const modint& x) { v.push_back(x); }
+    void pop_back() { v.pop_back(); }
 
     std::string dump() const { return ::yosupo::dump(v); }
 
