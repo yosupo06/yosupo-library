@@ -1,0 +1,16 @@
+-c
+-std=c++20
+-Werror
+-Wall
+-Wextra 
+-Wshadow
+-Wconversion
+-Wno-sign-conversion
+-I
+src
+-I
+ac-library
+-isystem
+build/_deps/gtest-src/googletest/include
+-isystem
+build/_deps/gtest-src/googletest
