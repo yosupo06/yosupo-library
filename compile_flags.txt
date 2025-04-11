@@ -8,6 +8,8 @@
 -Wno-sign-conversion
 -I
 src
+-I
+ac-library
 -isystem
 build/_deps/gtest-src/googletest/include
 -isystem
