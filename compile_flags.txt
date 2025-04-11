@@ -1,0 +1,9 @@
+-c
+-Werror
+-Wall
+-Wextra 
+-Wshadow
+-Wconversion
+-Wno-sign-conversion
+-Isrc
+-std=c++20

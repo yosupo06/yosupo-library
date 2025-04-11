@@ -5,6 +5,9 @@ project(YosupoLibrary)
 
 set(CMAKE_CXX_STANDARD 20)
 
+# Should use compile_flags.txt instead
+set(CMAKE_EXPORT_COMPILE_COMMANDS OFF)
+
 # TODO: remove mavx2
 add_compile_options(-Wall -Wextra -Wshadow -Wconversion -Wno-sign-conversion)
 

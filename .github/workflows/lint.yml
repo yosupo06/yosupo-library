@@ -21,11 +21,6 @@ jobs:
         run: |
           shopt -s globstar
           clang-format --dry-run -Werror src/**/*.hpp test/unittest/**/*.cpp test/oj/**/*.cpp
-      - name: Generate compile_commands.json
-        run: |
-          mkdir build
-          cd build
-          cmake ../test -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXPORT_COMPILE_COMMANDS=ON          
       - name: Run clangd-tidy
         run: |
           shopt -s globstar        
