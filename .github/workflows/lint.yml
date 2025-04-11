@@ -16,7 +16,7 @@ jobs:
       - name: Setup clangd-tidy
         run: |
           sudo apt install clangd-18
-          pipx install clangd-tidy
+          pipx install clangd-tidy==1.0.0
       - name: Run clang-format
         run: |
           shopt -s globstar
