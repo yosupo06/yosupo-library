@@ -24,4 +24,4 @@ jobs:
       - name: Run clangd-tidy
         run: |
           shopt -s globstar        
-          clangd-tidy -v --clangd-executable clangd-18 -p build src/**/*.hpp test/unittest/**/*.cpp test/oj/**/*.cpp
+          clangd-tidy -v --clangd-executable clangd-18 src/**/*.hpp test/unittest/**/*.cpp test/oj/**/*.cpp
