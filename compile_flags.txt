@@ -9,6 +9,6 @@
 -I
 src
 -isystem
-/workspaces/yosupo-library/build/_deps/gtest-src/googletest/include
+build/_deps/gtest-src/googletest/include
 -isystem
-/workspaces/yosupo-library/build/_deps/gtest-src/googletest
+build/_deps/gtest-src/googletest
