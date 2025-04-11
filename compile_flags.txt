@@ -1,9 +1,14 @@
 -c
+-std=c++20
 -Werror
 -Wall
 -Wextra 
 -Wshadow
 -Wconversion
 -Wno-sign-conversion
--Isrc
--std=c++20
+-I
+src
+-isystem
+/workspaces/yosupo-library/build/_deps/gtest-src/googletest/include
+-isystem
+/workspaces/yosupo-library/build/_deps/gtest-src/googletest
