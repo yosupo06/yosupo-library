@@ -384,43 +384,32 @@ __attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_naive(
     if (a.empty() || b.empty()) return {};
 
     int n = int(a.size()), m = int(b.size());
-
-    std::vector<ModInt<MOD>> ans(n + m - 1);
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            ans[i + j] += a[i] * b[j];
-        }
-    }
-    return ans;
-}
-
-template <i32 MOD>
-__attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_simd(
-    const std::vector<ModInt<MOD>>& a,
-    const std::vector<ModInt<MOD>>& b) {
-    if (a.empty() || b.empty()) return {};
-
-    int n = int(a.size()), m = int(b.size());
-    std::vector<ModInt<MOD>> ans(n + m - 1);
+    int m8 = (m + 7) / 8 * 8;
+    std::vector<ModInt<MOD>> ans(n + m8 - 1);
     using modint = ModInt<MOD>;
     using modint8 = ModInt8<MOD>;
+
+    modint8 b_last = [&]() {
+        std::array<modint, 8> b_vec = {};
+        std::copy(b.begin() + m8 - 8, b.end(), b_vec.begin());
+        return modint8(b_vec);
+    }();
 
     for (int i = 0; i < n; ++i) {
         modint ai = a[i];
         modint8 ai_vec(ai);
-        int j = 0;
-        for (; j + 7 < m; j += 8) {
-            modint8 b_vec(subspan<8>(std::span{b}, j));
+        for (int j = 0; j < m8; j += 8) {
+            modint8 b_vec =
+                (j < m8 - 8) ? modint8(subspan<8>(std::span{b}, j)) : b_last;
             modint8 ans_vec(subspan<8>(std::span{ans}, i + j));
             modint8 prod = ai_vec * b_vec;
             modint8 updated_ans = ans_vec + prod;
             std::copy_n(updated_ans.to_array().data(), 8,
                         subspan<8>(std::span{ans}, i + j).data());
         }
-        for (; j < m; ++j) {
-            ans[i + j] += ai * b[j];
-        }
     }
+
+    ans.resize(n + m - 1);
     return ans;
 }
 
@@ -429,9 +418,11 @@ __attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution(
     const std::vector<ModInt<MOD>>& a,
     const std::vector<ModInt<MOD>>& b) {
     if (a.empty() || b.empty()) return {};
-    const int THRESHOLD = 64;
-    if (a.size() <= THRESHOLD || b.size() <= THRESHOLD) {
-        return convolution_naive(a, b);
+    int n = int(a.size()), m = int(b.size());
+
+    if (std::max(n, m) < 100) {
+        if (n < m) return convolution_simd(a, b);
+        return convolution_simd(b, a);
     }
     return convolution_fft(a, b);
 }

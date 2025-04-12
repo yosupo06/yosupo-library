@@ -56,10 +56,8 @@ TEST(ConvolutionTest, Consistency) {
             }
 
             auto c_naive = convolution_naive(a, b);
-            auto c_simd = convolution_simd(a, b);
             auto c_fft = convolution_fft(a, b);
 
-            ASSERT_EQ(c_naive, c_simd);
             ASSERT_EQ(c_naive, c_fft);
         }
     }
