@@ -182,7 +182,7 @@ TEST(RandomTest, UniformMint) {
     Random gen(123);
     for (int i = 0; i < 100; i++) {
         mint x = uniform<mint>(gen);
-        ASSERT_LE(0, x);
-        ASSERT_LE(x, mint::mod() - 1);
+        ASSERT_LE(0, x.val());
+        ASSERT_LE(x.val(), mint::mod() - 1);
     }
 }
