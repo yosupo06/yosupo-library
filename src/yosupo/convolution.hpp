@@ -420,8 +420,8 @@ __attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution(
     if (a.empty() || b.empty()) return {};
     int n = int(a.size()), m = int(b.size());
 
-    if (std::max(n, m) < 100) {
-        if (n < m) return convolution_naive(a, b);
+    if (std::min(n, m) < 100) {
+        if (n > m) return convolution_naive(a, b);
         return convolution_naive(b, a);
     }
     return convolution_fft(a, b);
