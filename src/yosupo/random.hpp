@@ -121,7 +121,14 @@ template <std::unsigned_integral T, random_64 G> T uniform(G& gen) {
 template <std::signed_integral T, random_64 G> T uniform(G& gen) {
     return T(gen() + (u64)std::numeric_limits<T>::min());
 }
-template <std::integral T> T uniform() { return uniform<T>(global_gen()); }
+template <class T, random_64 G>
+    requires requires {
+        { T::mod() } -> std::integral;
+    }
+T uniform(G& gen) {
+    return T(uniform(0, T::mod() - 1, gen));
+}
+template <class T> T uniform() { return uniform<T>(global_gen()); }
 
 template <class T, random_64 G> T random(T lower, T upper, G& gen) {
     return T(lower + internal::random_u64(u64(upper) - u64(lower), gen));
