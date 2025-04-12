@@ -358,6 +358,8 @@ template <i32 MOD>
 __attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_fft(
     std::vector<ModInt<MOD>> a,
     std::vector<ModInt<MOD>> b) {
+    if (a.empty() || b.empty()) return {};
+
     int n = int(a.size()), m = int(b.size());
     int z = (int)std::bit_ceil((unsigned int)(n + m - 1));
 
@@ -379,20 +381,44 @@ template <i32 MOD>
 __attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_naive(
     const std::vector<ModInt<MOD>>& a,
     const std::vector<ModInt<MOD>>& b) {
-    // TODO: use simd
+    if (a.empty() || b.empty()) return {};
+
+    int n = int(a.size()), m = int(b.size());
+
+    std::vector<ModInt<MOD>> ans(n + m - 1);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            ans[i + j] += a[i] * b[j];
+        }
+    }
+    return ans;
+}
+
+template <i32 MOD>
+__attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_simd(
+    const std::vector<ModInt<MOD>>& a,
+    const std::vector<ModInt<MOD>>& b) {
+    if (a.empty() || b.empty()) return {};
+
     int n = int(a.size()), m = int(b.size());
     std::vector<ModInt<MOD>> ans(n + m - 1);
-    if (n < m) {
-        for (int j = 0; j < m; j++) {
-            for (int i = 0; i < n; i++) {
-                ans[i + j] += a[i] * b[j];
-            }
+    using modint = ModInt<MOD>;
+    using modint8 = ModInt8<MOD>;
+
+    for (int i = 0; i < n; ++i) {
+        modint ai = a[i];
+        modint8 ai_vec(ai);
+        int j = 0;
+        for (; j + 7 < m; j += 8) {
+            modint8 b_vec(subspan<8>(std::span{b}, j));
+            modint8 ans_vec(subspan<8>(std::span{ans}, i + j));
+            modint8 prod = ai_vec * b_vec;
+            modint8 updated_ans = ans_vec + prod;
+            std::copy_n(updated_ans.to_array().data(), 8,
+                        subspan<8>(std::span{ans}, i + j).data());
         }
-    } else {
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                ans[i + j] += a[i] * b[j];
-            }
+        for (; j < m; ++j) {
+            ans[i + j] += ai * b[j];
         }
     }
     return ans;
@@ -402,6 +428,7 @@ template <i32 MOD>
 __attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution(
     const std::vector<ModInt<MOD>>& a,
     const std::vector<ModInt<MOD>>& b) {
+    if (a.empty() || b.empty()) return {};
     const int THRESHOLD = 64;
     if (a.size() <= THRESHOLD || b.size() <= THRESHOLD) {
         return convolution_naive(a, b);

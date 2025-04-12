@@ -5,6 +5,7 @@
 
 #include "gtest/gtest.h"
 #include "yosupo/modint.hpp"
+#include "yosupo/random.hpp"
 
 using namespace yosupo;
 using mint = ModInt998244353;
@@ -39,4 +40,27 @@ TEST(ConvolutionTest, Large) {
     auto c_actual = convolution(std::move(a), std::move(b));
 
     EXPECT_EQ(c_actual, c_expect);
+}
+
+TEST(ConvolutionTest, Consistency) {
+    for (int n = 0; n <= 50; n++) {
+        for (int m = 0; m <= 50; m++) {
+            std::vector<mint> a(n);
+            std::vector<mint> b(m);
+
+            for (int i = 0; i < n; i++) {
+                a[i] = uniform<mint>();
+            }
+            for (int i = 0; i < m; i++) {
+                b[i] = uniform<mint>();
+            }
+
+            auto c_naive = convolution_naive(a, b);
+            auto c_simd = convolution_simd(a, b);
+            auto c_fft = convolution_fft(a, b);
+
+            ASSERT_EQ(c_naive, c_simd);
+            ASSERT_EQ(c_naive, c_fft);
+        }
+    }
 }
