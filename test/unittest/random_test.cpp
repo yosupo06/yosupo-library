@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "yosupo/modint.hpp"
 #include "yosupo/types.hpp"
 
 using namespace yosupo;
@@ -173,5 +174,15 @@ TEST(RandomTest, UniformAll) {
         u64 y = uniform(std::numeric_limits<T>::min(),
                         std::numeric_limits<T>::max(), gen2);
         EXPECT_EQ(x, y);
+    }
+}
+
+TEST(RandomTest, UniformMint) {
+    using mint = ModInt998244353;
+    Random gen(123);
+    for (int i = 0; i < 100; i++) {
+        mint x = uniform<mint>(gen);
+        ASSERT_LE(0, x.val());
+        ASSERT_LE(x.val(), mint::mod() - 1);
     }
 }
