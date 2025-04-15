@@ -51,6 +51,7 @@ add_executable(unittest
 
   unittest/convolution_test.cpp 
   unittest/coord_test.cpp
+  unittest/dsu_test.cpp
   unittest/dump_test.cpp
   unittest/fastio_test.cpp  
   unittest/flattenvector_test.cpp
