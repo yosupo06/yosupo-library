@@ -22,6 +22,12 @@ struct RollbackDSU {
         return x;
     }
 
+    bool same(int a, int b) {
+        assert(0 <= a && a < n);
+        assert(0 <= b && b < n);
+        return leader(a) == leader(b);
+    }
+
     int leader(int a) {
         assert(0 <= a && a < n);
         if (parent_or_size[a] < 0) return a;
