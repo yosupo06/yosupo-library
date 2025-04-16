@@ -59,3 +59,12 @@ TEST(SegTreeTest, RangeConstructor) {
     EXPECT_EQ(seg_empty_arr.all_prod(), 0);
     EXPECT_EQ(seg_empty_arr.prod(0, 0), 0);
 }
+
+TEST(SegTreeTest, OtherMonoid) {
+    SegTree seg({1, 2, 3, 4, 5}, Max<int>(-1));
+    EXPECT_EQ(seg.all_prod(), 5);
+    EXPECT_EQ(seg.prod(1, 3), 3);
+    seg.set(2, 10);
+    EXPECT_EQ(seg.all_prod(), 10);
+    EXPECT_EQ(seg.prod(1, 3), 10);
+}

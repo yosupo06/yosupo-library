@@ -109,13 +109,13 @@ template <class S> using Prod = Monoid<S, std::multiplies<S>>;
 template <class _S> struct Max {
     using S = _S;
     Max(S _e = std::numeric_limits<S>::min()) : e(_e) {}
-    S op(const S& a, const S& b) { return std::max(a, b); }
+    S op(const S& a, const S& b) const { return std::max(a, b); }
     S e;
 };
 template <class _S> struct Min {
     using S = _S;
     Min(S _e = std::numeric_limits<S>::max()) : e(_e) {}
-    S op(const S& a, const S& b) { return std::min(a, b); }
+    S op(const S& a, const S& b) const { return std::min(a, b); }
     S e;
 };
 
