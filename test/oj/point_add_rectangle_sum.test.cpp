@@ -8,10 +8,8 @@
 
 #include "/workspaces/yosupo-library/src/yosupo/coord.hpp"
 #include "yosupo/algebra.hpp"
-#include "yosupo/container/segtree.hpp"
 #include "yosupo/container/segtree2d.hpp"
 #include "yosupo/fastio.hpp"
-#include "yosupo/types.hpp"
 #include "yosupo/util.hpp"
 
 using namespace yosupo;

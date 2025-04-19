@@ -1,10 +1,7 @@
 #pragma once
 
-#include <algorithm>
 #include <bit>
 #include <cassert>
-#include <concepts>
-#include <ranges>
 #include <vector>
 
 #include "yosupo/algebra.hpp"

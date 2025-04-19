@@ -1,9 +1,5 @@
 #include "yosupo/container/segtree2d.hpp"
 
-#include <array>
-#include <ranges>
-#include <vector>
-
 #include "gtest/gtest.h"
 #include "yosupo/algebra.hpp"
 
