@@ -45,6 +45,7 @@ add_executable(unittest
   unittest/container/hashmap_test.cpp
   unittest/container/hashset_test.cpp
   unittest/container/segtree_test.cpp
+  unittest/container/segtree2d_test.cpp
   unittest/container/sparsetable_test.cpp
   unittest/container/splaytree_test.cpp
   unittest/container/vector2d_test.cpp
