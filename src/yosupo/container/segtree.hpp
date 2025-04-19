@@ -14,16 +14,17 @@ template <monoid M> struct SegTree {
     using S = typename M::S;
 
   public:
-    explicit SegTree(int n, M _m = M())
+    explicit SegTree(int n, const M& _m = M())
         : SegTree(std::vector<S>(n, _m.e), _m) {}
 
-    explicit SegTree(const std::vector<S>& v, M _m = M())
+    explicit SegTree(const std::vector<S>& v, const M& _m = M())
         : SegTree(std::views::all(v), _m) {}
 
     template <std::ranges::forward_range R>
         requires std::ranges::sized_range<R> &&
                      std::convertible_to<std::ranges::range_value_t<R>, S>
-    explicit SegTree(R&& r, M _m = M()) : m(_m), _n(int(std::ranges::size(r))) {
+    explicit SegTree(R&& r, const M& _m = M())
+        : m(_m), _n(int(std::ranges::size(r))) {
         size = (int)std::bit_ceil((unsigned int)(_n));
         log = std::countr_zero((unsigned int)size);
         d = std::vector<S>(2 * size, m.e);

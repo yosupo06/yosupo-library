@@ -40,7 +40,8 @@ template <acted_monoid M> struct IndexedActedMonoid {
 }  // namespace internal
 
 template <acted_monoid M> struct DynamicSegtree {
-    DynamicSegtree(const M& _m) : manager(internal::IndexedActedMonoid(_m)) {}
+    DynamicSegtree(const M& _m)
+        : m(internal::IndexedActedMonoid(_m)), manager(m) {}
 
     struct Tree {
         int len;
@@ -52,6 +53,16 @@ template <acted_monoid M> struct DynamicSegtree {
     };
 
     Tree build(int len) { return Tree(len, manager.build()); }
+
+    typename M::S get(Tree& tr, int k) {
+        assert(0 <= k && k < tr.len);
+        int i = lower_bound_idx(tr, k);
+        if (i < manager.ssize(tr.tr) && manager.get(tr.tr, i).first == k) {
+            return manager.get(tr.tr, i).second;
+        } else {
+            return m.monoid.e.second;
+        }
+    }
 
     void set(Tree& tr, int k, typename M::S s) {
         assert(0 <= k && k < tr.len);
@@ -87,6 +98,7 @@ template <acted_monoid M> struct DynamicSegtree {
     void all_apply(Tree& tr, typename M::F f) { manager.all_apply(tr.tr, f); }
 
   private:
+    internal::IndexedActedMonoid<M> m;
     SplayTree<internal::IndexedActedMonoid<M>> manager;
 
     int lower_bound_idx(Tree& tr, int k) {
