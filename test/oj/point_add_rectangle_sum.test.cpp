@@ -6,9 +6,9 @@
 #include <cassert>
 #include <vector>
 
-#include "/workspaces/yosupo-library/src/yosupo/coord.hpp"
 #include "yosupo/algebra.hpp"
 #include "yosupo/container/segtree2d.hpp"
+#include "yosupo/coord.hpp"
 #include "yosupo/fastio.hpp"
 #include "yosupo/util.hpp"
 
