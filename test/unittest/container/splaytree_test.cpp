@@ -20,27 +20,27 @@ struct RangeAddMax {
 TEST(SplayTreeTest, ToVec) {
     yosupo::SplayTree tree((RangeAddMax()));
     auto tr = tree.build({1, 2, 3, 4, 5});
-    ASSERT_EQ(std::vector<int>({1, 2, 3, 4, 5}), tree.to_vec(tr));
+    EXPECT_EQ(std::vector<int>({1, 2, 3, 4, 5}), tree.to_vec(tr));
     auto tr2 = tree.build();
-    ASSERT_EQ(std::vector<int>({}), tree.to_vec(tr2));
+    EXPECT_EQ(std::vector<int>({}), tree.to_vec(tr2));
 }
 
 TEST(SplayTreeTest, Size) {
     yosupo::SplayTree tree((RangeAddMax()));
     auto tr = tree.build({1, 2, 3, 4, 5});
-    ASSERT_EQ(5, tree.size(tr));
+    EXPECT_EQ(5, tree.size(tr));
     auto tr2 = tree.build();
-    ASSERT_EQ(0, tree.size(tr2));
+    EXPECT_EQ(0, tree.size(tr2));
 }
 
 TEST(SplayTreeTest, Get) {
     yosupo::SplayTree tree((RangeAddMax()));
     auto tr = tree.build({1, 2, 3, 4, 5});
-    ASSERT_EQ(1, tree.get(tr, 0));
-    ASSERT_EQ(2, tree.get(tr, 1));
-    ASSERT_EQ(3, tree.get(tr, 2));
-    ASSERT_EQ(4, tree.get(tr, 3));
-    ASSERT_EQ(5, tree.get(tr, 4));
+    EXPECT_EQ(1, tree.get(tr, 0));
+    EXPECT_EQ(2, tree.get(tr, 1));
+    EXPECT_EQ(3, tree.get(tr, 2));
+    EXPECT_EQ(4, tree.get(tr, 3));
+    EXPECT_EQ(5, tree.get(tr, 4));
 }
 
 TEST(SplayTreeTest, Set) {
@@ -67,14 +67,14 @@ TEST(SplayTreeTest, AllApply) {
     yosupo::SplayTree tree((RangeAddMax()));
     auto tr = tree.build({1, 2, 3, 4, 5});
     tree.all_apply(tr, 10);
-    ASSERT_EQ(std::vector<int>({11, 12, 13, 14, 15}), tree.to_vec(tr));
+    EXPECT_EQ(std::vector<int>({11, 12, 13, 14, 15}), tree.to_vec(tr));
 }
 
 TEST(SplayTreeTest, Apply) {
     yosupo::SplayTree tree((RangeAddMax()));
     auto tr = tree.build({1, 2, 3, 4, 5});
     tree.apply(tr, 1, 4, 10);
-    ASSERT_EQ(std::vector<int>({1, 12, 13, 14, 5}), tree.to_vec(tr));
+    EXPECT_EQ(std::vector<int>({1, 12, 13, 14, 5}), tree.to_vec(tr));
 }
 
 TEST(SplayTreeTest, Split) {
