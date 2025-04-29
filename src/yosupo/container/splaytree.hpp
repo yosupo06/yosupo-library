@@ -83,14 +83,15 @@ template <acted_monoid M> struct SplayTree {
     Tree merge(Tree&& l, Tree&& r) {
         if (l.empty()) return r;
         if (r.empty()) return l;
-        int lid = splay_k(l.id, len(l.id) - 1);
-        nodes[lid].r = r.id;
-        update(lid);
-
-        return Tree(lid);
+        int rid = splay_k(r.id, 0);
+        nodes[rid].l = l.id;
+        update(rid);
+        return Tree(rid);
     }
     Tree split(Tree& t, int k) {
         assert(0 <= k && k <= int(size(t)));
+        if (k == 0) return std::exchange(t, Tree());
+        if (k == int(size(t))) return Tree();
         auto [lid, id, rid] = splay3(t.id, [&](int l, int, int) {
             if (k <= len(l)) return -1;
             k -= len(l) + 1;
@@ -191,8 +192,16 @@ template <acted_monoid M> struct SplayTree {
 
     void update(int id) {
         Node& n = nodes[id];
-        n.len = 1 + len(n.l) + len(n.r);
-        n.prod = m.monoid.op(all_prod(n.l), m.monoid.op(n.s, all_prod(n.r)));
+        n.len = 1;
+        n.prod = n.s;
+        if (n.l != -1) {
+            n.len += nodes[n.l].len;
+            n.prod = m.monoid.op(nodes[n.l].prod, n.prod);
+        }
+        if (n.r != -1) {
+            n.len += nodes[n.r].len;
+            n.prod = m.monoid.op(n.prod, nodes[n.r].prod);
+        }
     }
 
     template <class F> int splay(int id, F f) {
