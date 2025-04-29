@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "yosupo/dump.hpp"
 
 using namespace yosupo;
 using ll = long long;
@@ -105,4 +106,13 @@ TEST(HashMapTest, Contains) {
     ASSERT_TRUE(h.contains(2));
     ASSERT_TRUE(h.contains(49));
     ASSERT_FALSE(h.contains(50));
+}
+
+TEST(HashMapTest, Dump) {
+    IncrementalHashMap<int, std::string> h_empty;
+    ASSERT_EQ("{}", dump(h_empty));
+
+    IncrementalHashMap<int, std::string> h_single;
+    h_single[10] = "ten";
+    ASSERT_EQ("{10: ten}", dump(h_single));
 }

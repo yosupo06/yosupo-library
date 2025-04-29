@@ -2,9 +2,11 @@
 
 #include <cstddef>
 #include <iterator>
+#include <string>
 #include <utility>
 #include <vector>
 
+#include "yosupo/dump.hpp"
 #include "yosupo/hash.hpp"
 #include "yosupo/types.hpp"
 
@@ -129,6 +131,20 @@ template <class K, class H = Hasher> struct IncrementalHashSet {
     bool contains(const K& k) const { return this->find(k) != end(); }
 
     int size() const { return filled; }
+
+    std::string dump() const {
+        std::string s = "{";
+        bool first = true;
+        for (const auto& key : *this) {
+            if (!first) {
+                s += ", ";
+            }
+            first = false;
+            s += yosupo::dump(key);
+        }
+        s += "}";
+        return s;
+    }
 
   private:
     Hasher h;
