@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+#include "yosupo/dump.hpp"
 #include "yosupo/random.hpp"
 
 using namespace yosupo;
@@ -78,4 +79,13 @@ TEST(HashSetTest, Contains) {
     ASSERT_TRUE(h.contains("orange"));
     ASSERT_TRUE(h.contains("fruit49"));
     ASSERT_FALSE(h.contains("fruit50"));
+}
+
+TEST(HashSetTest, Dump) {
+    IncrementalHashSet<int> h_empty;
+    ASSERT_EQ("{}", dump(h_empty));
+
+    IncrementalHashSet<std::string> h_single;
+    h_single.insert("hello");
+    ASSERT_EQ("{hello}", dump(h_single));
 }
