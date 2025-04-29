@@ -54,3 +54,27 @@ TEST(HashSetTest, CompareWithSet) {
     std::ranges::sort(h_elements);
     EXPECT_EQ(h_elements, s_elements);
 }
+
+TEST(HashSetTest, Contains) {
+    IncrementalHashSet<std::string> h;
+    h.insert("apple");
+    h.insert("banana");
+
+    ASSERT_TRUE(h.contains("apple"));
+    ASSERT_FALSE(h.contains("orange"));
+    ASSERT_TRUE(h.contains("banana"));
+    ASSERT_FALSE(h.contains("grape"));
+
+    h.insert("orange");
+    ASSERT_TRUE(h.contains("orange"));
+
+    // Test after rehash
+    for (int i = 0; i < 50; ++i) {
+        h.insert("fruit" + std::to_string(i));
+    }
+    ASSERT_TRUE(h.contains("apple"));
+    ASSERT_TRUE(h.contains("banana"));
+    ASSERT_TRUE(h.contains("orange"));
+    ASSERT_TRUE(h.contains("fruit49"));
+    ASSERT_FALSE(h.contains("fruit50"));
+}
