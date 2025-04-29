@@ -1,6 +1,7 @@
 #include "yosupo/container/hashmap.hpp"
 
 #include <algorithm>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -80,4 +81,28 @@ TEST(HashMapTest, Rewrite) {
     (*it).second = 102;
 
     ASSERT_EQ(102, h[3]);
+}
+
+TEST(HashMapTest, Contains) {
+    IncrementalHashMap<int, std::string> h;
+    h[1] = "one";
+    h[3] = "three";
+
+    ASSERT_TRUE(h.contains(1));
+    ASSERT_FALSE(h.contains(2));
+    ASSERT_TRUE(h.contains(3));
+    ASSERT_FALSE(h.contains(4));
+
+    h[2] = "two";
+    ASSERT_TRUE(h.contains(2));
+
+    // Test after rehash
+    for (int i = 10; i < 50; ++i) {
+        h[i] = "num" + std::to_string(i);
+    }
+    ASSERT_TRUE(h.contains(1));
+    ASSERT_TRUE(h.contains(3));
+    ASSERT_TRUE(h.contains(2));
+    ASSERT_TRUE(h.contains(49));
+    ASSERT_FALSE(h.contains(50));
 }

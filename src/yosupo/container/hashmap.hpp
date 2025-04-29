@@ -44,6 +44,40 @@ template <class K, class D, class H = Hasher> struct IncrementalHashMap {
         bool operator!=(const Iterator& rhs) const { return !(*this == rhs); }
     };
 
+    struct ConstIterator {
+      public:
+        using difference_type = i32;
+        using value_type = const Data;
+        using pointer = const Data*;
+        using reference = const Data&;
+        using iterator_category = std::forward_iterator_tag;
+
+        const IncrementalHashMap& _mp;
+        u32 _pos;
+        ConstIterator(const IncrementalHashMap& mp, u32 pos)
+            : _mp(mp), _pos(pos) {}
+
+        const std::pair<K, D>& operator*() const { return _mp.data[_pos]; }
+        const std::pair<K, D>* operator->() const { return &_mp.data[_pos]; }
+
+        ConstIterator& operator++() {
+            _pos = _mp.next_bucket(_pos + 1);
+            return *this;
+        }
+        ConstIterator operator++(int) {
+            auto result = *this;
+            ++*this;
+            return result;
+        }
+
+        bool operator==(const ConstIterator& rhs) const {
+            return _pos == rhs._pos;
+        }
+        bool operator!=(const ConstIterator& rhs) const {
+            return !(*this == rhs);
+        }
+    };
+
   public:
     IncrementalHashMap(size_t s, const H& _h = H())
         : h(_h),
@@ -55,7 +89,13 @@ template <class K, class D, class H = Hasher> struct IncrementalHashMap {
 
     Iterator begin() { return Iterator(*this, next_bucket(0)); }
     Iterator end() { return Iterator(*this, mask + 1); }
+    ConstIterator begin() const { return ConstIterator(*this, next_bucket(0)); }
+    ConstIterator end() const { return ConstIterator(*this, mask + 1); }
+    ConstIterator cbegin() const { return begin(); }
+    ConstIterator cend() const { return end(); }
+
     using iterator = Iterator;
+    using const_iterator = ConstIterator;
 
     D& operator[](const K& k) {
         u32 i = start_bucket(k);
@@ -83,7 +123,17 @@ template <class K, class D, class H = Hasher> struct IncrementalHashMap {
         return Iterator(*this, i);
     }
 
-    size_t count(const K& k) { return find(k) == end() ? 0 : 1; }
+    ConstIterator find(const K& k) const {
+        u32 i = start_bucket(k);
+        while (used[i] && data[i].first != k) {
+            i = (i + 1) & mask;
+        }
+        if (!used[i]) return cend();
+        return ConstIterator(*this, i);
+    }
+
+    size_t count(const K& k) const { return this->find(k) != cend() ? 1 : 0; }
+    bool contains(const K& k) const { return this->find(k) != cend(); }
 
     size_t size() const { return filled; }
 
