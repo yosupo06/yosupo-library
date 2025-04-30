@@ -67,16 +67,14 @@ int main() {
             int l, r;
             sc.read(l, r);
 
-            auto tr1 = treem.split(tree1, l);
-            auto tr2 = treem.split(tr1, r - l);
+            auto [tr1, tr2, tr3] = treem.split3(std::move(tree1), l, r);
+            auto [tr4, tr5, tr6] =
+                treem.split3(std::move(tree2), size - r, size - l);
 
-            auto tr3 = treem.split(tree2, size - r);
-            auto tr4 = treem.split(tr3, r - l);
-
-            tree1 = treem.merge(std::move(tree1),
-                                treem.merge(std::move(tr3), std::move(tr2)));
-            tree2 = treem.merge(std::move(tree2),
-                                treem.merge(std::move(tr1), std::move(tr4)));
+            tree1 =
+                treem.merge3(std::move(tr1), std::move(tr5), std::move(tr3));
+            tree2 =
+                treem.merge3(std::move(tr4), std::move(tr2), std::move(tr6));
         } else if (ty == 3) {
             int l, r, b, c;
             sc.read(l, r, b, c);

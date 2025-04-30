@@ -3,6 +3,7 @@
 #include <array>
 #include <cassert>
 #include <cstddef>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -88,6 +89,9 @@ template <acted_monoid M> struct SplayTree {
         update(rid);
         return Tree(rid);
     }
+    Tree merge3(Tree&& t1, Tree&& t2, Tree&& t3) {
+        return merge(merge(std::move(t1), std::move(t2)), std::move(t3));
+    }
     Tree split(Tree& t, int k) {
         assert(0 <= k && k <= int(size(t)));
         if (k == int(size(t))) return Tree();
@@ -97,6 +101,12 @@ template <acted_monoid M> struct SplayTree {
         update(rid);
         t.id = lid;
         return Tree(rid);
+    }
+    std::array<Tree, 3> split3(Tree&& t, int l, int r) {
+        assert(0 <= l && l <= r && r <= ssize(t));
+        auto t3 = split(t, r);
+        auto t2 = split(t, l);
+        return {std::move(t), std::move(t2), std::move(t3)};
     }
 
     std::vector<S> to_vec(const Tree& t) {
@@ -280,14 +290,6 @@ template <acted_monoid M> struct SplayTree {
         }
 
         return {l, id, r};
-    }
-
-    void to_vec(int id, std::vector<S>& buf) {
-        if (id == -1) return;
-        push(id);
-        to_vec(nodes[id].l, buf);
-        buf.push_back(nodes[id].s);
-        to_vec(nodes[id].r, buf);
     }
 };
 
