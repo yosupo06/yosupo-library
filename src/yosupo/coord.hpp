@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cassert>
+#include <cstddef>
 #include <ranges>
 #include <string>
 #include <utility>
@@ -90,14 +91,38 @@ struct Coord {
         return 0 <= t.r() && t.r() < r() && 0 <= t.c() && t.c() < c();
     }
 
-    auto cells() const {
-        return std::views::iota(0, r()) | std::views::transform([this](int i) {
-                   return std::views::iota(0, c()) |
-                          std::views::transform(
-                              [i](int j) { return Coord(i, j); });
-               }) |
-               std::views::join;
-    }
+    struct CellsRangeView {
+        struct Iterator {
+            using value_type = Coord;
+            using difference_type = std::ptrdiff_t;
+
+            int h, w, r, c;
+
+            value_type operator*() const { return Coord{r, c}; }
+
+            Iterator& operator++() {
+                if (++c == w) {
+                    c = 0;
+                    ++r;
+                }
+                return *this;
+            }
+            Iterator operator++(int) {
+                Iterator tmp = *this;
+                ++(*this);
+                return tmp;
+            }
+
+            bool operator==(const Iterator& other) const {
+                return r == other.r && c == other.c;
+            }
+        };
+
+        Iterator begin() const { return Iterator{h, w, 0, 0}; }
+        Iterator end() const { return Iterator{h, w, h, 0}; }
+        int h, w;
+    };
+    CellsRangeView cells() const { return CellsRangeView{r(), c()}; }
 
   private:
     std::array<int, 2> d;
