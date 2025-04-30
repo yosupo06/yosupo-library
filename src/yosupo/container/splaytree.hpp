@@ -90,15 +90,11 @@ template <acted_monoid M> struct SplayTree {
     }
     Tree split(Tree& t, int k) {
         assert(0 <= k && k <= int(size(t)));
-        if (k == 0) return std::exchange(t, Tree());
         if (k == int(size(t))) return Tree();
-        auto [lid, id, rid] = splay3(t.id, [&](int l, int, int) {
-            if (k <= len(l)) return -1;
-            k -= len(l) + 1;
-            return 1;
-        });
-        assert(id == -1);
-
+        int rid = splay_k(t.id, k);
+        int lid = nodes[rid].l;
+        nodes[rid].l = -1;
+        update(rid);
         t.id = lid;
         return Tree(rid);
     }
@@ -177,13 +173,12 @@ template <acted_monoid M> struct SplayTree {
 
     void push(int id) {
         Node& n = nodes[id];
-        all_apply(n.l, n.f);
-        all_apply(n.r, n.f);
+        if (n.l != -1) all_apply(n.l, n.f);
+        if (n.r != -1) all_apply(n.r, n.f);
         n.f = m.act.e;
     }
 
     void all_apply(int id, F f) {
-        if (id == -1) return;
         Node& n = nodes[id];
         n.s = m.mapping(f, n.s);
         n.prod = m.mapping(f, n.prod);
