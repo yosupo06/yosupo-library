@@ -88,19 +88,24 @@ template <acted_monoid M> struct SplayTree {
         update(rid);
         return Tree(rid);
     }
+    Tree merge3(Tree&& t1, Tree&& t2, Tree&& t3) {
+        return merge(merge(std::move(t1), std::move(t2)), std::move(t3));
+    }
     Tree split(Tree& t, int k) {
         assert(0 <= k && k <= int(size(t)));
-        if (k == 0) return std::exchange(t, Tree());
         if (k == int(size(t))) return Tree();
-        auto [lid, id, rid] = splay3(t.id, [&](int l, int, int) {
-            if (k <= len(l)) return -1;
-            k -= len(l) + 1;
-            return 1;
-        });
-        assert(id == -1);
-
+        int rid = splay_k(t.id, k);
+        int lid = nodes[rid].l;
+        nodes[rid].l = -1;
+        update(rid);
         t.id = lid;
         return Tree(rid);
+    }
+    std::array<Tree, 3> split3(Tree&& t, int l, int r) {
+        assert(0 <= l && l <= r && r <= ssize(t));
+        auto t3 = split(t, r);
+        auto t2 = split(t, l);
+        return {std::move(t), std::move(t2), std::move(t3)};
     }
 
     std::vector<S> to_vec(const Tree& t) {
@@ -177,13 +182,12 @@ template <acted_monoid M> struct SplayTree {
 
     void push(int id) {
         Node& n = nodes[id];
-        all_apply(n.l, n.f);
-        all_apply(n.r, n.f);
+        if (n.l != -1) all_apply(n.l, n.f);
+        if (n.r != -1) all_apply(n.r, n.f);
         n.f = m.act.e;
     }
 
     void all_apply(int id, F f) {
-        if (id == -1) return;
         Node& n = nodes[id];
         n.s = m.mapping(f, n.s);
         n.prod = m.mapping(f, n.prod);
@@ -285,14 +289,6 @@ template <acted_monoid M> struct SplayTree {
         }
 
         return {l, id, r};
-    }
-
-    void to_vec(int id, std::vector<S>& buf) {
-        if (id == -1) return;
-        push(id);
-        to_vec(nodes[id].l, buf);
-        buf.push_back(nodes[id].s);
-        to_vec(nodes[id].r, buf);
     }
 };
 
