@@ -14,35 +14,41 @@ template <acted_monoid M> struct SplayTree {
     using S = typename M::S;
     using F = typename M::F;
 
-    SplayTree(const M& _m) : m(_m) {}
+    SplayTree(const M& _m) : m(_m) {
+        // last node
+        nodes.push_back(Node{
+            .l = -1,
+            .r = -1,
+            .len = 0,
+            .s = m.monoid.e,
+            .prod = m.monoid.e,
+            .f = m.act.e,
+        });
+    }
 
     struct Tree {
         int id;
-        Tree() : id(-1) {}
+        Tree() : id(0) {}
         Tree(int _id) : id(_id) {}
-        bool empty() const { return id == -1; }
+        bool empty() const { return id == 0; }
     };
 
-    size_t size(const Tree& t) { return len(t.id); }
+    size_t size(const Tree& t) { return nodes[t.id].len; }
     ptrdiff_t ssize(const Tree& t) { return size(t); }
 
     Tree build() { return Tree(); }
-    Tree build(S s) { return build(std::vector<S>{s}); }
+    Tree build(const S& s) { return build(std::vector<S>{s}); }
     Tree build(const std::vector<S>& v) {
         auto f = [&](auto self, int lidx, int ridx) -> int {
-            if (lidx == ridx) return -1;
+            if (lidx == ridx) return 0;
             assert(lidx <= ridx);
             if (ridx - lidx == 1) {
-                int id = int(nodes.size());
-                nodes.push_back(Node{-1, -1, 1, v[lidx], v[lidx], m.act.e});
+                int id = new_node(v[lidx], 0, 0);
                 return id;
             }
             int mid = (lidx + ridx) / 2;
-            int l = self(self, lidx, mid);
-            int r = self(self, mid + 1, ridx);
-            int id = int(nodes.size());
-            nodes.push_back(Node{l, r, -1, v[mid], m.monoid.e, m.act.e});
-            update(id);
+            int id = new_node(v[mid], self(self, lidx, mid),
+                              self(self, mid + 1, ridx));
             return id;
         };
         return Tree(f(f, 0, int(v.size())));
@@ -62,16 +68,9 @@ template <acted_monoid M> struct SplayTree {
 
     void insert(Tree& t, int k, S s) {
         assert(0 <= k && k <= int(size(t)));
-        auto [lid, id, rid] = splay3(t.id, [&](int l, int, int) {
-            if (k <= len(l)) return -1;
-            k -= len(l) + 1;
-            return 1;
-        });
-        assert(id == -1);
-
-        t.id = int(nodes.size());
-        nodes.push_back(Node{lid, rid, -1, s, s, m.act.e});
-        update(t.id);
+        auto t2 = split(t, k);
+        auto t1 = build(s);
+        t = merge3(std::move(t), std::move(t1), std::move(t2));
     }
     void erase(Tree& t, int k) {
         assert(0 <= k && k < ssize(t));
@@ -96,7 +95,7 @@ template <acted_monoid M> struct SplayTree {
         if (k == int(size(t))) return Tree();
         int rid = splay_k(t.id, k);
         int lid = nodes[rid].l;
-        nodes[rid].l = -1;
+        nodes[rid].l = 0;
         update(rid);
         t.id = lid;
         return Tree(rid);
@@ -110,9 +109,9 @@ template <acted_monoid M> struct SplayTree {
 
     std::vector<S> to_vec(const Tree& t) {
         std::vector<S> buf;
-        buf.reserve(len(t.id));
+        buf.reserve(nodes[t.id].len);
         auto f = [&](auto self, int id) {
-            if (id == -1) return;
+            if (id == 0) return;
             push(id);
             self(self, nodes[id].l);
             buf.push_back(nodes[id].s);
@@ -122,41 +121,32 @@ template <acted_monoid M> struct SplayTree {
         return buf;
     }
 
-    S all_prod(const Tree& t) { return all_prod(t.id); }
+    S all_prod(const Tree& t) { return nodes[t.id].prod; }
     S prod(Tree& t, int l, int r) {
         assert(0 <= l && l <= r && r <= ssize(t));
-        auto t3 = split(t, r);
-        auto t2 = split(t, l);
+        auto [t1, t2, t3] = split3(std::move(t), l, r);
         S s = all_prod(t2);
-        t = merge(std::move(t), std::move(t2));
-        t = merge(std::move(t), std::move(t3));
+        t = merge3(std::move(t1), std::move(t2), std::move(t3));
         return s;
     }
 
-    void all_apply(Tree& t, F f) {
-        if (t.empty()) return;
-        all_apply(t.id, f);
-    }
+    void all_apply(Tree& t, F f) { all_apply(t.id, f); }
     void apply(Tree& t, int l, int r, F f) {
         assert(0 <= l && l <= r && r <= ssize(t));
-        auto t3 = split(t, r);
-        auto t2 = split(t, l);
+        auto [t1, t2, t3] = split3(std::move(t), l, r);
         all_apply(t2, f);
-        t = merge(std::move(t), std::move(t2));
-        t = merge(std::move(t), std::move(t3));
+        t = merge3(std::move(t1), std::move(t2), std::move(t3));
     }
 
     template <class F> int max_right(Tree& t, F f) {
         assert(f(m.monoid.e));
-
-        if (f(all_prod(t))) return len(t.id);
-        if (len(t.id) == 1) return 0;
+        if (f(all_prod(t))) return nodes[t.id].len;
         S s = m.monoid.e;
         int r = 0;
         t.id = splay(t.id, [&](int lid, int id, int) {
             S s2 = m.monoid.op(s, all_prod(lid));
             if (!f(s2)) return -1;
-            r += len(lid);
+            r += nodes[lid].len;
             s = s2;
             S s3 = m.monoid.op(s, nodes[id].s);
             if (!f(s3)) return 0;
@@ -177,17 +167,28 @@ template <acted_monoid M> struct SplayTree {
         F f;
     };
     std::vector<Node> nodes;
-    int len(int id) { return id == -1 ? 0 : nodes[id].len; }
-    S all_prod(int id) { return id == -1 ? m.monoid.e : nodes[id].prod; }
+
+    int new_node(const S& s, int l, int r) {
+        int id = int(nodes.size());
+        Node n;
+        n.l = l;
+        n.r = r;
+        n.s = s;
+        n.f = m.act.e;
+        nodes.push_back(n);
+        update(id);
+        return id;
+    }
 
     void push(int id) {
         Node& n = nodes[id];
-        if (n.l != -1) all_apply(n.l, n.f);
-        if (n.r != -1) all_apply(n.r, n.f);
+        all_apply(n.l, n.f);
+        all_apply(n.r, n.f);
         n.f = m.act.e;
     }
 
-    void all_apply(int id, F f) {
+    void all_apply(int id, const F& f) {
+        if (id == 0) return;
         Node& n = nodes[id];
         n.s = m.mapping(f, n.s);
         n.prod = m.mapping(f, n.prod);
@@ -196,29 +197,14 @@ template <acted_monoid M> struct SplayTree {
 
     void update(int id) {
         Node& n = nodes[id];
-        n.len = 1;
-        n.prod = n.s;
-        if (n.l != -1) {
-            n.len += nodes[n.l].len;
-            n.prod = m.monoid.op(nodes[n.l].prod, n.prod);
-        }
-        if (n.r != -1) {
-            n.len += nodes[n.r].len;
-            n.prod = m.monoid.op(n.prod, nodes[n.r].prod);
-        }
+        n.len = nodes[n.l].len + 1 + nodes[n.r].len;
+        n.prod =
+            m.monoid.op(m.monoid.op(nodes[n.l].prod, n.s), nodes[n.r].prod);
     }
 
-    template <class F> int splay(int id, F f) {
-        auto [l, id2, r] = splay3(id, f);
-        assert(id2 != -1);
-        nodes[id2].l = l;
-        nodes[id2].r = r;
-        update(id2);
-        return id2;
-    }
     int splay_k(int id, int k) {
         return splay(id, [&](int l, int, int) {
-            int lsz = len(l);
+            int lsz = nodes[l].len;
             if (k < lsz) return -1;
             k -= lsz;
             if (k == 0) return 0;
@@ -227,20 +213,37 @@ template <acted_monoid M> struct SplayTree {
         });
     }
 
-    template <class F> std::array<int, 3> splay3(int id, F f) {
+    template <class Cond> int splay(int id, Cond cond) {
         static std::vector<int> lefts, rights;
         lefts.clear();
         rights.clear();
 
         int zig = 0;
-        while (id != -1) {
+        while (true) {
             push(id);
             int l = nodes[id].l, r = nodes[id].r;
 
-            auto dir = f(l, id, r);
+            auto dir = cond(l, id, r);
 
             if (dir == 0) {
-                break;
+                {
+                    int tmp = nodes[id].l;
+                    for (auto i = std::ssize(lefts) - 1; i >= 0; i--) {
+                        nodes[lefts[i]].r = std::exchange(tmp, lefts[i]);
+                        update(lefts[i]);
+                    }
+                    nodes[id].l = tmp;
+                }
+                {
+                    int tmp = nodes[id].r;
+                    for (auto i = std::ssize(rights) - 1; i >= 0; i--) {
+                        nodes[rights[i]].l = std::exchange(tmp, rights[i]);
+                        update(rights[i]);
+                    }
+                    nodes[id].r = tmp;
+                }
+                update(id);
+                return id;
             }
             if (dir < 0) {
                 if (zig == -1) {
@@ -272,23 +275,6 @@ template <acted_monoid M> struct SplayTree {
                 id = r;
             }
         }
-
-        int l = id == -1 ? -1 : nodes[id].l;
-        int r = id == -1 ? -1 : nodes[id].r;
-        {
-            for (auto i = std::ssize(lefts) - 1; i >= 0; i--) {
-                nodes[lefts[i]].r = std::exchange(l, lefts[i]);
-                update(lefts[i]);
-            }
-        }
-        {
-            for (auto i = std::ssize(rights) - 1; i >= 0; i--) {
-                nodes[rights[i]].l = std::exchange(r, rights[i]);
-                update(rights[i]);
-            }
-        }
-
-        return {l, id, r};
     }
 };
 
