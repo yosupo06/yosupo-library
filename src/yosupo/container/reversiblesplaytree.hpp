@@ -1,10 +1,12 @@
 #include <sys/types.h>
 
-#include <algorithm>
+#include <array>
 #include <cassert>
 #include <cstddef>
 #include <utility>
 #include <vector>
+
+#include "yosupo/algebra.hpp"
 
 namespace yosupo {
 
@@ -12,305 +14,309 @@ template <class M> struct SplayTree {
     using S = typename M::S;
     using F = typename M::F;
 
-    SplayTree(M _m) : m(_m) {}
+    SplayTree(const M& _m) : m(_m) {
+        // last node
+        nodes.push_back(Node{
+            .l = -1,
+            .r = -1,
+            .len = 0,
+            .s = m.monoid.e,
+            .prod = m.monoid.e,
+            .f = m.act.e,
+            .rev = false,
+        });
+    }
 
     struct Tree {
-        int id = EMPTY_ID, ex = EMPTY_ID;
+        int id;
+        Tree() : id(0) {}
+        Tree(int _id) : id(_id) {}
+        bool empty() const { return id == 0; }
     };
 
-    Tree build() { return Tree{}; }
-    Tree build(S s) {
+    size_t size(const Tree& t) { return nodes[t.id].len; }
+    ptrdiff_t ssize(const Tree& t) { return size(t); }
+
+    int new_node(const S& s, int l, int r) {
         int id = int(nodes.size());
-        nodes.push_back({
-            Inner{},
-            Leaf{s},
-        });
-        return Tree{2 * id + 1, 2 * id};
+        nodes.push_back(Node{.l = l, .r = r, .s = s, .f = m.act.e});
+        update(id);
+        return id;
     }
 
-    size_t size(const Tree& t) {
-        if (t.id == EMPTY_ID) return 0;
-        return size(t.id);
-    }
-    ssize_t ssize(const Tree& t) { return ssize_t(size(t)); }
-
-    S all_prod(const Tree& t) {
-        if (t.id == EMPTY_ID) return m.e();
-        return all_prod(t.id);
-    }
-    void all_apply(Tree& t, F f) {
-        if (t.id != EMPTY_ID) all_apply(t.id, f);
-    }
-    void reverse(Tree& t) {
-        if (t.id == EMPTY_ID) return;
-        reverse(t.id);
-    }
-
-    template <class F> int max_right(Tree& t, F f) {
-        if (f(all_prod(t))) return (int)size(t);
-        if (ssize(t) == 1) return 0;
-        S s = m.e();
-        int r = 0;
-        splay(t, [&](int lid, int) {
-            S s2 = m.op(s, all_prod(lid));
-
-            if (!f(s2)) return -1;
-
-            r += size(lid);
-            s = s2;
-            return 1;
-        });
-        return r;
-    }
-
+    Tree build() { return Tree(); }
+    Tree build(const S& s) { return build(std::vector<S>{s}); }
     Tree build(const std::vector<S>& v) {
-        nodes.reserve(nodes.size() + v.size());
-        Tree t = _build(v, 0, int(v.size()));
-        return t;
-    }
-
-    Tree merge(Tree&& l, Tree&& r) {
-        if (l.id == EMPTY_ID) return r;
-        if (r.id == EMPTY_ID) return l;
-        inner(l.ex) = Inner{l.id, r.id, -1, false, false, m.e(), m.id()};
-        update(l.ex);
-        return Tree{l.ex, r.ex};
-    }
-
-    Tree split(Tree& t, int k) {
-        if (k == 0) return std::exchange(t, build());
-        if (k == size(t.id)) return build();
-        splay_k(t, k);
-        int id = t.id;
-        t.id = inner(id).lid;
-        return Tree{inner(id).rid, id};
-    }
-
-    void insert(Tree& t, int k, S s) {
-        assert(0 <= k && k <= int(ssize(t)));
-        auto t2 = split(t, k);
-        t = merge(std::move(t), build(s));
-        t = merge(std::move(t), std::move(t2));
-    }
-
-    void apply(Tree& t, int l, int r, F f) {
-        assert(0 <= l && l <= r && r <= ssize(t));
-        auto t3 = split(t, r);
-        auto t2 = split(t, l);
-        all_apply(t2, f);
-        t = merge(std::move(t), std::move(t2));
-        t = merge(std::move(t), std::move(t3));
+        auto f = [&](auto self, int lidx, int ridx) -> int {
+            if (lidx == ridx) return 0;
+            assert(lidx <= ridx);
+            if (ridx - lidx == 1) {
+                int id = new_node(v[lidx], 0, 0);
+                return id;
+            }
+            int mid = (lidx + ridx) / 2;
+            int id = new_node(v[mid], self(self, lidx, mid),
+                              self(self, mid + 1, ridx));
+            return id;
+        };
+        return Tree(f(f, 0, int(v.size())));
     }
 
     S get(Tree& t, int k) {
-        assert(0 <= k && k < ssize(t));
-        S s;
-        access_leaf_k(t, k, [&](int id) { s = leaf(id).s; });
-        return s;
+        assert(0 <= k && k < int(size(t)));
+        t.id = splay_k(t.id, k);
+        return nodes[t.id].s;
     }
     void set(Tree& t, int k, S s) {
-        assert(0 <= k && k < ssize(t));
-        access_leaf_k(t, k, [&](int id) { leaf(id).s = s; });
+        assert(0 <= k && k < int(size(t)));
+        t.id = splay_k(t.id, k);
+        nodes[t.id].s = s;
+        update(t.id);
     }
 
-    std::vector<S> to_vec(const Tree& t) {
-        if (t.id == EMPTY_ID) return {};
-        std::vector<S> buf;
-        buf.reserve(size(t.id));
-        _to_vec(t.id, buf);
-        return buf;
+    Tree merge(Tree&& l, Tree&& r) {
+        if (l.empty()) return r;
+        if (r.empty()) return l;
+        int rid = splay_k(r.id, 0);
+        nodes[rid].l = l.id;
+        update(rid);
+        return Tree(rid);
+    }
+    Tree merge3(Tree&& t1, Tree&& t2, Tree&& t3) {
+        return merge(merge(std::move(t1), std::move(t2)), std::move(t3));
+    }
+    Tree split(Tree& t, int k) {
+        assert(0 <= k && k <= int(size(t)));
+        if (k == 0) return std::exchange(t, Tree());
+        if (k == int(size(t))) return Tree();
+        int rid = splay_k(t.id, k);
+        int lid = nodes[rid].l;
+        nodes[rid].l = 0;
+        update(rid);
+        t.id = lid;
+        return Tree(rid);
+    }
+    std::array<Tree, 3> split3(Tree&& t, int l, int r) {
+        assert(0 <= l && l <= r && r <= ssize(t));
+        auto t3 = split(t, r);
+        auto t2 = split(t, l);
+        return {std::move(t), std::move(t2), std::move(t3)};
+    }
+
+    S all_prod(const Tree& t) { return nodes[t.id].prod; }
+    S prod(Tree& t, int l, int r) {
+        assert(0 <= l && l <= r && r <= ssize(t));
+        auto [t1, t2, t3] = split3(std::move(t), l, r);
+        S s = all_prod(t2);
+        t = merge3(std::move(t1), std::move(t2), std::move(t3));
+        return s;
+    }
+
+    void all_apply(Tree& t, F f) { all_apply(t.id, f); }
+    void apply(Tree& t, int l, int r, F f) {
+        assert(0 <= l && l <= r && r <= ssize(t));
+        auto [t1, t2, t3] = split3(std::move(t), l, r);
+        all_apply(t2, f);
+        t = merge3(std::move(t1), std::move(t2), std::move(t3));
+    }
+
+    void reverse(Tree& t) {
+        if (t.empty()) return;
+        reverse(t.id);
     }
 
   private:
-    static constexpr int EMPTY_ID = -1234567;
-
     M m;
 
-    struct Inner {
-        int lid, rid, sz;
-        bool lz, rev;
-        S s;
+    struct Node {
+        int l, r, len;
+        S s, prod;
         F f;
+        bool rev;
     };
-    struct Leaf {
-        S s;
-    };
-    std::vector<std::pair<Inner, Leaf>> nodes;
-    bool leaf_id(int id) { return id % 2; }
-    Inner& inner(int id) { return nodes[id / 2].first; }
-    Leaf& leaf(int id) { return nodes[id / 2].second; }
-
-    int size(int id) { return leaf_id(id) ? 1 : inner(id).sz; }
-    ssize_t ssize(int id) { return leaf_id(id) ? 1 : inner(id).sz; }
-    S all_prod(int id) { return leaf_id(id) ? leaf(id).s : inner(id).s; }
-
-    Tree _build(const std::vector<S>& v, int l, int r) {
-        if (r - l == 1) {
-            return build(v[l]);
-        }
-        int md = (l + r) / 2;
-        return merge(_build(v, l, md), _build(v, md, r));
-    }
-
-    void _to_vec(int id, std::vector<S>& buf) {
-        if (leaf_id(id)) {
-            buf.push_back(leaf(id).s);
-            return;
-        }
-        push(id);
-        int lid = inner(id).lid, rid = inner(id).rid;
-        _to_vec(lid, buf);
-        _to_vec(rid, buf);
-    }
+    std::vector<Node> nodes;
 
     void reverse(int id) {
-        if (!leaf_id(id)) {
-            Inner& n = inner(id);
-            n.rev = !n.rev;
-            std::swap(n.lid, n.rid);
-            n.s = m.rev(n.s);
-        }
-    }
-
-    void all_apply(int id, F f) {
-        if (leaf_id(id)) {
-            Leaf& n = leaf(id);
-            n.s = m.mapping(f, n.s);
-        } else {
-            Inner& n = inner(id);
-            n.s = m.mapping(f, n.s);
-            n.f = m.composition(f, n.f);
-            n.lz = true;
-        }
+        Node& n = nodes[id];
+        n.rev = !n.rev;
+        std::swap(n.l, n.r);
     }
 
     void push(int id) {
-        Inner& n = inner(id);
-
-        if (n.lz) {
-            all_apply(n.lid, n.f);
-            all_apply(n.rid, n.f);
-            n.f = m.id();
-            n.lz = false;
-        }
+        Node& n = nodes[id];
         if (n.rev) {
-            reverse(n.lid);
-            reverse(n.rid);
+            reverse(n.l);
+            reverse(n.r);
             n.rev = false;
         }
+        if (n.f != m.act.e) {
+            all_apply(n.l, n.f);
+            all_apply(n.r, n.f);
+            n.f = m.act.e;
+        }
+    }
+
+    void all_apply(int id, const F& f) {
+        if (id == 0) return;
+        Node& n = nodes[id];
+        n.s = m.mapping(f, n.s, 1);
+        n.prod = m.mapping(f, n.prod, n.len);
+        n.f = m.act.op(f, n.f);
     }
 
     void update(int id) {
-        Inner& n = inner(id);
-        n.sz = size(n.lid) + size(n.rid);
-        n.s = m.op(all_prod(n.lid), all_prod(n.rid));
+        Node& n = nodes[id];
+        n.len = nodes[n.l].len + 1 + nodes[n.r].len;
+        n.prod =
+            m.monoid.op(m.monoid.op(nodes[n.l].prod, n.s), nodes[n.r].prod);
     }
 
-    template <class F> void splay(Tree& t, F f) {
-        assert(!leaf_id(t.id));
-        static std::vector<int> lefts, rights;
-        lefts.clear();
-        rights.clear();
-        int zig = 0;
-        int id = t.id;
-        while (true) {
-            push(id);
-            int lid = inner(id).lid, rid = inner(id).rid;
-
-            auto dir = f(lid, rid);
-
-            if (dir == -1 && size(lid) > 1) {
-                if (zig == -1) {
-                    inner(rights.back()).lid = rid;
-                    update(rights.back());
-                    inner(id).rid = rights.back();
-                    rights.pop_back();
-                }
-                rights.push_back(id);
-
-                id = lid;
-                if (zig == 0) {
-                    zig = -1;
-                } else {
-                    zig = 0;
-                }
-            } else if (dir == 1 && size(rid) > 1) {
-                if (zig == 1) {
-                    inner(lefts.back()).rid = lid;
-                    update(lefts.back());
-                    inner(id).lid = lefts.back();
-                    lefts.pop_back();
-                }
-                lefts.push_back(id);
-
-                id = rid;
-                if (zig == 0) {
-                    zig = 1;
-                } else {
-                    zig = 0;
-                }
-            } else {
-                {
-                    int tmp = lid;
-                    for (auto i = std::ssize(lefts) - 1; i >= 0; i--) {
-                        inner(lefts[i]).rid = std::exchange(tmp, lefts[i]);
-                        update(lefts[i]);
-                    }
-                    inner(id).lid = tmp;
-                }
-                {
-                    int tmp = rid;
-                    for (auto i = std::ssize(rights) - 1; i >= 0; i--) {
-                        inner(rights[i]).lid = std::exchange(tmp, rights[i]);
-                        update(rights[i]);
-                    }
-                    inner(id).rid = tmp;
-                }
-                update(id);
-                break;
-            }
-        }
-        t.id = id;
-    }
-
-    void splay_k(Tree& t, int k) {
-        splay(t, [&](int lid, int) {
-            int lsz = size(lid);
-            if (k == lsz) return 0;
+    int splay_k(int id, int k) {
+        return splayx(id, [&](int l, int, int) {
+            int lsz = nodes[l].len;
             if (k < lsz) return -1;
             k -= lsz;
+            if (k == 0) return 0;
+            k--;
             return 1;
         });
     }
 
-    template <class F, class G> void access_leaf(Tree& t, F f, G g) {
-        assert(ssize(t));
-        if (ssize(t) == 1) {
-            g(t.id);
-            return;
-        }
-        splay(t, [&](int lid, int rid) {
-            int dir = f(lid, rid);
-            if (dir == -1 && ssize(lid) == 1) {
-                g(lid);
+    template <class Cond> int splay(int id, Cond cond) {
+        auto down = [&](auto self) -> std::pair<int, int> {
+            int id1 = id;
+            push(id1);
+            int l = nodes[id1].l, r = nodes[id1].r;
+            auto dir = cond(l, id1, r);
+            if (dir == 0) {
+                return {nodes[id1].l, nodes[id1].r};
             }
-            if (dir == 1 && ssize(rid) == 1) {
-                g(rid);
+
+            id = (dir < 0) ? l : r;
+            int id2 = id;
+            push(id2);
+            int l2 = nodes[id].l, r2 = nodes[id].r;
+            auto dir2 = cond(l2, id, r2);
+
+            if (dir < 0) {
+                if (dir2 == 0) {
+                    nodes[id1].l = r2;
+                    update(id1);
+                    return {l2, id1};
+                }
+                if (dir2 < 0) {
+                    id = l2;
+                    nodes[id1].l = r2;
+                    update(id1);
+                    nodes[id2].r = id1;
+                    auto [l3, r3] = self(self);
+                    nodes[id2].l = r3;
+                    update(id2);
+                    return {l3, id2};
+                } else {
+                    id = r2;
+                    auto [l3, r3] = self(self);
+                    nodes[id1].l = r3;
+                    nodes[id2].r = l3;
+                    update(id1);
+                    update(id2);
+                    return {id2, id1};
+                }
+            } else {
+                if (dir2 == 0) {
+                    nodes[id1].r = l2;
+                    update(id1);
+                    return {id1, r2};
+                }
+                if (dir2 > 0) {
+                    id = r2;
+                    nodes[id1].r = l2;
+                    update(id1);
+                    nodes[id2].l = id1;
+                    auto [l3, r3] = self(self);
+                    nodes[id2].r = l3;
+                    update(id2);
+                    return {id2, r3};
+                } else {
+                    id = l2;
+                    auto [l3, r3] = self(self);
+                    nodes[id1].r = l3;
+                    nodes[id2].l = r3;
+                    update(id1);
+                    update(id2);
+                    return {id1, id2};
+                }
             }
-            return dir;
-        });
+        };
+        auto [l, r] = down(down);
+        nodes[id].l = l;
+        nodes[id].r = r;
+        update(id);
+        return id;
     }
-    template <class F> void access_leaf_k(Tree& t, int k, F f) {
-        assert(0 <= k && k < ssize(t));
-        access_leaf(
-            t,
-            [&](int lid, int) {
-                int lsz = size(lid);
-                if (k < lsz) return -1;
-                k -= lsz;
-                return 1;
-            },
-            f);
+
+    template <class F> int splayx(int id, F f) {
+        static std::vector<int> lefts, rights;
+        lefts.clear();
+        rights.clear();
+
+        int zig = 0;
+        while (true) {
+            push(id);
+            int l = nodes[id].l, r = nodes[id].r;
+
+            auto dir = f(l, id, r);
+
+            if (dir == 0) {
+                {
+                    int tmp = nodes[id].l;
+                    for (auto i = std::ssize(lefts) - 1; i >= 0; i--) {
+                        nodes[lefts[i]].r = std::exchange(tmp, lefts[i]);
+                        update(lefts[i]);
+                    }
+                    nodes[id].l = tmp;
+                }
+                {
+                    int tmp = nodes[id].r;
+                    for (auto i = std::ssize(rights) - 1; i >= 0; i--) {
+                        nodes[rights[i]].l = std::exchange(tmp, rights[i]);
+                        update(rights[i]);
+                    }
+                    nodes[id].r = tmp;
+                }
+                update(id);
+                return id;
+            }
+            if (dir < 0) {
+                if (zig == -1) {
+                    // zig-zig
+                    int p = rights.back();
+                    rights.pop_back();
+                    nodes[p].l = r;
+                    update(p);
+                    nodes[id].r = p;
+                    zig = 0;
+                } else {
+                    zig = -1;
+                }
+                rights.push_back(id);
+                id = l;
+            } else {
+                if (zig == 1) {
+                    // zig-zig
+                    int p = lefts.back();
+                    lefts.pop_back();
+                    nodes[p].r = l;
+                    update(p);
+                    nodes[id].l = p;
+                    zig = 0;
+                } else {
+                    zig = 1;
+                }
+                lefts.push_back(id);
+                id = r;
+            }
+        }
     }
 };
 
