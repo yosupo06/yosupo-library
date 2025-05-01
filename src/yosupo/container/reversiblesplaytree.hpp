@@ -6,8 +6,6 @@
 #include <utility>
 #include <vector>
 
-#include "yosupo/algebra.hpp"
-
 namespace yosupo {
 
 template <class M> struct SplayTree {
