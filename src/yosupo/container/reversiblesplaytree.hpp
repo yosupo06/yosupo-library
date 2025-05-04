@@ -40,6 +40,7 @@ template <class M> struct SplayTree {
             u32 md = (l + r) / 2;
             return merge(self(self, l, md), self(self, md, r));
         };
+        nodes.reserve(nodes.size() + v.size());
         return _build(_build, 0, u32(v.size()));
     }
 
