@@ -97,7 +97,10 @@ template <class M> struct SplayTree {
         return s;
     }
 
-    void all_apply(Tree& t, F f) { all_apply(t.id, f); }
+    void all_apply(Tree& t, F f) {
+        if (t.empty()) return;
+        all_apply(t.id, f);
+    }
     void apply(Tree& t, int l, int r, F f) {
         assert(0 <= l && l <= r && r <= ssize(t));
         auto [t1, t2, t3] = split3(std::move(t), l, r);
