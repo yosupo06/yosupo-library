@@ -6,90 +6,102 @@
 #include <utility>
 #include <vector>
 
-#include "yosupo/types.hpp"
-
 namespace yosupo {
 
 template <class M> struct SplayTree {
     using S = typename M::S;
     using F = typename M::F;
 
-    SplayTree(const M& _m) : m(_m) {}
+    SplayTree(const M& _m) : m(_m) {
+        // last node
+        nodes.push_back(Node{
+            .l = -1,
+            .r = -1,
+            .len = 0,
+            .s = m.monoid.e,
+            .prod = m.monoid.e,
+            .f = m.act.e,
+            .rev = false,
+        });
+    }
 
     struct Tree {
-        u32 id, ex;
-        Tree() : id(-1), ex(-1) {}
-        Tree(u32 _id, u32 _ex) : id(_id), ex(_ex) {}
-        bool empty() const { return id == u32(-1); }
+        int id;
+        Tree() : id(0) {}
+        Tree(int _id) : id(_id) {}
+        bool empty() const { return id == 0; }
     };
 
-    Tree build() { return Tree(); }
-    Tree build(S s) {
-        u32 id = u32(nodes.size());
-        nodes.push_back({
-            Inner{},
-            Leaf{s},
-        });
-        return Tree(id | LEAF_BIT, id);
-    }
-    Tree build(const std::vector<S>& v) {
-        auto _build = [&](auto self, u32 l, u32 r) -> Tree {
-            if (r - l == 1) {
-                return build(v[l]);
-            }
-            u32 md = (l + r) / 2;
-            return merge(self(self, l, md), self(self, md, r));
-        };
-        nodes.reserve(nodes.size() + v.size());
-        return _build(_build, 0, u32(v.size()));
+    size_t size(const Tree& t) { return nodes[t.id].len; }
+    ptrdiff_t ssize(const Tree& t) { return size(t); }
+
+    int new_node(const S& s, int l, int r) {
+        int id = int(nodes.size());
+        nodes.push_back(Node{.l = l, .r = r, .s = s, .f = m.act.e});
+        update(id);
+        return id;
     }
 
-    size_t size(const Tree& t) {
-        if (t.empty()) return 0;
-        return len(t.id);
+    Tree build() { return Tree(); }
+    Tree build(const S& s) { return build(std::vector<S>{s}); }
+    Tree build(const std::vector<S>& v) {
+        auto f = [&](auto self, int lidx, int ridx) -> int {
+            if (lidx == ridx) return 0;
+            assert(lidx <= ridx);
+            if (ridx - lidx == 1) {
+                int id = new_node(v[lidx], 0, 0);
+                return id;
+            }
+            int mid = (lidx + ridx) / 2;
+            int id = new_node(v[mid], self(self, lidx, mid),
+                              self(self, mid + 1, ridx));
+            return id;
+        };
+        return Tree(f(f, 0, int(v.size())));
     }
-    std::ptrdiff_t ssize(const Tree& t) { return ptrdiff_t(size(t)); }
+
+    S get(Tree& t, int k) {
+        assert(0 <= k && k < int(size(t)));
+        t.id = splay_k(t.id, k);
+        return nodes[t.id].s;
+    }
+    void set(Tree& t, int k, S s) {
+        assert(0 <= k && k < int(size(t)));
+        t.id = splay_k(t.id, k);
+        nodes[t.id].s = s;
+        update(t.id);
+    }
 
     Tree merge(Tree&& l, Tree&& r) {
         if (l.empty()) return r;
         if (r.empty()) return l;
-        inner(l.ex) = Inner{l.id, r.id, 0, false, m.monoid.e, m.act.e};
-        update(l.ex);
-        return Tree(l.ex, r.ex);
+        int rid = splay_k(r.id, 0);
+        nodes[rid].l = l.id;
+        update(rid);
+        return Tree(rid);
     }
     Tree merge3(Tree&& t1, Tree&& t2, Tree&& t3) {
         return merge(merge(std::move(t1), std::move(t2)), std::move(t3));
     }
-    std::pair<Tree, Tree> split(Tree&& t, int k) {
-        assert(0 <= k && k <= ssize(t));
-        if (k == 0) return {build(), t};
-        if (k == ssize(t)) return {t, build()};
-        splay_k(t, k);
-        u32 id = t.id;
-        return {Tree(inner(id).lid, t.ex), Tree(inner(id).rid, id)};
+    Tree split(Tree& t, int k) {
+        assert(0 <= k && k <= int(size(t)));
+        if (k == 0) return std::exchange(t, Tree());
+        if (k == int(size(t))) return Tree();
+        int rid = splay_k(t.id, k);
+        int lid = nodes[rid].l;
+        nodes[rid].l = 0;
+        update(rid);
+        t.id = lid;
+        return Tree(rid);
     }
     std::array<Tree, 3> split3(Tree&& t, int l, int r) {
         assert(0 <= l && l <= r && r <= ssize(t));
-        auto [_t, t3] = split(std::move(t), r);
-        auto [t1, t2] = split(std::move(_t), l);
-        return {std::move(t1), std::move(t2), std::move(t3)};
+        auto t3 = split(t, r);
+        auto t2 = split(t, l);
+        return {std::move(t), std::move(t2), std::move(t3)};
     }
 
-    void insert(Tree& t, int k, S s) {
-        assert(0 <= k && k <= ssize(t));
-        auto [t1, t2] = split(std::move(t), k);
-        t = merge(merge(std::move(t1), build(s)), std::move(t2));
-    }
-
-    void erase(Tree& t, int k) {
-        assert(0 <= k && k < ssize(t));
-        auto [t1, t2, t3] = split3(std::move(t), k, k + 1);
-        t = merge(std::move(t1), std::move(t3));
-    }
-    S all_prod(const Tree& t) {
-        if (t.empty()) return m.monoid.e;
-        return all_prod(t.id);
-    }
+    S all_prod(const Tree& t) { return nodes[t.id].prod; }
     S prod(Tree& t, int l, int r) {
         assert(0 <= l && l <= r && r <= ssize(t));
         auto [t1, t2, t3] = split3(std::move(t), l, r);
@@ -98,10 +110,7 @@ template <class M> struct SplayTree {
         return s;
     }
 
-    void all_apply(Tree& t, F f) {
-        if (t.empty()) return;
-        all_apply(t.id, f);
-    }
+    void all_apply(Tree& t, F f) { all_apply(t.id, f); }
     void apply(Tree& t, int l, int r, F f) {
         assert(0 <= l && l <= r && r <= ssize(t));
         auto [t1, t2, t3] = split3(std::move(t), l, r);
@@ -117,144 +126,193 @@ template <class M> struct SplayTree {
   private:
     M m;
 
-    const u32 LEAF_BIT = u32(1) << 31;
-
-    struct Inner {
-        u32 lid, rid;
-        u32 len;
-        bool rev;
-        S s;
+    struct Node {
+        int l, r, len;
+        S s, prod;
         F f;
+        bool rev;
     };
-    struct Leaf {
-        S s;
-    };
-    std::vector<std::pair<Inner, Leaf>> nodes;
+    std::vector<Node> nodes;
 
-    bool is_leaf(u32 id) { return id & LEAF_BIT; }
-    Inner& inner(u32 id) { return nodes[id].first; }
-    Leaf& leaf(u32 id) { return nodes[id ^ LEAF_BIT].second; }
-
-    u32 len(u32 id) { return is_leaf(id) ? 1 : inner(id).len; }
-    S all_prod(u32 id) { return is_leaf(id) ? leaf(id).s : inner(id).s; }
-
-    void all_apply(u32 id, const F& f) {
-        if (is_leaf(id)) {
-            Leaf& n = leaf(id);
-            n.s = m.mapping(f, n.s, 1);
-        } else {
-            Inner& n = inner(id);
-            n.s = m.mapping(f, n.s, n.len);
-            n.f = m.act.op(f, n.f);
-        }
+    void reverse(int id) {
+        Node& n = nodes[id];
+        n.rev = !n.rev;
+        std::swap(n.l, n.r);
     }
 
-    void reverse(u32 id) {
-        if (!is_leaf(id)) {
-            Inner& n = inner(id);
-            std::swap(n.lid, n.rid);
-            n.rev = !n.rev;
-        }
-    }
-
-    void push(u32 id) {
-        Inner& n = inner(id);
+    void push(int id) {
+        Node& n = nodes[id];
         if (n.rev) {
-            reverse(n.lid);
-            reverse(n.rid);
+            reverse(n.l);
+            reverse(n.r);
             n.rev = false;
         }
-
         if (n.f != m.act.e) {
-            all_apply(n.lid, n.f);
-            all_apply(n.rid, n.f);
+            all_apply(n.l, n.f);
+            all_apply(n.r, n.f);
             n.f = m.act.e;
         }
     }
 
-    void update(u32 id) {
-        Inner& n = inner(id);
-        n.len = len(n.lid) + len(n.rid);
-        n.s = m.monoid.op(all_prod(n.lid), all_prod(n.rid));
+    void all_apply(int id, const F& f) {
+        if (id == 0) return;
+        Node& n = nodes[id];
+        n.s = m.mapping(f, n.s, 1);
+        n.prod = m.mapping(f, n.prod, n.len);
+        n.f = m.act.op(f, n.f);
     }
 
-    void splay_k(Tree& t, u32 k) {
-        assert(0 < k && k < ssize(t));
-        splay(t.id, [&](u32 lid, u32) {
-            u32 lsz = len(lid);
-            if (k == lsz) return 0;
+    void update(int id) {
+        Node& n = nodes[id];
+        n.len = nodes[n.l].len + 1 + nodes[n.r].len;
+        n.prod =
+            m.monoid.op(m.monoid.op(nodes[n.l].prod, n.s), nodes[n.r].prod);
+    }
+
+    int splay_k(int id, int k) {
+        return splayx(id, [&](int l, int, int) {
+            int lsz = nodes[l].len;
             if (k < lsz) return -1;
             k -= lsz;
+            if (k == 0) return 0;
+            k--;
             return 1;
         });
     }
 
-    template <class F> void splay(u32& id, F f) {
-        assert(!is_leaf(id));
-        static std::vector<u32> lefts, rights;
+    template <class Cond> int splay(int id, Cond cond) {
+        auto down = [&](auto self) -> std::pair<int, int> {
+            int id1 = id;
+            push(id1);
+            int l = nodes[id1].l, r = nodes[id1].r;
+            auto dir = cond(l, id1, r);
+            if (dir == 0) {
+                return {nodes[id1].l, nodes[id1].r};
+            }
+
+            id = (dir < 0) ? l : r;
+            int id2 = id;
+            push(id2);
+            int l2 = nodes[id].l, r2 = nodes[id].r;
+            auto dir2 = cond(l2, id, r2);
+
+            if (dir < 0) {
+                if (dir2 == 0) {
+                    nodes[id1].l = r2;
+                    update(id1);
+                    return {l2, id1};
+                }
+                if (dir2 < 0) {
+                    id = l2;
+                    nodes[id1].l = r2;
+                    update(id1);
+                    nodes[id2].r = id1;
+                    auto [l3, r3] = self(self);
+                    nodes[id2].l = r3;
+                    update(id2);
+                    return {l3, id2};
+                } else {
+                    id = r2;
+                    auto [l3, r3] = self(self);
+                    nodes[id1].l = r3;
+                    nodes[id2].r = l3;
+                    update(id1);
+                    update(id2);
+                    return {id2, id1};
+                }
+            } else {
+                if (dir2 == 0) {
+                    nodes[id1].r = l2;
+                    update(id1);
+                    return {id1, r2};
+                }
+                if (dir2 > 0) {
+                    id = r2;
+                    nodes[id1].r = l2;
+                    update(id1);
+                    nodes[id2].l = id1;
+                    auto [l3, r3] = self(self);
+                    nodes[id2].r = l3;
+                    update(id2);
+                    return {id2, r3};
+                } else {
+                    id = l2;
+                    auto [l3, r3] = self(self);
+                    nodes[id1].r = l3;
+                    nodes[id2].l = r3;
+                    update(id1);
+                    update(id2);
+                    return {id1, id2};
+                }
+            }
+        };
+        auto [l, r] = down(down);
+        nodes[id].l = l;
+        nodes[id].r = r;
+        update(id);
+        return id;
+    }
+
+    template <class F> int splayx(int id, F f) {
+        static std::vector<int> lefts, rights;
         lefts.clear();
         rights.clear();
 
         int zig = 0;
         while (true) {
             push(id);
-            u32 lid = inner(id).lid, rid = inner(id).rid;
+            int l = nodes[id].l, r = nodes[id].r;
 
-            auto dir = f(lid, rid);
+            auto dir = f(l, id, r);
 
             if (dir == 0) {
                 {
-                    u32 tmp = lid;
+                    int tmp = nodes[id].l;
                     for (auto i = std::ssize(lefts) - 1; i >= 0; i--) {
-                        inner(lefts[i]).rid = std::exchange(tmp, lefts[i]);
+                        nodes[lefts[i]].r = std::exchange(tmp, lefts[i]);
                         update(lefts[i]);
                     }
-                    inner(id).lid = tmp;
+                    nodes[id].l = tmp;
                 }
                 {
-                    u32 tmp = rid;
+                    int tmp = nodes[id].r;
                     for (auto i = std::ssize(rights) - 1; i >= 0; i--) {
-                        inner(rights[i]).lid = std::exchange(tmp, rights[i]);
+                        nodes[rights[i]].l = std::exchange(tmp, rights[i]);
                         update(rights[i]);
                     }
-                    inner(id).rid = tmp;
+                    nodes[id].r = tmp;
                 }
                 update(id);
-                return;
+                return id;
             }
-
             if (dir < 0) {
                 if (zig == -1) {
-                    u32 tmp = rights.back();
+                    // zig-zig
+                    int p = rights.back();
                     rights.pop_back();
-                    inner(tmp).lid = rid;
-                    update(tmp);
-                    inner(id).rid = tmp;
+                    nodes[p].l = r;
+                    update(p);
+                    nodes[id].r = p;
+                    zig = 0;
+                } else {
+                    zig = -1;
                 }
                 rights.push_back(id);
-
-                id = lid;
-                if (zig == 0) {
-                    zig = -1;
-                } else {
-                    zig = 0;
-                }
+                id = l;
             } else {
                 if (zig == 1) {
-                    u32 tmp = lefts.back();
+                    // zig-zig
+                    int p = lefts.back();
                     lefts.pop_back();
-                    inner(tmp).rid = lid;
-                    update(tmp);
-                    inner(id).lid = tmp;
+                    nodes[p].r = l;
+                    update(p);
+                    nodes[id].l = p;
+                    zig = 0;
+                } else {
+                    zig = 1;
                 }
                 lefts.push_back(id);
-
-                id = rid;
-                if (zig == 0) {
-                    zig = 1;
-                } else {
-                    zig = 0;
-                }
+                id = r;
             }
         }
     }

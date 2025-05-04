@@ -73,11 +73,20 @@ int main() {
         if (ty == 0) {
             int i, x;
             sc.read(i, x);
-            treem.insert(tr, i, x);
+
+            auto tr2 = treem.build(x);
+            auto tr3 = treem.split(tr, i);
+
+            tr2 = treem.merge(std::move(tr2), std::move(tr3));
+            tr = treem.merge(std::move(tr), std::move(tr2));
         } else if (ty == 1) {
             int i;
             sc.read(i);
-            treem.erase(tr, i);
+
+            auto tr2 = treem.split(tr, i);
+            auto tr3 = treem.split(tr2, 1);
+
+            tr = treem.merge(std::move(tr), std::move(tr3));
         } else if (ty == 2) {
             int l, r;
             sc.read(l, r);
@@ -87,6 +96,7 @@ int main() {
         } else if (ty == 3) {
             int l, r, b, c;
             sc.read(l, r, b, c);
+
             treem.apply(tr, l, r, {b, c});
         } else if (ty == 4) {
             int l, r;
