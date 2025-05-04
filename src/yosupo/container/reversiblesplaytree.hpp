@@ -30,7 +30,7 @@ template <class M> struct SplayTree {
             Inner{},
             Leaf{s},
         });
-        return Tree(2 * id + 1, 2 * id);
+        return Tree(id | LEAF_BIT, id);
     }
     Tree build(const std::vector<S>& v) {
         auto _build = [&](auto self, u32 l, u32 r) -> Tree {
@@ -113,8 +113,11 @@ template <class M> struct SplayTree {
   private:
     M m;
 
+    const u32 LEAF_BIT = u32(1) << 31;
+
     struct Inner {
-        u32 lid, rid, sz;
+        u32 lid, rid;
+        u32 len;
         bool rev;
         S s;
         F f;
@@ -124,26 +127,26 @@ template <class M> struct SplayTree {
     };
     std::vector<std::pair<Inner, Leaf>> nodes;
 
-    bool leaf_id(u32 id) { return id % 2; }
-    Inner& inner(u32 id) { return nodes[id >> 1].first; }
-    Leaf& leaf(u32 id) { return nodes[id >> 1].second; }
+    bool is_leaf(u32 id) { return id & LEAF_BIT; }
+    Inner& inner(u32 id) { return nodes[id].first; }
+    Leaf& leaf(u32 id) { return nodes[id ^ LEAF_BIT].second; }
 
-    u32 len(u32 id) { return leaf_id(id) ? 1 : inner(id).sz; }
-    S all_prod(u32 id) { return leaf_id(id) ? leaf(id).s : inner(id).s; }
+    u32 len(u32 id) { return is_leaf(id) ? 1 : inner(id).len; }
+    S all_prod(u32 id) { return is_leaf(id) ? leaf(id).s : inner(id).s; }
 
     void all_apply(u32 id, const F& f) {
-        if (leaf_id(id)) {
+        if (is_leaf(id)) {
             Leaf& n = leaf(id);
             n.s = m.mapping(f, n.s, 1);
         } else {
             Inner& n = inner(id);
-            n.s = m.mapping(f, n.s, n.sz);
+            n.s = m.mapping(f, n.s, n.len);
             n.f = m.act.op(f, n.f);
         }
     }
 
     void reverse(u32 id) {
-        if (!leaf_id(id)) {
+        if (!is_leaf(id)) {
             Inner& n = inner(id);
             std::swap(n.lid, n.rid);
             n.rev = !n.rev;
@@ -167,13 +170,13 @@ template <class M> struct SplayTree {
 
     void update(u32 id) {
         Inner& n = inner(id);
-        n.sz = len(n.lid) + len(n.rid);
+        n.len = len(n.lid) + len(n.rid);
         n.s = m.monoid.op(all_prod(n.lid), all_prod(n.rid));
     }
 
     void splay_k(Tree& t, u32 k) {
         assert(0 < k && k < ssize(t));
-        splay(t, [&](u32 lid, u32) {
+        splay(t.id, [&](u32 lid, u32) {
             u32 lsz = len(lid);
             if (k == lsz) return 0;
             if (k < lsz) return -1;
@@ -182,51 +185,20 @@ template <class M> struct SplayTree {
         });
     }
 
-    template <class F> void splay(Tree& t, F f) {
-        assert(!leaf_id(t.id));
+    template <class F> void splay(u32& id, F f) {
+        assert(!is_leaf(id));
         static std::vector<u32> lefts, rights;
         lefts.clear();
         rights.clear();
 
         int zig = 0;
-        u32 id = t.id;
         while (true) {
             push(id);
             u32 lid = inner(id).lid, rid = inner(id).rid;
 
             auto dir = f(lid, rid);
 
-            if (dir == -1 && !leaf_id(lid)) {
-                if (zig == -1) {
-                    inner(rights.back()).lid = rid;
-                    update(rights.back());
-                    inner(id).rid = rights.back();
-                    rights.pop_back();
-                }
-                rights.push_back(id);
-
-                id = lid;
-                if (zig == 0) {
-                    zig = -1;
-                } else {
-                    zig = 0;
-                }
-            } else if (dir == 1 && !leaf_id(rid)) {
-                if (zig == 1) {
-                    inner(lefts.back()).rid = lid;
-                    update(lefts.back());
-                    inner(id).lid = lefts.back();
-                    lefts.pop_back();
-                }
-                lefts.push_back(id);
-
-                id = rid;
-                if (zig == 0) {
-                    zig = 1;
-                } else {
-                    zig = 0;
-                }
-            } else {
+            if (dir == 0) {
                 {
                     u32 tmp = lid;
                     for (auto i = std::ssize(lefts) - 1; i >= 0; i--) {
@@ -244,10 +216,43 @@ template <class M> struct SplayTree {
                     inner(id).rid = tmp;
                 }
                 update(id);
-                break;
+                return;
+            }
+
+            if (dir < 0) {
+                if (zig == -1) {
+                    u32 tmp = rights.back();
+                    rights.pop_back();
+                    inner(tmp).lid = rid;
+                    update(tmp);
+                    inner(id).rid = tmp;
+                }
+                rights.push_back(id);
+
+                id = lid;
+                if (zig == 0) {
+                    zig = -1;
+                } else {
+                    zig = 0;
+                }
+            } else {
+                if (zig == 1) {
+                    u32 tmp = lefts.back();
+                    lefts.pop_back();
+                    inner(tmp).rid = lid;
+                    update(tmp);
+                    inner(id).lid = tmp;
+                }
+                lefts.push_back(id);
+
+                id = rid;
+                if (zig == 0) {
+                    zig = 1;
+                } else {
+                    zig = 0;
+                }
             }
         }
-        t.id = id;
     }
 };
 
