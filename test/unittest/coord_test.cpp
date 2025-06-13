@@ -125,7 +125,7 @@ TEST(CoordTest, Move8Iter) {
                      Coord(5, 4), Coord(4, 4), Coord(4, 5), Coord(4, 6)}));
 }
 
-TEST(CoordTest, Contain) {
+TEST(CoordTest, Contains) {
     Coord size(5, 7);
 
     EXPECT_TRUE(size.contains(Coord(0, 0)));
