@@ -15,4 +15,7 @@ using u64 = uint64_t;
 using i128 = __int128;
 using u128 = unsigned __int128;
 
+using f32 = float;
+using f64 = double;
+
 }  // namespace yosupo
