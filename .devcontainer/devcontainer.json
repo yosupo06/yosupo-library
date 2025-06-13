@@ -2,6 +2,7 @@
     "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu-24.04",
     "features": {
         "ghcr.io/devcontainers/features/common-utils:2": {},
+        "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {},
         "ghcr.io/devcontainers-community/features/llvm:3": {
             "version": 18
         },
