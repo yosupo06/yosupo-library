@@ -87,7 +87,7 @@ struct Coord {
                });
     }
 
-    bool contain(const Coord& t) const {
+    bool contains(const Coord& t) const {
         return 0 <= t.r() && t.r() < r() && 0 <= t.c() && t.c() < c();
     }
 

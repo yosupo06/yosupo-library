@@ -22,7 +22,7 @@ template <monoid M> struct SegTree2D {
     }
 
     void add(Coord p, S x) {
-        assert(size.contain(p));
+        assert(size.contains(p));
 
         int r = p.r();
         r += size2;
@@ -33,7 +33,7 @@ template <monoid M> struct SegTree2D {
     }
 
     S get(Coord p) {
-        assert(size.contain(p));
+        assert(size.contains(p));
         return manager.get(d[p.r() + size2], p.c());
     }
 

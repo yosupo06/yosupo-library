@@ -128,15 +128,15 @@ TEST(CoordTest, Move8Iter) {
 TEST(CoordTest, Contain) {
     Coord size(5, 7);
 
-    EXPECT_TRUE(size.contain(Coord(0, 0)));
-    EXPECT_TRUE(size.contain(Coord(4, 6)));
-    EXPECT_TRUE(size.contain(Coord(2, 3)));
+    EXPECT_TRUE(size.contains(Coord(0, 0)));
+    EXPECT_TRUE(size.contains(Coord(4, 6)));
+    EXPECT_TRUE(size.contains(Coord(2, 3)));
 
-    EXPECT_FALSE(size.contain(Coord(-1, 0)));
-    EXPECT_FALSE(size.contain(Coord(0, -1)));
-    EXPECT_FALSE(size.contain(Coord(5, 0)));
-    EXPECT_FALSE(size.contain(Coord(0, 7)));
-    EXPECT_FALSE(size.contain(Coord(5, 7)));
+    EXPECT_FALSE(size.contains(Coord(-1, 0)));
+    EXPECT_FALSE(size.contains(Coord(0, -1)));
+    EXPECT_FALSE(size.contains(Coord(5, 0)));
+    EXPECT_FALSE(size.contains(Coord(0, 7)));
+    EXPECT_FALSE(size.contains(Coord(5, 7)));
 }
 
 TEST(CoordTest, Cells) {
