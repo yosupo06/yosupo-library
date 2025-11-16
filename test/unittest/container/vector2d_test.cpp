@@ -119,3 +119,18 @@ TEST(Vector2DTest, UnevenInitializerList) {
         EXPECT_DEATH(f(), ".*");
     }
 }
+
+TEST(Vector2DTest, Fill) {
+    Vector2D<int> a(2, 3);
+    a.fill(5);
+    ASSERT_EQ((a[{0, 0}]), 5);
+    ASSERT_EQ((a[{0, 1}]), 5);
+    ASSERT_EQ((a[{0, 2}]), 5);
+    ASSERT_EQ((a[{1, 0}]), 5);
+    ASSERT_EQ((a[{1, 1}]), 5);
+    ASSERT_EQ((a[{1, 2}]), 5);
+    a.fill(3);
+    ASSERT_EQ((a[{1, 0}]), 3);
+    a.fill(111);
+    ASSERT_EQ((a[{0, 2}]), 111);
+}

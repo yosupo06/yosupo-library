@@ -121,6 +121,8 @@ template <class T> struct Vector2D {
         return r;
     }
 
+    void fill(const T& val) { std::fill_n(d, h * w, val); }
+
     std::string dump() const {
         std::string res;
         for (int i = 0; i < h; i++) {
