@@ -11,10 +11,14 @@
 namespace yosupo {
 
 template <class T> struct Vector2D {
+  public:
     int h, w;
+
+  private:
     T* d;
 
-    Vector2D() : h(0), w(0), d(new T[0]()) {}
+  public:
+    Vector2D() : h(0), w(0), d(nullptr) {}
     Vector2D(int _h, int _w) : h(_h), w(_w), d(new T[h * w]()) {}
     Vector2D(int _h, int _w, const T& val) : h(_h), w(_w), d(new T[h * w]) {
         std::fill_n(d, h * w, val);
@@ -37,6 +41,11 @@ template <class T> struct Vector2D {
     Vector2D(const Vector2D& other) : h(other.h), w(other.w), d(new T[h * w]) {
         std::copy_n(other.d, h * w, d);
     }
+    Vector2D(Vector2D&& other) noexcept : h(other.h), w(other.w), d(other.d) {
+        other.h = 0;
+        other.w = 0;
+        other.d = nullptr;
+    }
     Vector2D& operator=(const Vector2D& other) {
         if (this != &other) {
             delete[] d;
@@ -47,7 +56,22 @@ template <class T> struct Vector2D {
         }
         return *this;
     }
+    Vector2D& operator=(Vector2D&& other) noexcept {
+        if (this != &other) {
+            delete[] d;
+            h = other.h;
+            w = other.w;
+            d = other.d;
+            other.h = 0;
+            other.w = 0;
+            other.d = nullptr;
+        }
+        return *this;
+    }
     ~Vector2D() { delete[] d; }
+
+    T* data() { return d; }
+    const T* data() const { return d; }
 
     T& operator[](const Coord& idx) { return d[idx.r() * w + idx.c()]; }
     const T& operator[](const Coord& idx) const {
@@ -92,6 +116,13 @@ template <class T> struct Vector2D {
     }
     friend bool operator!=(const Vector2D& lhs, const Vector2D& rhs) {
         return !(lhs == rhs);
+    }
+
+    friend void swap(Vector2D& lhs, Vector2D& rhs) noexcept {
+        using std::swap;
+        swap(lhs.h, rhs.h);
+        swap(lhs.w, rhs.w);
+        swap(lhs.d, rhs.d);
     }
 
     friend Vector2D operator*(const Vector2D& lhs, const Vector2D& rhs) {
