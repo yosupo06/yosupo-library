@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cassert>
 #include <initializer_list>
 #include <string>
@@ -83,6 +84,14 @@ template <class T> struct Vector2D {
     }
     friend Vector2D operator-(const Vector2D& lhs, const Vector2D& rhs) {
         return Vector2D(lhs) -= rhs;
+    }
+
+    friend bool operator==(const Vector2D& lhs, const Vector2D& rhs) {
+        if (lhs.h != rhs.h || lhs.w != rhs.w) return false;
+        return std::equal(lhs.d, lhs.d + lhs.h * lhs.w, rhs.d);
+    }
+    friend bool operator!=(const Vector2D& lhs, const Vector2D& rhs) {
+        return !(lhs == rhs);
     }
 
     friend Vector2D operator*(const Vector2D& lhs, const Vector2D& rhs) {
