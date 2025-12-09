@@ -126,7 +126,7 @@ TEST(FastIOTest, ScannerVector) {
 
 TEST(FastIOTest, ScannerVectorChar) {
     auto tmpf = tmpfile();
-    fputs("a b c\nx y z\n", tmpf);
+    fputs("a b c\nxyz\n", tmpf);
     rewind(tmpf);
 
     Scanner sc(tmpf);
