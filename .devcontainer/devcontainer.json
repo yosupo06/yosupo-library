@@ -1,8 +1,11 @@
 {
-    "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu-24.04",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "containerUser": "vscode",
+    "remoteUser": "vscode",
     "features": {
         "ghcr.io/devcontainers/features/common-utils:2": {},
-        "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {},
         "ghcr.io/devcontainers-community/features/llvm:3": {
             "version": 18
         },
@@ -12,6 +15,10 @@
         "ghcr.io/devcontainers/features/python:1": {}
     },
     "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
+    "mounts": [
+        "source=${devcontainerId}-codex,target=/home/vscode/.codex,type=volume",
+        "source=${devcontainerId}-config,target=/home/vscode/.config,type=volume"
+    ],
     "customizations": {
         "vscode": {
             "settings": {
