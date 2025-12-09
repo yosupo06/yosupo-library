@@ -81,6 +81,18 @@ TEST(Vector2DTest, Dump) {
     ASSERT_EQ(a.dump(), "1 2 3\n4 5 6");
 }
 
+TEST(Vector2DTest, Equality) {
+    Vector2D<int> a = {{1, 2}, {3, 4}};
+    Vector2D<int> b = a;
+    ASSERT_TRUE(a == b);
+
+    b[{1, 1}] = 5;
+    ASSERT_TRUE(a != b);
+
+    Vector2D<int> c(3, 2);
+    ASSERT_FALSE(a == c);
+}
+
 TEST(Vector2DTest, InitializerList) {
     Vector2D<int> a = {{1, 2, 3}, {4, 5, 6}};
     ASSERT_EQ(a.h, 2);
