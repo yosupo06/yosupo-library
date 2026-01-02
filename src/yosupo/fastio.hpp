@@ -69,6 +69,13 @@ struct Scanner {
         return true;
     }
 
+    template <class T> bool read_single(std::vector<T>& ref) {
+        for (auto& e : ref) {
+            if (!read_single(e)) return false;
+        }
+        return true;
+    }
+
     template <class T,
               std::enable_if_t<std::is_same<T, char>::value>* = nullptr>
     bool read_single(T& ref) {

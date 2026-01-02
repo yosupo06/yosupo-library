@@ -110,6 +110,34 @@ TEST(FastIOTest, ScannerChar) {
     }
 }
 
+TEST(FastIOTest, ScannerVector) {
+    auto tmpf = tmpfile();
+    fputs("1 2 3\n4 5 6\n", tmpf);
+    rewind(tmpf);
+
+    Scanner sc(tmpf);
+    std::vector<int> a(3);
+    std::vector<int> b(3);
+    sc.read(a);
+    sc.read(b);
+    ASSERT_EQ((std::vector<int>{1, 2, 3}), a);
+    ASSERT_EQ((std::vector<int>{4, 5, 6}), b);
+}
+
+TEST(FastIOTest, ScannerVectorChar) {
+    auto tmpf = tmpfile();
+    fputs("a b c\nxyz\n", tmpf);
+    rewind(tmpf);
+
+    Scanner sc(tmpf);
+    std::vector<char> a(3);
+    std::vector<char> b(3);
+    sc.read(a);
+    sc.read(b);
+    ASSERT_EQ((std::vector<char>{'a', 'b', 'c'}), a);
+    ASSERT_EQ((std::vector<char>{'x', 'y', 'z'}), b);
+}
+
 TEST(FastIOTest, ScannerInt) {
     auto tmpf = tmpfile();
     std::vector<int> v;
