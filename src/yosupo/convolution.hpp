@@ -1,7 +1,5 @@
 #pragma once
 
-#include <immintrin.h>
-
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -113,17 +111,16 @@ template <i32 MOD> struct FFTInfo {
         return v;
     }();
     // rot[i * j] * rot_shift16i(i)[j] = rot[(i + 8) * j]
-    __attribute__((target("avx2"))) modint8 rot_shift16i(u32 i) const {
+    modint8 rot_shift16i(u32 i) const {
         return modint8(rot16i[std::countr_one(i >> 4) + 4]);
     }
-    __attribute__((target("avx2"))) modint8 irot_shift16i(u32 i) const {
+    modint8 irot_shift16i(u32 i) const {
         return modint8(irot16i[std::countr_one(i >> 4) + 4]);
     }
 };
 template <i32 MOD> const FFTInfo<MOD> fft_info = FFTInfo<MOD>();
 
-template <i32 MOD>
-__attribute__((target("avx2"))) void butterfly(std::vector<ModInt<MOD>>& a) {
+template <i32 MOD> void butterfly(std::vector<ModInt<MOD>>& a) {
     const int n = int(a.size());
     const int lg = std::countr_zero((u32)n);
     assert(n == (1 << lg));
@@ -236,9 +233,7 @@ __attribute__((target("avx2"))) void butterfly(std::vector<ModInt<MOD>>& a) {
     }
 }
 
-template <i32 MOD>
-__attribute__((target("avx2"))) void butterfly_inv(
-    std::vector<ModInt<MOD>>& a) {
+template <i32 MOD> void butterfly_inv(std::vector<ModInt<MOD>>& a) {
     const int n = int(a.size());
     const int lg = std::countr_zero((u32)n);
     assert(n == (1 << lg));
@@ -355,9 +350,8 @@ __attribute__((target("avx2"))) void butterfly_inv(
 }
 
 template <i32 MOD>
-__attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_fft(
-    std::vector<ModInt<MOD>> a,
-    std::vector<ModInt<MOD>> b) {
+std::vector<ModInt<MOD>> convolution_fft(std::vector<ModInt<MOD>> a,
+                                         std::vector<ModInt<MOD>> b) {
     if (a.empty() || b.empty()) return {};
 
     int n = int(a.size()), m = int(b.size());
@@ -378,9 +372,8 @@ __attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_fft(
 }
 
 template <i32 MOD>
-__attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_naive(
-    const std::vector<ModInt<MOD>>& a,
-    const std::vector<ModInt<MOD>>& b) {
+std::vector<ModInt<MOD>> convolution_naive(const std::vector<ModInt<MOD>>& a,
+                                           const std::vector<ModInt<MOD>>& b) {
     if (a.empty() || b.empty()) return {};
 
     int n = int(a.size()), m = int(b.size());
@@ -414,9 +407,8 @@ __attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution_naive(
 }
 
 template <i32 MOD>
-__attribute__((target("avx2"))) std::vector<ModInt<MOD>> convolution(
-    const std::vector<ModInt<MOD>>& a,
-    const std::vector<ModInt<MOD>>& b) {
+std::vector<ModInt<MOD>> convolution(const std::vector<ModInt<MOD>>& a,
+                                     const std::vector<ModInt<MOD>>& b) {
     if (a.empty() || b.empty()) return {};
     int n = int(a.size()), m = int(b.size());
 
