@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <utility>
 #include <vector>
 
@@ -123,6 +124,57 @@ struct FastSet {
         if (i <= 0) return -1;
         return or_less(i - 1);
     }
+
+    struct iterator {
+        using difference_type = std::ptrdiff_t;
+        using value_type = int;
+        using reference = int;
+        using pointer = void;
+        using iterator_category = std::bidirectional_iterator_tag;
+        using iterator_concept = std::bidirectional_iterator_tag;
+
+        iterator() : _f(nullptr), _i(0) {}
+        int operator*() const { return _i; }
+        iterator& operator++() {
+            _i = _f->more(_i);
+            return *this;
+        }
+        iterator operator++(int) {
+            iterator old = *this;
+            ++*this;
+            return old;
+        }
+        iterator& operator--() {
+            if (_i == _f->_n) {
+                _i = _f->or_less(_f->_n - 1);
+            } else {
+                _i = _f->less(_i);
+            }
+            return *this;
+        }
+        iterator operator--(int) {
+            iterator old = *this;
+            --*this;
+            return old;
+        }
+        bool operator==(const iterator& other) const {
+            return _f == other._f && _i == other._i;
+        }
+        bool operator!=(const iterator& other) const {
+            return !(*this == other);
+        }
+
+      private:
+        friend struct FastSet;
+        iterator(const FastSet* f, int i) : _f(f), _i(i) {}
+
+        const FastSet* _f;
+        int _i;
+    };
+
+    // a[i] = true である i を小さい順に走査する
+    iterator begin() const { return iterator(this, or_more(0)); }
+    iterator end() const { return iterator(this, _n); }
 
   private:
     int _n, _log;

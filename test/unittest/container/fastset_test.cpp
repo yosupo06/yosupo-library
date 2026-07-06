@@ -1,8 +1,11 @@
 #include "yosupo/container/fastset.hpp"
 
+#include <algorithm>
 #include <iterator>
 #include <limits>
+#include <ranges>
 #include <set>
+#include <vector>
 
 #include "gtest/gtest.h"
 #include "yosupo/random.hpp"
@@ -30,6 +33,27 @@ TEST(FastSetTest, Constructor) {
 }
 
 TEST(FastSetTest, Zero) { FastSet f(0); }
+
+TEST(FastSetTest, Iterator) {
+    bool a[] = {true, false, true, true, false, false, true};
+    FastSet f(7, [&](int i) { return a[i]; });
+
+    std::vector<int> v;
+    for (auto i : f) v.push_back(i);
+    ASSERT_EQ((std::vector<int>{0, 2, 3, 6}), v);
+
+    v.clear();
+    for (auto i : f | std::views::reverse) v.push_back(i);
+    ASSERT_EQ((std::vector<int>{6, 3, 2, 0}), v);
+
+    v.clear();
+    FastSet empty(0);
+    for (auto i : empty) v.push_back(i);
+    ASSERT_TRUE(v.empty());
+
+    for (auto i : empty | std::views::reverse) v.push_back(i);
+    ASSERT_TRUE(v.empty());
+}
 
 TEST(FastSetTest, Stress) {
     for (int n = 1; n <= 200; n++) {
@@ -61,6 +85,19 @@ TEST(FastSetTest, Stress) {
                 ASSERT_EQ(less, f.less(p));
             }
         }
+
+        std::vector<int> actual;
+        for (auto i : f) actual.push_back(i);
+        std::vector<int> expected;
+        for (int i : st) {
+            if (0 <= i && i < n) expected.push_back(i);
+        }
+        ASSERT_EQ(expected, actual);
+
+        actual.clear();
+        for (auto i : f | std::views::reverse) actual.push_back(i);
+        std::reverse(expected.begin(), expected.end());
+        ASSERT_EQ(expected, actual);
     }
 }
 
