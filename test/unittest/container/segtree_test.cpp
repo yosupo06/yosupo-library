@@ -6,6 +6,8 @@
 
 #include "gtest/gtest.h"
 #include "yosupo/algebra.hpp"
+#include "yosupo/dump.hpp"
+#include "yosupo/modint.hpp"
 
 using namespace yosupo;
 using ll = long long;
@@ -24,6 +26,32 @@ TEST(SegTreeTest, Usage) {
 TEST(SegTreeTest, SizeConstructor) {
     SegTree seg(5, Sum<ll>(0));
     EXPECT_EQ(seg.all_prod(), 0);
+}
+
+TEST(SegTreeTest, Dump) {
+    SegTree seg({1, 2, 3, 4, 5}, Sum<ll>(0));
+    const auto& const_seg = seg;
+    EXPECT_EQ(const_seg.dump(), "[1, 2, 3, 4, 5]");
+    EXPECT_EQ(dump(const_seg), "[1, 2, 3, 4, 5]");
+
+    seg.set(2, 10);
+    EXPECT_EQ(dump(const_seg), "[1, 2, 10, 4, 5]");
+    EXPECT_EQ(seg.all_prod(), 22);
+}
+
+TEST(SegTreeTest, DumpEmptyAndSingle) {
+    const SegTree empty(0, Sum<ll>(0));
+    EXPECT_EQ(dump(empty), "[]");
+
+    const SegTree single(std::vector<ll>{42}, Sum<ll>(0));
+    EXPECT_EQ(dump(single), "[42]");
+}
+
+TEST(SegTreeTest, DumpModInt) {
+    using mint = ModInt<1000000007>;
+    const SegTree seg({1, -1, 3}, Sum<mint>(0));
+    EXPECT_EQ(dump(seg), "[1, 1000000006, 3]");
+    EXPECT_EQ(dump(std::vector{seg}), "[[1, 1000000006, 3]]");
 }
 
 TEST(SegTreeTest, RangeConstructor) {
