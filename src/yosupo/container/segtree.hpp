@@ -5,9 +5,11 @@
 #include <cassert>
 #include <concepts>
 #include <ranges>
+#include <string>
 #include <vector>
 
 #include "yosupo/algebra.hpp"
+#include "yosupo/dump.hpp"
 namespace yosupo {
 
 template <monoid M> struct SegTree {
@@ -62,6 +64,16 @@ template <monoid M> struct SegTree {
     }
 
     S all_prod() const { return d[1]; }
+
+    std::string dump() const {
+        std::string s = "[";
+        for (int i = 0; i < _n; i++) {
+            if (i) s += ", ";
+            s += yosupo::dump(d[size + i]);
+        }
+        s += "]";
+        return s;
+    }
 
     template <bool (*f)(S)> int max_right(int l) const {
         return max_right(l, [](S x) { return f(x); });
