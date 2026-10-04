@@ -1,5 +1,6 @@
 #include "yosupo/container/partially_retroactive_priority_queue.hpp"
 
+#include <functional>
 #include <limits>
 #include <map>
 #include <optional>
