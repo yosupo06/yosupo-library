@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "yosupo/geo/convex.hpp"
+#include "yosupo/geo/point.hpp"
+#include "yosupo/geo/polygon.hpp"
 #include "yosupo/int_n.hpp"
 
 using namespace yosupo;
@@ -21,9 +23,9 @@ TYPED_TEST(GeoMinkowskiTest, EmptyAndPoints) {
               Polygon<TypeParam>{});
     EXPECT_EQ(minkowski_sum(Polygon<TypeParam>{{1, 2}}, Polygon<TypeParam>{}),
               Polygon<TypeParam>{});
-    EXPECT_EQ(minkowski_sum(Polygon<TypeParam>{{1, 2}},
-                            Polygon<TypeParam>{{3, -4}}),
-              (std::vector<P>{{4, -2}}));
+    EXPECT_EQ(
+        minkowski_sum(Polygon<TypeParam>{{1, 2}}, Polygon<TypeParam>{{3, -4}}),
+        (std::vector<P>{{4, -2}}));
     Polygon<TypeParam> triangle = {{0, 0}, {3, 0}, {0, 2}};
     EXPECT_EQ(minkowski_sum(triangle, Polygon<TypeParam>{{-1, 5}}),
               (std::vector<P>{{-1, 5}, {2, 5}, {-1, 7}}));

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <algorithm>
-#include <vector>
 
 #include "yosupo/geo/point.hpp"
 #include "yosupo/geo/polygon.hpp"
@@ -59,8 +58,7 @@ Polygon<T> minkowski_sum(const Polygon<T>& a, const Polygon<T>& b) {
     while (used_a < na || used_b < nb) {
         bool advance_a = used_a < na, advance_b = used_b < nb;
         if (advance_a && advance_b) {
-            auto cmp = cmp_arg(a[(i + 1) % n] - a[i],
-                               b[(j + 1) % m] - b[j]);
+            auto cmp = cmp_arg(a[(i + 1) % n] - a[i], b[(j + 1) % m] - b[j]);
             advance_a = cmp <= 0;
             advance_b = cmp >= 0;
         }
@@ -74,8 +72,8 @@ Polygon<T> minkowski_sum(const Polygon<T>& a, const Polygon<T>& b) {
         }
         if (used_a < na || used_b < nb) result.push_back(a[i] + b[j]);
     }
-    std::rotate(result.begin(),
-                std::min_element(result.begin(), result.end()), result.end());
+    std::rotate(result.begin(), std::min_element(result.begin(), result.end()),
+                result.end());
     return result;
 }
 
