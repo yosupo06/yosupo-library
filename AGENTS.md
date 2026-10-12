@@ -25,6 +25,12 @@ This is Yosupo Library - a competitive programming library containing data struc
 
 ## Build and Test Commands
 
+### Verification Policy
+
+- **Use verification-helper only for Library Checker problems** (`https://judge.yosupo.jp/problem/...`), including OJ verification run through `competitive-verifier`. Do not add problems from other judges or custom/local tests using verification-helper directives.
+- Keep unit tests, randomized tests, regression tests, and checks without a corresponding Library Checker problem in Google Test under `test/unittest/`. Do not use verification-helper `UNITTEST` directives or custom verification commands for these tests.
+- The existing `competitive-verifier` documentation generation pipeline remains in use as described above.
+
 ### Running Unit Tests
 ```bash
 # Run all unit tests
