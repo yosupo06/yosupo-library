@@ -73,6 +73,7 @@ add_executable(unittest
   unittest/modvec_test.cpp
   unittest/numeric_test.cpp
   unittest/random_test.cpp
+  unittest/slopetrick_test.cpp
   unittest/mst_test.cpp
   unittest/networksimplex_test.cpp
   unittest/toptree_test.cpp
