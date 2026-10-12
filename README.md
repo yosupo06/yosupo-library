@@ -5,6 +5,8 @@ oj-verify run test-oj/aplusb.test.cpp
 oj-bundle test-oj/simd_convolution.test.cpp -I . -I ac-library/
 ```
 
+- [SlopeTrick: 重み付き折れ線・区間制約を持つ凸DP](docs/slopetrick.md)
+
 ## 特定のojファイルをローカルで検証する
 
 ```sh
