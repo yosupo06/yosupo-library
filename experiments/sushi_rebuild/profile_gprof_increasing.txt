@@ -1,0 +1,13 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  Ts/call  Ts/call  name
+ 47.32      2.20     2.20                             yosupo::internal::SushiDeltaTrie::add(int, int, int)
+ 17.25      3.00     0.80                             yosupo::internal::SushiEpoch<int>::range_minimum(int, int) const
+ 11.64      3.54     0.54                             yosupo::internal::SushiEpoch<int>::edit_history(int, int, int)
+  9.49      3.98     0.44                             yosupo::internal::SushiWavelet::SushiWavelet(std::vector<int, std::allocator<int> >, int)
+  7.98      4.35     0.37                             void std::__introsort_loop<__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, long, __gnu_cxx::__ops::_Iter_comp_iter<yosupo::internal::SushiEpoch<int>::rank_keys(std::vector<int, std::allocator<int> > const&, std::span<yosupo::SushiQuery<int> const, 18446744073709551615ul>)::{lambda(int, int)#2}> >(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, __gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, long, __gnu_cxx::__ops::_Iter_comp_iter<yosupo::internal::SushiEpoch<int>::rank_keys(std::vector<int, std::allocator<int> > const&, std::span<yosupo::SushiQuery<int> const, 18446744073709551615ul>)::{lambda(int, int)#2}>)
+  3.66      4.52     0.17                             yosupo::SushiBatch<int>::apply(std::span<yosupo::SushiQuery<int> const, 18446744073709551615ul>, int)
+  2.16      4.62     0.10                             yosupo::internal::SushiEpoch<int>::SushiEpoch(std::vector<int, std::allocator<int> > const&, std::span<yosupo::SushiQuery<int> const, 18446744073709551615ul>, std::vector<int, std::allocator<int> >)
+  0.22      4.63     0.01                             _init
