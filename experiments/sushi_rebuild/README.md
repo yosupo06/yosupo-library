@@ -126,6 +126,7 @@ Python のオブジェクト費用もあるため、このスクリプトを速�
 ## 性能について残しておく情報
 
 今回実装した C++ 版の再現手順と測定結果は [RESULTS.md](RESULTS.md) にまとめています。
+処理別のボトルネックと popcount の比較は [PROFILE.md](PROFILE.md) にあります。
 生データは [results_o3.csv](results_o3.csv)、計測ドライバは
 [benchmark.cpp](benchmark.cpp)、反復測定用スクリプトは [measure.py](measure.py) です。
 以下は提供元の報告と以前の実装についての履歴です。
