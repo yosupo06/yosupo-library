@@ -44,6 +44,7 @@ add_executable(unittest
   unittest/container/fastset_test.cpp
   unittest/container/hashmap_test.cpp
   unittest/container/hashset_test.cpp
+  unittest/container/partially_retroactive_priority_queue_test.cpp
   unittest/container/segtree_test.cpp
   unittest/container/segtree2d_test.cpp
   unittest/container/sparsetable_test.cpp
