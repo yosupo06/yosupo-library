@@ -48,6 +48,7 @@ add_executable(unittest
   unittest/container/segtree2d_test.cpp
   unittest/container/sparsetable_test.cpp
   unittest/container/splaytree_test.cpp
+  unittest/container/sushi_test.cpp
   unittest/container/vector2d_test.cpp
 
   unittest/convolution_test.cpp 
