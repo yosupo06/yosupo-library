@@ -1,6 +1,7 @@
 #include "yosupo/container/linkcuttree.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <random>
 #include <string>
 #include <utility>
